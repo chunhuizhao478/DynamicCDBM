@@ -27,7 +27,7 @@ include $(FRAMEWORK_DIR)/moose.mk
 ALL_MODULES                 := no
 
 CHEMICAL_REACTIONS          := no
-CONTACT                     := no
+CONTACT                     := yes
 ELECTROMAGNETICS            := no
 EXTERNAL_PETSC_SOLVER       := no
 FLUID_PROPERTIES            := no
@@ -41,12 +41,12 @@ NAVIER_STOKES               := no
 OPTIMIZATION                := no
 PERIDYNAMICS                := no
 PHASE_FIELD                 := no
-POROUS_FLOW                 := no
+POROUS_FLOW                 := yes
 RAY_TRACING                 := no
 REACTOR                     := no
 RDG                         := no
 RICHARDS                    := no
-SOLID_MECHANICS             := no
+SOLID_MECHANICS             := yes
 STOCHASTIC_TOOLS            := no
 THERMAL_HYDRAULICS          := no
 XFEM                        := no
