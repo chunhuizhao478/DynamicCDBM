@@ -1,0 +1,6 @@
+Applications:
+    dynamic_cdbm:
+        app_types:
+            - DynamicCDBMApp
+        content_directory: ${ROOT_DIR}/doc/content
+        log_default: WARNING
