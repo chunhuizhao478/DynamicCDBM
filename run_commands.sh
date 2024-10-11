@@ -1,46 +1,4 @@
-python3 examples/buried_fault/pythonscripts/preprocess_optimized.py \
-    xmin -10000 \
-    xmax 10000 \
-    ymin -10000 \
-    ymax 10000 \
-    zmin -10000 \
-    zmax 10000 \
-    lambda_o 30e9 \
-    shear_modulus_o 30e9 \
-    nucl_center_x 0 \
-    nucl_center_y -5000 \
-    nucl_center_z 0 \
-    len_fault_strike 5000 \
-    len_fault_dip 5000 \
-    len_fault_normal 1000 \
-    nucl_distance 400 \
-    nucl_thickness 200 \
-    nucl_damage 0.7 \
-    e_damage 0.3 \
-    e_sigma 2.5e2 \
-    normal_traction_x 135e6 \
-    normal_traction_z 120e6 \
-    normal_traction_y 127.5e6 \
-    shear_traction 55e6 \
-    xi_0 -0.8 \
-    xi_d -0.9 \
-    Cd_constant 1e4 \
-    CdCb_multiplier 1000 \
-    CBH_constant 1e4 \
-    C_1 300 \
-    C_2 0.05 \
-    beta_width 0.03 \
-    C_g 1e-10 \
-    m1 10 \
-    m2 1 \
-    chi 0.8 \
-    rho 2700 \
-    duration 1e-1 \
-    dt 1e-4 \
-    end_time 50.0 \
-    time_step_interval 1000 \
-    lc 5e3 \
-    lc_fault 100
+python3 examples/buried_fault/pythonscripts/preprocess_optimized.py parameters.json
 
 mpirun -np 8 ./dynamic_cdbm-opt -i examples/buried_fault/static_solve/static_solve_combined.i
 mpirun -np 8 ./dynamic_cdbm-opt -i examples/buried_fault/dynamic_solve/dynamic_solve_combined.i

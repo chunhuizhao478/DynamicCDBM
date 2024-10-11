@@ -6,6 +6,7 @@ from pathlib import Path
 import gmsh
 import math
 import sys
+import json
 
 class Preprocess:
     """Class to handle preprocessing of MOOSE input files."""
@@ -203,15 +204,22 @@ class Preprocess:
             self.write_file(output_file, '\n'.join(content))
 
     def args_parsing(self) -> None:
-        """Parse command line arguments and build input file."""
+        """Parse parameters from a JSON file and ignore comments."""
         parser = argparse.ArgumentParser(description="Build MOOSE input file with parameters.")
-        parser.add_argument("params", nargs='+', help="Parameter names and values in pairs")
+        parser.add_argument("params_file", help="Path to the JSON file containing parameters.")
         args = parser.parse_args()
 
-        if len(args.params) % 2 != 0:
-            raise ValueError("Parameters must be provided in name-value pairs")
+        # Load parameters from the JSON file
+        try:
+            with open(args.params_file, 'r') as f:
+                data = json.load(f)
+        except (IOError, json.JSONDecodeError) as e:
+            raise ValueError(f"Error reading or parsing the JSON file: {e}")
 
-        params_dict = dict(zip(args.params[::2], args.params[1::2]))
+        # Ignore the `_comments` section and keep only the actual parameters
+        params_dict = {k: v for k, v in data.items() if k != "_comments"}
+
+        # Build input file using the parameters from the JSON file
         self.build_input_file(params_dict)
 
     def create_fault_geometry(self,lc,
