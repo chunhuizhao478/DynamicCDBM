@@ -329,3 +329,4 @@ share/
 dynamic_cdbm.yaml
 examples/surface_fault/meshfile/cdbm_tpv2053d_freesurface_small.msh
 examples/buried_fault/meshfile/cdbm_tpv2053d_buried_small.msh
+examples/buried_fault/meshfile/buried_fault.msh
