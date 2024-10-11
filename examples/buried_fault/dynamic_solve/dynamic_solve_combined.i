@@ -1,7 +1,42 @@
+zmin = -10000.0
+CBH_constant = 10000.0
+end_time = 50.0
+normal_traction_y = 127500000.0
+shear_modulus_o = 30000000000.0
+m2 = 1.0
+normal_traction_x = 135000000.0
+ymin = -10000.0
+xi_d = -0.9
+nucl_thickness = 200.0
+shear_traction = 55000000.0
+zmax = 10000.0
+C_2 = 0.05
+C_1 = 300.0
+C_g = 1e-10
+xi_0 = -0.8
+dt = 0.0001
+normal_traction_z = 120000000.0
+Cd_constant = 10000.0
+chi = 0.8
+xmax = 10000.0
+xmin = -10000.0
+rho = 2700.0
+e_damage = 0.3
+CdCb_multiplier = 1000.0
+m1 = 10.0
+beta_width = 0.03
+lambda_o = 30000000000.0
+nucl_center_y = -5000.0
+time_step_interval = 1000.0
+nucl_center_z = 0.0
+nucl_center_x = 0.0
+duration = 0.1
+nucl_distance = 400.0
+
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file =  '../meshfile/cdbm_tpv2053d_buried_small.msh'
+        file =  '../meshfile/buried_fault.msh'
     []
     [./sidesets]
         input = msh
@@ -16,10 +51,10 @@
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = '-10000  -10000  -10000;
-                  10000  -10000  -10000;
-                 -10000  -10000   10000;
-                  10000  -10000   10000'
+        coord = '${xmin}  ${ymin}  ${zmin};
+                 ${xmax}  ${ymin}  ${zmin};
+                 ${xmin}  ${ymin}  ${zmax};
+                 ${xmax}  ${ymin}  ${zmax}'
         new_boundary = corner_ptr
         input = sidesets
     []  
@@ -31,16 +66,16 @@
     
     ##----continuum damage breakage model----##
     #initial lambda value (first lame constant) [Pa]
-    lambda_o = 30e9
+    lambda_o = ${lambda_o}
         
     #initial shear modulus value (second lame constant) [Pa]
-    shear_modulus_o = 30e9
+    shear_modulus_o = ${shear_modulus_o}
     
     #<strain invariants ratio: onset of damage evolution>: relate to internal friction angle, refer to "note_mar25"
-    xi_0 = -0.8
+    xi_0 = ${xi_0}
     
     #<strain invariants ratio: onset of breakage healing>: tunable param, see ggw183.pdf
-    xi_d = -0.9
+    xi_d = ${xi_d}
     
     #<strain invariants ratio: maximum allowable value>: set boundary
     #Xu_etal_P15-2D
@@ -52,36 +87,36 @@
     xi_min = -1.8
 
     #if option 2, use Cd_constant
-    Cd_constant = 1e4
+    Cd_constant = ${Cd_constant}
 
     #<coefficient gives positive breakage evolution >: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     #The multiplier between Cd and Cb: Cb = CdCb_multiplier * Cd
-    CdCb_multiplier = 1000
+    CdCb_multiplier = ${CdCb_multiplier}
 
     #<coefficient of healing for breakage evolution>: refer to "Lyakhovsky_Ben-Zion_P14" (10 * C_B)
     # CBCBH_multiplier = 0.0
-    CBH_constant = 1e4
+    CBH_constant = ${CBH_constant}
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
-    C_1 = 300
+    C_1 = ${C_1}
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
-    C_2 = 0.05
+    C_2 = ${C_2}
 
     #<coefficient gives width of transitional region>: see P(alpha), refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
-    beta_width = 0.03 #1e-3
+    beta_width = ${beta_width} #1e-3
     
     #<material parameter: compliance or fluidity of the fine grain granular material>: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
-    C_g = 1e-10
+    C_g = ${C_g}
     
     #<coefficient of power law indexes>: see flow rule (power law rheology): refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
-    m1 = 10
+    m1 = ${m1}
     
     #<coefficient of power law indexes>: see flow rule (power law rheology): refer to "Lyak_BZ_JMPS14_splitstrain" Equation 18
-    m2 = 1
+    m2 = ${m2}
     
     # energy ratio
-    chi = 0.8
+    chi = ${chi}
 
     #
     D = 0
@@ -198,7 +233,7 @@
     [density]
         type = GenericConstantMaterial
         prop_names = density
-        prop_values = 2700
+        prop_values = ${rho}
     []
     [stress_medium]
         type = ComputeDamageBreakageStress3D
@@ -217,11 +252,11 @@
     []
     [damage_perturb]
         type = DamagePerturbationSquare
-        nucl_center = '0 -5000 0'
-        e_damage = 0.3
-        thickness = 200
-        length = 400
-        duration = 1e-1
+        nucl_center = '${nucl_center_x} ${nucl_center_y} ${nucl_center_z}'
+        e_damage = ${e_damage}
+        thickness = ${nucl_thickness}
+        length = ${nucl_distance}
+        duration = ${duration}
         outputs = exodus
     []
 []  
@@ -232,7 +267,7 @@
 [UserObjects]
     [./init_sol_components]
       type = SolutionUserObject
-      mesh = '../static_solve/static_solve_out.e'
+      mesh = '../static_solve/static_solve_combined_out.e'
       system_variables = 'disp_x disp_y disp_z initial_damage'
       timestep = LATEST
       force_preaux = true
@@ -248,8 +283,8 @@
   
 [Executioner]
     type = Transient
-    dt = 1e-4
-    end_time = 50.0
+    dt = ${dt}
+    end_time = ${end_time}
     # num_steps = 10
     [TimeIntegrator]
         type = CentralDifference
@@ -260,60 +295,60 @@
 
 [Outputs] 
     exodus = true
-    time_step_interval = 1000
-    [sample_snapshots]
-        type = Exodus
-        time_step_interval = 2000
-    []
-    [./checkpoint]
-        type = Checkpoint
-        wall_time_interval = 4000 # interval length in seconds
-    [../]    
+    time_step_interval = ${time_step_interval}
+    # [sample_snapshots]
+    #     type = Exodus
+    #     time_step_interval = 2000
+    # []
+    # [./checkpoint]
+    #     type = Checkpoint
+    #     wall_time_interval = 4000 # interval length in seconds
+    # [../]    
 []
 
 #We assume the simulation is loaded with compressive pressure and shear stress
 [BCs]
     [pressure_right]
-        type = Pressure
+        type = ADPressure
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = right
-        factor = 135e6
+        factor = ${normal_traction_x}
     []
     [pressure_left]
-        type = Pressure
+        type = ADPressure
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = left
-        factor = 135e6
+        factor = ${normal_traction_x}
     []
     [pressure_front]
-        type = Pressure
+        type = ADPressure
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = front
-        factor = 120e6
+        factor = ${normal_traction_z}
     []
     [pressure_back]
-        type = Pressure
+        type = ADPressure
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = back
-        factor = 120e6        
+        factor = ${normal_traction_z}  
     []
     [pressure_top]
-        type = Pressure
+        type = ADPressure
         variable = disp_y
         displacements = 'disp_x disp_y disp_z'
         boundary = top
-        factor = 127.5e6         
+        factor = ${normal_traction_y}      
     []
     [pressure_bottom]
-        type = Pressure
+        type = ADPressure
         variable = disp_y
         displacements = 'disp_x disp_y disp_z'
         boundary = bottom
-        factor = 127.5e6              
+        factor = ${normal_traction_y}            
     []
     #
     [pressure_shear_front]
@@ -321,47 +356,28 @@
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = front
-        value = 55e6
+        value = ${shear_traction}
     []
     [pressure_shear_back]
         type = ADNeumannBC
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = back
-        value = -55e6   
+        value = -${shear_traction}  
     []
     [pressure_shear_left]
         type = ADNeumannBC
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = left
-        value = -55e6
+        value = -${shear_traction}
     []
     [pressure_shear_right]
         type = ADNeumannBC
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = right
-        value = 55e6     
-    []
-    #
-    [fix_ptr_x]
-        type = DirichletBC
-        variable = disp_x
-        value = 0
-        boundary = corner_ptr
-    []
-    [fix_ptr_y]
-        type = DirichletBC
-        variable = disp_y
-        value = 0
-        boundary = corner_ptr
-    []
-    [fix_ptr_z]
-        type = DirichletBC
-        variable = disp_z
-        value = 0
-        boundary = corner_ptr
+        value = ${shear_traction}    
     []
 []
 

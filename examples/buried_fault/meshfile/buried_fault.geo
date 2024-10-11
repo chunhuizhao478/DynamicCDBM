@@ -6,11 +6,9 @@ lc_fault = 50; // Fine mesh in the fault zone
 Fault_length = 5e3;
 Fault_width = 5e3;
 Fault_thickness = 1000;
-Damage_thickness = 8e3;
-Fault_dip = 90*Pi/180.;
+Fault_dip = Pi/2;
 
 // Nucleation in X,Z local coordinates
-X_nucl = 0e3-Fault_length/3;
 R_nucl = 400;
 thickness_nucl = 200;
 
