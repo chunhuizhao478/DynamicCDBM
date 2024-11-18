@@ -81,14 +81,25 @@ ADInitialDamageBenchmark::computeQpProperties()
   Real room = 0;
 
   // Restrict along x and y direction
+  // Within the whole fault plane
   if (xcoord >= _fault_plane[0] - room && xcoord <= _fault_plane[1] + room && ycoord >= _fault_plane[2] - room && ycoord <= _fault_plane[3] + room){
+    //Within the nucleation region (high damage region)
     if (zcoord >= -0.5 * _nucl_thickness && zcoord <= 0.5 * _nucl_thickness){ //set high damage strip
-      alpha_o = _nucl_damage;
+      //Let a small patch to have highest damage (say 0.8)
+      if ((xcoord >= _nucl_center[0] - _nucl_distance / 2.0) && (xcoord <= _nucl_center[0] + _nucl_distance / 2.0) && (ycoord >= _nucl_center[1] - _nucl_distance / 2.0) && (ycoord <= _nucl_center[1] + _nucl_distance / 2.0)){
+        alpha_o = _nucl_damage;
+      }
+      //Otherwise, set the peak damage (say 0.7)
+      else{
+        alpha_o = _peak_damage;
+      }
     }
+    //Outside the nucleation region (low damage region, exponential decay)
     else{
       alpha_o = _peak_damage * std::exp(-1.0 * std::pow(r, 2) / (_sigma * _sigma));
     }
   }
+  //Outside the fault plane, no damage
   else{
     alpha_o = 0.0;
   }
