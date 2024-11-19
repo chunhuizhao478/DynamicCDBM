@@ -192,6 +192,22 @@
         use_displaced_mesh = false
         variable = disp_z
     []    
+    #damping
+    [./damping_x]
+        type = StiffPropDamping
+        variable = disp_x
+        q = 0.4
+    []
+    [./damping_y]
+        type = StiffPropDamping
+        variable = disp_y
+        q = 0.4
+    []   
+    [./damping_z]
+        type = StiffPropDamping
+        variable = disp_z
+        q = 0.4
+    [] 
 []
 
 [AuxKernels]
@@ -379,13 +395,13 @@
     []
     #
     [fix_ptr2_y]
-        type = ADDirichletBC
+        type = DirichletBC
         variable = disp_y
         value = 0
         boundary = corner_ptr2
     []
     [fix_ptr2_z]
-        type = ADDirichletBC
+        type = DirichletBC
         variable = disp_z
         value = 0
         boundary = corner_ptr2

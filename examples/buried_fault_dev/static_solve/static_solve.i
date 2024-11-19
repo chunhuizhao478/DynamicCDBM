@@ -130,8 +130,8 @@
     solve_type = NEWTON
     l_max_its = 30
     l_tol = 1e-6
-    nl_rel_tol = 1e-6
-    nl_abs_tol = 1e-8
+    nl_rel_tol = 1e-8
+    nl_abs_tol = 1e-10
     nl_max_its = 30
     petsc_options_iname = '-ksp_type -pc_type -pc_hypre_type  -ksp_initial_guess_nonzero -ksp_pc_side -ksp_max_it -ksp_rtol -ksp_atol'
     petsc_options_value = 'gmres        hypre      boomeramg                   True        right       1500        1e-7      1e-9    '
