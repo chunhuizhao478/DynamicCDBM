@@ -298,7 +298,12 @@
     # [./checkpoint]
     #     type = Checkpoint
     #     wall_time_interval = 4000 # interval length in seconds
-    # [../]    
+    # [../] 
+    [./csv]
+        type = CSV
+        time_step_interval = 1
+        show = '_dt'
+    [../]   
 []
 
 #We assume the simulation is loaded with compressive pressure and shear stress
@@ -565,3 +570,14 @@
       from_variable = disp_z
     []
 []
+
+[Postprocessors]
+    [./maxvelx]
+        type = NodalExtremeValue
+        variable = vel_x
+    [../]
+    [./maxvely]
+        type = NodalExtremeValue
+        variable = vel_y
+    [../]
+[../]
