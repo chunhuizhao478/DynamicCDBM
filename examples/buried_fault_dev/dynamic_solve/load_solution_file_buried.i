@@ -243,20 +243,6 @@
     []
 []  
 
-#Here we define how the shear loading is applied
-#1e6 * t is the rate of the shear loading, which can be adjusted
-#55e6 is the initial shear stress, that we define in the static solve
-[Functions]
-    [shear_loading_positive]
-        type = ParsedFunction
-        expression = '55e6 + 1e6 * t'
-    []
-    [shear_loading_negative]
-        type = ParsedFunction
-        expression = '-55e6 - 1e6 * t'
-    []
-[]
-
 [UserObjects]
     [./init_sol_components]
       type = SolutionUserObject
@@ -345,32 +331,32 @@
     []
     #
     [pressure_shear_front]
-        type = FunctionNeumannBC
+        type = NeumannBC
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = front
-        function = shear_loading_positive
+        value = 55e6
     []
     [pressure_shear_back]
-        type = FunctionNeumannBC
+        type = NeumannBC
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = back
-        function = shear_loading_negative   
+        value = -55e6  
     []
     [pressure_shear_left]
-        type = FunctionNeumannBC
+        type = NeumannBC
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = left
-        function = shear_loading_negative
+        value = -55e6
     []
     [pressure_shear_right]
-        type = FunctionNeumannBC
+        type = NeumannBC
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = right
-        function = shear_loading_positive   
+        value = 55e6  
     []
     #
     [fix_ptr_x]
