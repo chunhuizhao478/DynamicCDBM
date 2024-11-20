@@ -305,7 +305,6 @@
     [./csv]
         type = CSV
         time_step_interval = 1
-        show = '_dt'
     [../]   
 []
 
