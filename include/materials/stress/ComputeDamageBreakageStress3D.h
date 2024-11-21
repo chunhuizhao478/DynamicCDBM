@@ -51,6 +51,19 @@ protected:
   /// Function: Compute initial strain based on initial stress
   void setupInitial();
 
+  /// @brief Compute elasticity tensor for small strain
+  void computeQpTangentModulus(Real I1, 
+                               Real I2, 
+                               Real xi, 
+                               Real B,
+                               Real shear_modulus_out, 
+                               Real gamma_damaged_out, 
+                               Real a0, 
+                               Real a1, 
+                               Real a2, 
+                               Real a3, 
+                               RankTwoTensor Ee);
+
   /// additional variables
   /// strain invariants ratio: onset of damage evolution
   Real _xi_0;
@@ -96,9 +109,6 @@ protected:
   const VariableValue & _alpha_grad_y;
   const VariableValue & _alpha_grad_z;
 
-  /// density
-  const MaterialProperty<Real> & _density_old;
-
   /// diffusion coefficient
   Real _D;
 
@@ -130,4 +140,7 @@ protected:
 
   /// coefficient of CBH constant
   Real _CBH_constant;
+
+  /// dimension
+  const unsigned int _dim;
 };
