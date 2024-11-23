@@ -16,10 +16,16 @@
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = '-10000  -10000  -10000;
-                  10000  -10000   10000'
+        coord = '-10000  -10000  -10000;'
         new_boundary = corner_ptr
         input = sidesets
+    [] 
+    [./extranodeset2]
+        type = ExtraNodesetGenerator
+        coord = '0  -10000  -10000;'
+        new_boundary = corner_ptr2
+        input = extranodeset1
+        use_closest_node=true
     [] 
 []
 
@@ -287,7 +293,7 @@
 
 [Outputs] 
     exodus = true
-    time_step_interval = 100
+    time_step_interval = 1
     # [sample_snapshots]
     #     type = Exodus
     #     time_step_interval = 2000
@@ -296,6 +302,12 @@
     #     type = Checkpoint
     #     wall_time_interval = 4000 # interval length in seconds
     # [../] 
+    # [../] 
+    [./csv]
+        type = CSV
+        time_step_interval = 1
+    [../]   
+    # [../]    
     [./csv]
         type = CSV
         time_step_interval = 1
@@ -393,6 +405,19 @@
         variable = disp_z
         value = 0
         boundary = corner_ptr
+    []
+    #
+    [fix_ptr2_y]
+        type = ADDirichletBC
+        variable = disp_y
+        value = 0
+        boundary = corner_ptr2
+    []
+    [fix_ptr2_z]
+        type = ADDirichletBC
+        variable = disp_z
+        value = 0
+        boundary = corner_ptr2
     []
 []
 
