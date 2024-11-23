@@ -18,16 +18,10 @@
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = '-10000  -10000  -10000;'
+        coord = '-10000  -10000  -10000;
+                  10000  -10000   10000'
         new_boundary = corner_ptr
         input = sidesets
-    [] 
-    [./extranodeset2]
-        type = ExtraNodesetGenerator
-        coord = '0  -10000  -10000;'
-        new_boundary = corner_ptr2
-        input = extranodeset1
-        use_closest_node=true
     [] 
 []
 
@@ -200,28 +194,28 @@
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = front
-        value = 55e6
+        value = 50e6
     []
     [pressure_shear_back]
         type = ADNeumannBC
         variable = disp_x
         displacements = 'disp_x disp_y disp_z'
         boundary = back
-        value = -55e6   
+        value = -50e6   
     []
     [pressure_shear_left]
         type = ADNeumannBC
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = left
-        value = -55e6
+        value = -50e6
     []
     [pressure_shear_right]
         type = ADNeumannBC
         variable = disp_z
         displacements = 'disp_x disp_y disp_z'
         boundary = right
-        value = 55e6     
+        value = 50e6     
     []
     #
     [fix_ptr_x]
@@ -241,18 +235,5 @@
         variable = disp_z
         value = 0
         boundary = corner_ptr
-    []
-    #
-    [fix_ptr2_y]
-        type = ADDirichletBC
-        variable = disp_y
-        value = 0
-        boundary = corner_ptr2
-    []
-    [fix_ptr2_z]
-        type = ADDirichletBC
-        variable = disp_z
-        value = 0
-        boundary = corner_ptr2
     []
 []
