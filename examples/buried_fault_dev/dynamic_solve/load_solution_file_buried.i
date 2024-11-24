@@ -293,7 +293,7 @@
 
 [Outputs] 
     exodus = true
-    time_step_interval = 1
+    time_step_interval = 100
     # [sample_snapshots]
     #     type = Exodus
     #     time_step_interval = 2000
@@ -306,12 +306,7 @@
     [./csv]
         type = CSV
         time_step_interval = 1
-    [../]   
-    # [../]    
-    [./csv]
-        type = CSV
-        time_step_interval = 1
-    [../]   
+    [../]    
 []
 
 #We assume the simulation is loaded with compressive pressure and shear stress
