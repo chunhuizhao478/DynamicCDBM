@@ -192,25 +192,25 @@
         use_displaced_mesh = false
         variable = disp_z
     []    
-    #damping
-    [./damping_x]
-        type = StiffPropDamping
-        variable = disp_x
-        component = 0
-        q = 0.4
-    []
-    [./damping_y]
-        type = StiffPropDamping
-        variable = disp_y
-        component = 1
-        q = 0.4
-    []   
-    [./damping_z]
-        type = StiffPropDamping
-        variable = disp_z
-        component = 2
-        q = 0.4
-    [] 
+    # #damping
+    # [./damping_x]
+    #     type = StiffPropDamping
+    #     variable = disp_x
+    #     component = 0
+    #     q = 0.4
+    # []
+    # [./damping_y]
+    #     type = StiffPropDamping
+    #     variable = disp_y
+    #     component = 1
+    #     q = 0.4
+    # []   
+    # [./damping_z]
+    #     type = StiffPropDamping
+    #     variable = disp_z
+    #     component = 2
+    #     q = 0.4
+    # [] 
 []
 
 [AuxKernels]
