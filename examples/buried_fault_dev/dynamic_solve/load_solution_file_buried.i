@@ -60,18 +60,18 @@
     xi_min = -1.8
 
     #if option 2, use Cd_constant
-    Cd_constant = 0
+    Cd_constant = 1e4
 
     #<coefficient gives positive breakage evolution >: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     #The multiplier between Cd and Cb: Cb = CdCb_multiplier * Cd
-    CdCb_multiplier = 0
+    CdCb_multiplier = 1000
 
     #<coefficient of healing for breakage evolution>: refer to "Lyakhovsky_Ben-Zion_P14" (10 * C_B)
     # CBCBH_multiplier = 0.0
-    CBH_constant = 0
+    CBH_constant = 1e4
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
-    C_1 = 0
+    C_1 = 300
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
     C_2 = 0.05
@@ -192,25 +192,6 @@
         use_displaced_mesh = false
         variable = disp_z
     []    
-    # #damping
-    # [./damping_x]
-    #     type = StiffPropDamping
-    #     variable = disp_x
-    #     component = 0
-    #     q = 0.4
-    # []
-    # [./damping_y]
-    #     type = StiffPropDamping
-    #     variable = disp_y
-    #     component = 1
-    #     q = 0.4
-    # []   
-    # [./damping_z]
-    #     type = StiffPropDamping
-    #     variable = disp_z
-    #     component = 2
-    #     q = 0.4
-    # [] 
 []
 
 [AuxKernels]
@@ -254,7 +235,7 @@
     [damage_perturb]
         type = DamagePerturbationSquare
         nucl_center = '0 -5000 0'
-        e_damage = 0
+        e_damage = 0.3
         thickness = 200
         length = 400
         duration = 1e-1
