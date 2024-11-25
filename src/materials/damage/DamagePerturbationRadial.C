@@ -78,7 +78,7 @@ DamagePerturbationRadial::computeQpProperties()
   Real scaled_gaussian_value = 0.0;
   if (_t <= _duration)
   {
-    scaled_gaussian_value = gaussian_value * (_t / _duration);
+    scaled_gaussian_value = gaussian_value / (_duration / _dt);
   }
   else
   {
