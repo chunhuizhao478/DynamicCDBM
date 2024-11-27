@@ -229,13 +229,12 @@
         expression = 'initial_damage_aux'
         outputs = exodus
     []
-    #we close the damage perturbation for the dynamic solve
-    #we nucleate the rupture by increase the boundary shear loading
-    #e_damage = 0
     [damage_perturb]
-        type = DamagePerturbationSquare
+        type = PerturbationRadial
         nucl_center = '0 -5000 0'
-        e_damage = 0.3
+        peak_value = 20e6
+        sigma_divisor = 2.0
+        perturbation_type = shear_stress
         thickness = 200
         length = 400
         duration = 1e-1

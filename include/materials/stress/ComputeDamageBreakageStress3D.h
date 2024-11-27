@@ -123,6 +123,9 @@ protected:
   /// damage perturbation
   const MaterialProperty<Real> & _damage_perturbation;
 
+  /// shear stress perturbation
+  const MaterialProperty<Real> & _shear_stress_perturbation;
+
   /// coefficient of positive damage evolution
   Real _Cd_constant;
 

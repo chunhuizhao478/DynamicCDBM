@@ -12,15 +12,15 @@
 #include "Material.h"
 
 /**
- *  Created by Chunhui Zhao, Aug 27th, 2024
- *  Material used in Create Time Dependent Damage Perturbation in the Dynamic Solve
+ *  Created by Chunhui Zhao, Nov 26th, 2024
+ *  Material used in Create Time Dependent Damage/Shear Stress Perturbation in the Dynamic Solve
  */
-class DamagePerturbationRadial : public Material
+class PerturbationRadial : public Material
 {
 public:
   static InputParameters validParams();
 
-  DamagePerturbationRadial(const InputParameters & parameters);
+  PerturbationRadial(const InputParameters & parameters);
 
   virtual void computeQpProperties() override;
 
@@ -34,11 +34,17 @@ protected:
   /// Material property old initial damage profile
   const MaterialProperty<Real> & _damage_perturbation_old;
 
+  /// Material property shear stress perturbation
+  MaterialProperty<Real> & _shear_stress_perturbation;
+
+  /// Material property old shear stress perturbation
+  const MaterialProperty<Real> & _shear_stress_perturbation_old;
+
   /// nucleation center (x,y,z)
   std::vector<Real> _nucl_center;
 
   /// peak damage (exponential decay)
-  Real _peak_damage;
+  Real _peak_value;
 
   /// thickness
   Real _thickness;
@@ -48,5 +54,10 @@ protected:
 
   /// duration to reach peak damage
   Real _duration;
+
+  std::string _perturbation_type; // New parameter to choose perturbation type
+
+  /// sigma value (length / coefficient)
+  Real _sigma_divisor;
 
 };
