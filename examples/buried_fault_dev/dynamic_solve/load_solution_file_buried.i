@@ -27,6 +27,7 @@
         input = extranodeset1
         use_closest_node=true
     [] 
+    allow_renumbering = false
 []
 
 #Here we close the rate accumulation and healing for the damage and breakage evolution
@@ -246,7 +247,7 @@
     [./init_sol_components]
       type = SolutionUserObject
       mesh = '../static_solve/static_solve_out.e'
-      system_variables = 'disp_x disp_y disp_z initial_damage'
+      system_variables = 'disp_x disp_y disp_z initial_damage stress_02'
       timestep = LATEST
       force_preaux = true
     [../]
@@ -285,7 +286,7 @@
     # [../] 
     [./csv]
         type = CSV
-        time_step_interval = 1
+        time_step_interval = 10
     [../]    
 []
 
@@ -562,5 +563,57 @@
     [./maxvely]
         type = NodalExtremeValue
         variable = vel_y
+    [../]
+    #
+    [./ptr1_velx]
+        type = NodalVariableValue
+        variable = vel_x
+        nodeid = 20181
+    [../]
+    [./ptr2_velx]
+        type = NodalVariableValue
+        variable = vel_x
+        nodeid = 53325
+    [../]
+    [./ptr3_velx]
+        type = NodalVariableValue
+        variable = vel_x
+        nodeid = 12859
+    [../]
+    [./ptr4_velx]
+        type = NodalVariableValue
+        variable = vel_x
+        nodeid = 43428
+    [../]
+    [./ptr5_velx]
+        type = NodalVariableValue
+        variable = vel_x
+        nodeid = 12252
+    [../]
+    #
+    [./ptr1_vely]
+        type = NodalVariableValue
+        variable = vel_y
+        nodeid = 20181
+    [../]
+    [./ptr2_vely]
+        type = NodalVariableValue
+        variable = vel_y
+        nodeid = 53325
+    [../]
+    [./ptr3_vely]
+        type = NodalVariableValue
+        variable = vel_y
+        nodeid = 12859
+    [../]
+    [./ptr4_vely]
+        type = NodalVariableValue
+        variable = vel_y
+        nodeid = 43428
+    [../]
+    [./ptr5_vely]
+        type = NodalVariableValue
+        variable = vel_y
+        nodeid = 12252
     [../]
 [../]

@@ -29,6 +29,7 @@
         input = extranodeset1
         use_closest_node=true
     [] 
+    allow_renumbering = false
 []
 
 [GlobalParams]
@@ -142,6 +143,7 @@
 [Outputs]
     exodus = true   
     #show = 'initial_damage xi_initial'
+    csv = true
 []
 
 #We assume the simulation is loaded with compressive pressure and shear stress
@@ -254,5 +256,61 @@
         variable = disp_z
         value = 0
         boundary = corner_ptr2
+    []
+[]
+
+[UserObjects]
+    [ptr1]
+        type = NearestNodeNumberUO
+        point = '0 -7500 0'
+        execute_on = 'initial'
+    []
+    [ptr2]
+        type = NearestNodeNumberUO
+        point = '2000 -7500 0'
+        execute_on = 'initial'
+    []
+    [ptr3]
+        type = NearestNodeNumberUO
+        point = '4000 -7500 0'
+        execute_on = 'initial'
+    []
+    [ptr4]
+        type = NearestNodeNumberUO
+        point = '8000 -7500 0'
+        execute_on = 'initial'
+    []
+    [ptr5]
+        type = NearestNodeNumberUO
+        point = '10000 -7500 0'
+        execute_on = 'initial'
+    []
+[]
+
+[Postprocessors]
+    [nnn1]
+        type = NearestNodeNumber
+        nearest_node_number_uo = ptr1
+        execute_on = 'initial'
+    []
+    [nnn2]
+        type = NearestNodeNumber
+        nearest_node_number_uo = ptr2
+        execute_on = 'initial'
+    []
+    [nnn3]
+        type = NearestNodeNumber
+        nearest_node_number_uo = ptr3
+        execute_on = 'initial'
+    []
+    [nnn4]
+        type = NearestNodeNumber
+        nearest_node_number_uo = ptr4
+        execute_on = 'initial'
+    []
+    [nnn5]
+        type = NearestNodeNumber
+        nearest_node_number_uo = ptr5
+        execute_on = 'initial'
     []
 []
