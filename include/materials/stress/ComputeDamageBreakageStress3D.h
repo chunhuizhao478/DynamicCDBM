@@ -120,6 +120,8 @@ protected:
   // const MaterialProperty<Real> & _xi_initial;
   const MaterialProperty<Real> & _initial_damage;
 
+  const MaterialProperty<Real> & _initial_shear_stress;
+
   /// damage perturbation
   const MaterialProperty<Real> & _damage_perturbation;
 

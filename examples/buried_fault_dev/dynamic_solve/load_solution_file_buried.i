@@ -61,18 +61,18 @@
     xi_min = -1.8
 
     #if option 2, use Cd_constant
-    Cd_constant = 1e4
+    Cd_constant = 0
 
     #<coefficient gives positive breakage evolution >: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     #The multiplier between Cd and Cb: Cb = CdCb_multiplier * Cd
-    CdCb_multiplier = 1000
+    CdCb_multiplier = 0
 
     #<coefficient of healing for breakage evolution>: refer to "Lyakhovsky_Ben-Zion_P14" (10 * C_B)
     # CBCBH_multiplier = 0.0
     CBH_constant = 1e4
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
-    C_1 = 300
+    C_1 = 0
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
     C_2 = 0.05
@@ -130,6 +130,10 @@
         order = CONSTANT
         family = MONOMIAL
     []
+    [initial_shear_stress_aux]
+        order = CONSTANT
+        family = MONOMIAL
+    []
 []
 
 [AuxKernels]
@@ -156,6 +160,12 @@
         variable = initial_damage_aux
         solution = init_sol_components
         from_variable = initial_damage
+    []
+    [initial_shear_stress]
+        type = SolutionAux
+        variable = initial_shear_stress_aux
+        solution = init_sol_components
+        from_variable = stress_02
     []
 []
 
@@ -228,6 +238,13 @@
         property_name = initial_damage
         coupled_variables = initial_damage_aux
         expression = 'initial_damage_aux'
+        outputs = exodus
+    []
+    [initial_shear_stress]
+        type = ParsedMaterial
+        property_name = initial_shear_stress
+        coupled_variables = initial_shear_stress_aux
+        expression = 'initial_shear_stress_aux'
         outputs = exodus
     []
     [damage_perturb]

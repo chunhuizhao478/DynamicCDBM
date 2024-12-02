@@ -76,6 +76,7 @@ ComputeDamageBreakageStress3D::ComputeDamageBreakageStress3D(const InputParamete
     _alpha_grad_z(coupledValue("alpha_grad_z")),
     _D(getParam<Real>("D")),
     _initial_damage(getMaterialPropertyByName<Real>("initial_damage")),
+    _initial_shear_stress(getMaterialPropertyByName<Real>("initial_shear_stress")),
     _damage_perturbation(getMaterialPropertyByName<Real>("damage_perturbation")),
     _shear_stress_perturbation(getMaterialPropertyByName<Real>("shear_stress_perturbation")),
     _Cd_constant(getParam<Real>("Cd_constant")),
@@ -225,8 +226,10 @@ ComputeDamageBreakageStress3D::computeQpStress()
   sigma_total = (1 - B_out) * sigma_s + B_out * sigma_b;
 
   //Add shear perturbation
-  sigma_total(0,2) += _shear_stress_perturbation[_qp];
-  sigma_total(2,0) += _shear_stress_perturbation[_qp];
+  if (_shear_stress_perturbation[_qp] != 0){
+    sigma_total(0,2) = _initial_shear_stress[_qp] + _shear_stress_perturbation[_qp];
+    sigma_total(2,0) = _initial_shear_stress[_qp] + _shear_stress_perturbation[_qp];
+  }
 
   sigma_d = sigma_total - 1/3 * (sigma_total(0,0) + sigma_total(1,1) + sigma_total(2,2)) * I;
 
