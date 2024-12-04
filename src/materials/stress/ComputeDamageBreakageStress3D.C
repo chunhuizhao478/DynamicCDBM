@@ -76,6 +76,7 @@ ComputeDamageBreakageStress3D::ComputeDamageBreakageStress3D(const InputParamete
     _alpha_grad_z(coupledValue("alpha_grad_z")),
     _D(getParam<Real>("D")),
     _initial_damage(getMaterialPropertyByName<Real>("initial_damage")),
+    _initial_breakage(getMaterialPropertyByName<Real>("initial_breakage")),
     _initial_shear_stress(getMaterialPropertyByName<Real>("initial_shear_stress")),
     _damage_perturbation(getMaterialPropertyByName<Real>("damage_perturbation")),
     _shear_stress_perturbation(getMaterialPropertyByName<Real>("shear_stress_perturbation")),
@@ -190,6 +191,10 @@ ComputeDamageBreakageStress3D::computeQpStress()
   if ( B_out < 0 ){ B_out = 0.0; }
   else if ( B_out > 1 ){ B_out = 1.0; }
   else{}   
+
+  //check below initial damage (fix initial damage)
+  if ( B_out < _initial_breakage[_qp] ){ B_out = _initial_breakage[_qp]; }
+  else{}
 
   //save alpha and B
   _B[_qp] = B_out;

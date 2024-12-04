@@ -119,6 +119,7 @@ protected:
   // const MaterialProperty<Real> & _I2_initial;
   // const MaterialProperty<Real> & _xi_initial;
   const MaterialProperty<Real> & _initial_damage;
+  const MaterialProperty<Real> & _initial_breakage;
 
   const MaterialProperty<Real> & _initial_shear_stress;
 

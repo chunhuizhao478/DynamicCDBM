@@ -30,18 +30,37 @@ protected:
   /// @return gamma_r
   ADReal computegammar();
 
+  /// @brief Compute breakage coefficients
+  /// @param gamma_damaged_r
+  /// @return a0 a1 a2 a3 in a vector
+  std::vector<ADReal> computecoefficients(ADReal gamma_damaged_r);  
+
+  /// @brief Compute first root of hessian matrix
+  /// @param xi 
+  /// @return the first root of critical alpha_cr
+  ADReal alphacr_root1(ADReal xi, ADReal gamma_damaged_r);  
+
   /// Material property initial damage profile
 
   /// initial lambda value 
-  Real _lambda_o;
+  ADReal _lambda_o;
 
   /// initial shear modulus value
-  Real _shear_modulus_o;
+  ADReal _shear_modulus_o;
 
   /// xi_o value
-  Real _xi_o;
+  ADReal _xi_o;
+
+  /// xi_d value
+  ADReal _xi_d;
+
+  /// chi value
+  ADReal _chi;
 
   /// @brief initial damage value
   const ADMaterialProperty<Real> & _initial_damage_val;
+
+  /// @brief initial breakage value
+  const ADMaterialProperty<Real> & _initial_breakage_val;
 
 };

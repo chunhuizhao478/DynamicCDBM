@@ -19,6 +19,8 @@ ADComputeDamageStressStaticDistribution::validParams()
   params.addRequiredParam<Real>("lambda_o","initial lambda value");
   params.addRequiredParam<Real>("shear_modulus_o","initial shear modulus value");
   params.addRequiredParam<Real>("xi_o","xi_o value");
+  params.addRequiredParam<Real>("xi_d","xi_d value");
+  params.addRequiredParam<Real>("chi","chi value");
   return params;
 }
 
@@ -27,7 +29,10 @@ ADComputeDamageStressStaticDistribution::ADComputeDamageStressStaticDistribution
   _lambda_o(getParam<Real>("lambda_o")),
   _shear_modulus_o(getParam<Real>("shear_modulus_o")),
   _xi_o(getParam<Real>("xi_o")),
-  _initial_damage_val(getADMaterialPropertyByName<Real>("initial_damage"))   
+  _xi_d(getParam<Real>("xi_d")),
+  _chi(getParam<Real>("chi")),
+  _initial_damage_val(getADMaterialPropertyByName<Real>("initial_damage")),
+  _initial_breakage_val(getADMaterialPropertyByName<Real>("initial_breakage"))
 {
 }
 
@@ -52,26 +57,30 @@ ADComputeDamageStressStaticDistribution::computeQpStress()
   // Compute gammar
   ADReal gamma_r = computegammar();
 
+  //Compute breakage coefficients
+  std::vector<ADReal> avec = computecoefficients(gamma_r);
+  ADReal a0 = avec[0];
+  ADReal a1 = avec[1];
+  ADReal a2 = avec[2];
+  ADReal a3 = avec[3];
+
   // Evaluate shear modulus
   ADReal shear_modulus = _shear_modulus_o + _xi_o * _initial_damage_val[_qp] * gamma_r;
   ADReal gamma_damaged_out = _initial_damage_val[_qp] * gamma_r;
 
   //
-  const Real epsilon = 1e-12;
+  const ADReal epsilon = 1e-12;
   ADReal I1 = epsilon + _mechanical_strain[_qp](0,0) + _mechanical_strain[_qp](1,1) + _mechanical_strain[_qp](2,2);
   ADReal I2 = epsilon + _mechanical_strain[_qp](0,0) * _mechanical_strain[_qp](0,0) + _mechanical_strain[_qp](1,1) * _mechanical_strain[_qp](1,1) + _mechanical_strain[_qp](2,2) * _mechanical_strain[_qp](2,2) + 2 * _mechanical_strain[_qp](1,2) * _mechanical_strain[_qp](1,2) + 2 * _mechanical_strain[_qp](0,1) * _mechanical_strain[_qp](0,1) + 2 * _mechanical_strain[_qp](0,2) * _mechanical_strain[_qp](0,2);
   ADReal xi = I1 / std::sqrt(I2);
 
-  // stress = C * e
-  _stress[_qp](0,0) = ( _lambda_o - gamma_damaged_out / xi ) * I1 + ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](0,0);
-  _stress[_qp](1,1) = ( _lambda_o - gamma_damaged_out / xi ) * I1 + ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](1,1);
-  _stress[_qp](2,2) = ( _lambda_o - gamma_damaged_out / xi ) * I1 + ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](2,2);
-  _stress[_qp](0,1) = ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](0,1); 
-  _stress[_qp](1,0) = ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](1,0);
-  _stress[_qp](0,2) = ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](0,2); 
-  _stress[_qp](2,0) = ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](2,0);
-  _stress[_qp](1,2) = ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](1,2); 
-  _stress[_qp](2,1) = ( 2 * shear_modulus - gamma_damaged_out * xi ) * _mechanical_strain[_qp](2,1);
+  /* Compute stress */
+  ADRankTwoTensor sigma_s = (_lambda_o - gamma_damaged_out / xi) * I1 * ADRankTwoTensor::Identity() + (2 * shear_modulus - gamma_damaged_out * xi) * _mechanical_strain[_qp];
+  ADRankTwoTensor sigma_b = (2 * a2 + a1 / xi + 3 * a3 * xi) * I1 * ADRankTwoTensor::Identity() + (2 * a0 + a1 * xi - a3 * std::pow(xi, 3)) * _mechanical_strain[_qp];
+  ADRankTwoTensor sigma_total = (1 - _initial_breakage_val[_qp]) * sigma_s + _initial_breakage_val[_qp] * sigma_b;
+
+  // stress
+  _stress[_qp] = sigma_total;
 
   // Assign value for elastic strain, which is equal to the mechanical strain
   _elastic_strain[_qp] = _mechanical_strain[_qp];
@@ -82,14 +91,76 @@ ADReal
 ADComputeDamageStressStaticDistribution::computegammar()
 {
   // Calculate each part of the expression
-  ADReal term1 = -_xi_o * (-_lambda_o * pow(_xi_o, 2) + 6 * _lambda_o + 2 * _shear_modulus_o);
-  ADReal term2_sqrt = sqrt((_lambda_o * pow(_xi_o, 2) + 2 * _shear_modulus_o) * 
-                            (_lambda_o * pow(_xi_o, 4) - 12 * _lambda_o * pow(_xi_o, 2) + 36 * _lambda_o 
-                            - 6 * _shear_modulus_o * pow(_xi_o, 2) + 24 * _shear_modulus_o));
-  ADReal denominator = 2 * (pow(_xi_o, 2) - 3);
+  ADReal term1 = -_xi_o * (-_lambda_o * std::pow(_xi_o, 2) + 6 * _lambda_o + 2 * _shear_modulus_o);
+  ADReal term2_sqrt = std::sqrt((_lambda_o * std::pow(_xi_o, 2) + 2 * _shear_modulus_o) * 
+                            (_lambda_o * std::pow(_xi_o, 4) - 12 * _lambda_o * std::pow(_xi_o, 2) + 36 * _lambda_o 
+                            - 6 * _shear_modulus_o * std::pow(_xi_o, 2) + 24 * _shear_modulus_o));
+  ADReal denominator = 2 * (std::pow(_xi_o, 2) - 3);
   
   // Calculate gamma_r
   ADReal gamma_r = (term1 - term2_sqrt) / denominator;
   
   return gamma_r;
+}
+
+std::vector<ADReal>
+ADComputeDamageStressStaticDistribution::computecoefficients(ADReal gamma_damaged_r)
+{
+
+  //compute xi_1
+  ADReal _xi_1 = _xi_o + std::sqrt( std::pow(_xi_o , 2) + 2 * _shear_modulus_o / _lambda_o );
+
+  //compute alpha_cr | xi = 0
+  ADReal alpha_cr_xi0 = alphacr_root1(0, gamma_damaged_r);
+
+  //compute mu_cr
+  ADReal mu_cr = _shear_modulus_o + alpha_cr_xi0 * _xi_o * gamma_damaged_r;
+
+  //a0
+  ADReal a0 = _chi * mu_cr;
+
+  //a1
+  ADReal numerator_a1 = -2 * _chi * mu_cr * std::pow(_xi_1, 3) + 6 * _chi * mu_cr * _xi_1 * std::pow(_xi_d, 2) - 4 * _chi * mu_cr * std::pow(_xi_d, 3)
+                      - 2 * gamma_damaged_r * std::pow(_xi_1, 3) * _xi_d + 2 * gamma_damaged_r * std::pow(_xi_1, 3) * _xi_o
+                      + _lambda_o * std::pow(_xi_1, 3) * std::pow(_xi_d, 2) + 2 * _shear_modulus_o * std::pow(_xi_1, 3);
+  ADReal denominator_a1 = 2 * std::pow(_xi_1, 3) * _xi_d - 4 * std::pow(_xi_1, 2) * std::pow(_xi_d, 2) + 2 * _xi_1 * std::pow(_xi_d, 3);
+  ADReal a1 = numerator_a1 / denominator_a1;
+
+  //a2
+  ADReal numerator_a2 = 2 * _chi * mu_cr * std::pow(_xi_1, 3) - 3 * _chi * mu_cr * std::pow(_xi_1, 2) * _xi_d + _chi * mu_cr * std::pow(_xi_d, 3)
+                       + 2 * gamma_damaged_r * std::pow(_xi_1, 3) * _xi_d - 2 * gamma_damaged_r * std::pow(_xi_1, 3) * _xi_o
+                       - _lambda_o * std::pow(_xi_1, 3) * std::pow(_xi_d, 2) - 2 * _shear_modulus_o * std::pow(_xi_1, 3);
+  ADReal denominator_a2 = std::pow(_xi_1, 4) * _xi_d - 2 * std::pow(_xi_1, 3) * std::pow(_xi_d, 2) + std::pow(_xi_1, 2) * std::pow(_xi_d, 3); 
+  ADReal a2 = numerator_a2 / denominator_a2; 
+
+  //a3
+  ADReal numerator_a3 = -2 * _chi * mu_cr * std::pow(_xi_1, 2) + 4 * _chi * mu_cr * _xi_1 * _xi_d - 2 * _chi * mu_cr * std::pow(_xi_d, 2)
+                       - 2 * gamma_damaged_r * std::pow(_xi_1, 2) * _xi_d + 2 * gamma_damaged_r * std::pow(_xi_1, 2) * _xi_o
+                       + _lambda_o * std::pow(_xi_1, 2) * std::pow(_xi_d, 2) + 2 * _shear_modulus_o * std::pow(_xi_1, 2);
+  ADReal denominator_a3 = 2 * std::pow(_xi_1, 4) * _xi_d - 4 * std::pow(_xi_1, 3) * std::pow(_xi_d, 2) + 2 * std::pow(_xi_1, 2) * std::pow(_xi_d, 3);
+  ADReal a3 = numerator_a3 / denominator_a3; 
+
+  //save
+  std::vector<ADReal> a_vec {a0,a1,a2,a3};
+
+  return a_vec;
+
+}
+
+// Function for alpha_func_root1
+ADReal 
+ADComputeDamageStressStaticDistribution::alphacr_root1(ADReal xi, ADReal gamma_damaged_r) {
+    ADReal term1 = _lambda_o * std::pow(xi, 3) - 6 * _lambda_o * _xi_o + 6 * _shear_modulus_o * xi - 8 * _shear_modulus_o * _xi_o;
+    ADReal term2 = std::sqrt(_lambda_o * _lambda_o * std::pow(xi, 6) 
+                             - 12 * _lambda_o * _lambda_o * std::pow(xi, 3) * _xi_o 
+                             + 36 * _lambda_o * _lambda_o * _xi_o * _xi_o 
+                             + 12 * _lambda_o * _shear_modulus_o * std::pow(xi, 4) 
+                             - 16 * _lambda_o * _shear_modulus_o * std::pow(xi, 3) * _xi_o 
+                             - 72 * _lambda_o * _shear_modulus_o * std::pow(xi, 2) 
+                             + 72 * _lambda_o * _shear_modulus_o * xi * _xi_o 
+                             + 72 * _lambda_o * _shear_modulus_o 
+                             - 12 * _shear_modulus_o * _shear_modulus_o * std::pow(xi, 2) 
+                             + 48 * _shear_modulus_o * _shear_modulus_o);
+    ADReal denominator = 2 * gamma_damaged_r * (3 * std::pow(xi, 2) - 6 * xi * _xi_o + 4 * _xi_o * _xi_o - 3);
+    return (term1 - term2) / denominator;
 }

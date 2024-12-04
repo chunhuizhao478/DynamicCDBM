@@ -130,6 +130,10 @@
         order = CONSTANT
         family = MONOMIAL
     []
+    [initial_breakage_aux]
+        order = CONSTANT
+        family = MONOMIAL
+    []
     [initial_shear_stress_aux]
         order = CONSTANT
         family = MONOMIAL
@@ -160,6 +164,12 @@
         variable = initial_damage_aux
         solution = init_sol_components
         from_variable = initial_damage
+    []
+    [initial_breakage]
+        type = SolutionAux
+        variable = initial_breakage_aux
+        solution = init_sol_components
+        from_variable = initial_breakage
     []
     [initial_shear_stress]
         type = SolutionAux
@@ -240,6 +250,13 @@
         expression = 'initial_damage_aux'
         outputs = exodus
     []
+    [initial_breakage]
+        type = ParsedMaterial
+        property_name = initial_breakage
+        coupled_variables = initial_breakage_aux
+        expression = 'initial_breakage_aux'
+        outputs = exodus
+    []
     [initial_shear_stress]
         type = ParsedMaterial
         property_name = initial_shear_stress
@@ -264,7 +281,7 @@
     [./init_sol_components]
       type = SolutionUserObject
       mesh = '../static_solve/static_solve_out.e'
-      system_variables = 'disp_x disp_y disp_z initial_damage stress_02'
+      system_variables = 'disp_x disp_y disp_z initial_damage initial_breakage stress_02'
       timestep = LATEST
       force_preaux = true
     [../]

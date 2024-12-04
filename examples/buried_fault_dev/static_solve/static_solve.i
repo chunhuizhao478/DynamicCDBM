@@ -89,6 +89,8 @@
         lambda_o = 30e9
         shear_modulus_o = 30e9
         xi_o = -0.8
+        chi = 0.7
+        xi_d = -0.9
         outputs = exodus
     []
     [getxi]
@@ -114,6 +116,17 @@
         e_sigma = 2.5e2
         outputs = exodus
     [] 
+    [initialbreakage]
+        type = ADInitialBreakageBenchmark
+        nucl_center = '0 -5000 0'
+        fault_plane = '-2500 2500 -7500 -2500 -500 500'
+        nucl_distance = 400
+        nucl_thickness = 200
+        nucl_breakage = 0.1
+        e_breakage = 0.1
+        e_sigma = 2.5e2
+        outputs = exodus
+    []
 []  
 
 [Functions]
