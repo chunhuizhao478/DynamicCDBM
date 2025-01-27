@@ -282,20 +282,20 @@
         boundary = back
         value = -50e6   
     []
-    [pressure_shear_left]
-        type = ADNeumannBC
-        variable = disp_z
-        displacements = 'disp_x disp_y disp_z'
-        boundary = left
-        value = -50e6
-    []
-    [pressure_shear_right]
-        type = ADNeumannBC
-        variable = disp_z
-        displacements = 'disp_x disp_y disp_z'
-        boundary = right
-        value = 50e6     
-    []
+    # [pressure_shear_left]
+    #     type = ADNeumannBC
+    #     variable = disp_z
+    #     displacements = 'disp_x disp_y disp_z'
+    #     boundary = left
+    #     value = -50e6
+    # []
+    # [pressure_shear_right]
+    #     type = ADNeumannBC
+    #     variable = disp_z
+    #     displacements = 'disp_x disp_y disp_z'
+    #     boundary = right
+    #     value = 50e6     
+    # []
     #
     [fix_bottom_y]
         type = ADDirichletBC
