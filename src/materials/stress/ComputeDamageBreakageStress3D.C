@@ -110,7 +110,7 @@ ComputeDamageBreakageStress3D::initQpStatefulProperties()
 {
   _elastic_strain[_qp].zero();
   _stress[_qp].zero();
-  _alpha_damagedvar[_qp] = _initial_damage[_qp];
+  // _alpha_damagedvar[_qp] = _initial_damage[_qp];
 
 }
 

@@ -4,7 +4,7 @@
     [./msh]
         type = FileMeshGenerator
         # file =  '../meshfile/cdbm_largeplane_coarse.msh'
-        file = '../meshfile/cdbm_largeplane_buried_coarse.msh'
+        file = '../meshfile/cdbm_largeplane_buried_coarse_newmethod.msh'
     []
     [./sidesets]
         input = msh
@@ -17,40 +17,37 @@
                     0 0 1'
         new_boundary = 'left right bottom top back front'
     []
-    # [./bottomline]
-    #     type = ExtraNodesetGenerator
-    #     input = sidesets
-    #     new_boundary = 'bottomline'
-    #     coord = '-13000 -17000 0; -12500 -17000 0; -12000 -17000 0; -11500 -17000 0; -11000 -17000 0;
-    #              -10500 -17000 0; -10000 -17000 0; -9500 -17000 0; -9000 -17000 0; -8500 -17000 0;
-    #              -8000 -17000 0; -7500 -17000 0; -7000 -17000 0; -6500 -17000 0; -6000 -17000 0;
-    #              -5500 -17000 0; -5000 -17000 0; -4500 -17000 0; -4000 -17000 0; -3500 -17000 0;
-    #              -3000 -17000 0; -2500 -17000 0; -2000 -17000 0; -1500 -17000 0; -1000 -17000 0;
-    #              -500 -17000 0; 0 -17000 0; 500 -17000 0; 1000 -17000 0; 1500 -17000 0; 2000 -17000 0;
-    #               2500 -17000 0; 3000 -17000 0; 3500 -17000 0; 4000 -17000 0; 4500 -17000 0;
-    #               5000 -17000 0; 5500 -17000 0; 6000 -17000 0; 6500 -17000 0; 7000 -17000 0;
-    #               7500 -17000 0; 8000 -17000 0; 8500 -17000 0; 9000 -17000 0; 9500 -17000 0;
-    #               10000 -17000 0; 10500 -17000 0; 11000 -17000 0; 11500 -17000 0; 12000 -17000 0;
-    #               12500 -17000 0; 13000 -17000 0'
-    # []
-    [./extranodeset1]
+    [./bottomline]
         type = ExtraNodesetGenerator
-        coord = '-11000 -17000 2250'
-        new_boundary = corner_ptr
         input = sidesets
-    [] 
-    [./extranodeset2]
-        type = ExtraNodesetGenerator
-        coord = '11000 -17000 2250'
-        new_boundary = corner_ptr2
-        input = extranodeset1
-    [] 
-    [./extranodeset3]
-        type = ExtraNodesetGenerator
-        coord = '11000 0 2250'
-        new_boundary = corner_ptr3
-        input = extranodeset2
-    []    
+        new_boundary = 'bottomline'
+        coord = '-11000 -17000 0; -10000 -17000 0; -9000 -17000 0; 
+                 -8000 -17000 0; -7000 -17000 0; -6000 -17000 0;
+                 -5000 -17000 0; -4000 -17000 0; -3000 -17000 0;
+                 -2000 -17000 0; -1000 -17000 0; 0 -17000 0;
+                 1000 -17000 0; 2000 -17000 0; 3000 -17000 0;
+                 4000 -17000 0; 5000 -17000 0; 6000 -17000 0;
+                 7000 -17000 0; 8000 -17000 0; 9000 -17000 0;
+                 10000 -17000 0; 11000 -17000 0'
+    []
+    # [./extranodeset1]
+    #     type = ExtraNodesetGenerator
+    #     coord = '-11000 -17000 2250'
+    #     new_boundary = corner_ptr
+    #     input = sidesets
+    # [] 
+    # [./extranodeset2]
+    #     type = ExtraNodesetGenerator
+    #     coord = '11000 -17000 2250'
+    #     new_boundary = corner_ptr2
+    #     input = extranodeset1
+    # [] 
+    # [./extranodeset3]
+    #     type = ExtraNodesetGenerator
+    #     coord = '11000 0 2250'
+    #     new_boundary = corner_ptr3
+    #     input = extranodeset2
+    # []    
     # allow_renumbering = false
 []
 
@@ -300,42 +297,62 @@
         value = 50e6     
     []
     #
-    [fix_ptr_x]
+    [fix_bottom_y]
+        type = ADDirichletBC
+        variable = disp_y
+        value = 0
+        boundary = bottom
+    []
+    #
+    [fix_bottomline_x]
         type = ADDirichletBC
         variable = disp_x
         value = 0
-        boundary = corner_ptr
+        boundary = bottomline
     []
-    [fix_ptr_y]
-        type = ADDirichletBC
-        variable = disp_y
-        value = 0
-        boundary = corner_ptr
-    []
-    [fix_ptr_z]
+    [fix_bottomline_z]
         type = ADDirichletBC
         variable = disp_z
         value = 0
-        boundary = corner_ptr
+        boundary = bottomline
     []
-    #
-    [fix_ptr2_y]
-        type = ADDirichletBC
-        variable = disp_y
-        value = 0
-        boundary = corner_ptr2
-    []
-    [fix_ptr2_z]
-        type = ADDirichletBC
-        variable = disp_z
-        value = 0
-        boundary = corner_ptr2
-    []
-    #
-    [fix_ptr3_z]
-        type = ADDirichletBC
-        variable = disp_z
-        value = 0
-        boundary = corner_ptr3
-    []
+    # #
+    # [fix_ptr_x]
+    #     type = ADDirichletBC
+    #     variable = disp_x
+    #     value = 0
+    #     boundary = corner_ptr
+    # []
+    # [fix_ptr_y]
+    #     type = ADDirichletBC
+    #     variable = disp_y
+    #     value = 0
+    #     boundary = corner_ptr
+    # []
+    # [fix_ptr_z]
+    #     type = ADDirichletBC
+    #     variable = disp_z
+    #     value = 0
+    #     boundary = corner_ptr
+    # []
+    # #
+    # [fix_ptr2_y]
+    #     type = ADDirichletBC
+    #     variable = disp_y
+    #     value = 0
+    #     boundary = corner_ptr2
+    # []
+    # [fix_ptr2_z]
+    #     type = ADDirichletBC
+    #     variable = disp_z
+    #     value = 0
+    #     boundary = corner_ptr2
+    # []
+    # #
+    # [fix_ptr3_z]
+    #     type = ADDirichletBC
+    #     variable = disp_z
+    #     value = 0
+    #     boundary = corner_ptr3
+    # []
 []
