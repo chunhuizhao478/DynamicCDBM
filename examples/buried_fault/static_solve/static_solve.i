@@ -1,9 +1,9 @@
-#explicit continuum damage-breakage model dynamics
+#continuum damage-breakage model dynamics
 
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file =  '../meshfile/cdbm_tpv2053d_buried_small.msh'
+        file = '../meshfile/mesh.msh'
     []
     [./sidesets]
         input = msh
@@ -14,20 +14,17 @@
                     0 1 0
                     0 0 -1
                     0 0 1'
-        new_boundary = 'left right bottom top back front'
+        new_boundary = 'left right front back bottom top'
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = '-10000  -10000  -10000;
-                  10000  -10000  -10000;
-                 -10000  -10000   10000;
-                  10000  -10000   10000'
+        coord = ' -15000 -15000 -15000;
+                   15000 -15000 -15000;
+                   15000 15000  -15000;
+                  -15000 15000  -15000'
         new_boundary = corner_ptr
         input = sidesets
-    []     
-[]
-
-[GlobalParams]
+    []
     displacements = 'disp_x disp_y disp_z'
 []
 
@@ -47,6 +44,26 @@
 []
 
 [AuxVariables]
+    [initial_damage_aux]
+        order = FIRST
+        family = MONOMIAL
+    []
+    [correlated_randalpha_o]
+        order = FIRST
+        family = LAGRANGE
+    []
+    [initial_cd_aux]
+        order = FIRST
+        family = MONOMIAL
+    []
+[]
+
+[AuxKernels]
+    [get_initial_damage]
+        type = ADMaterialRealAux
+        variable = initial_damage_aux
+        property = initial_damage
+    []
 []
 
 [Kernels]
@@ -70,41 +87,57 @@
     []
 []
 
-[AuxKernels]
-[]
-
 [Materials]
     [strain]
         type = ADComputeSmallStrain
         displacements = 'disp_x disp_y disp_z'
         outputs = exodus
     [] 
-    [stress_nucleation]
+    [stress]
         type = ADComputeDamageStressStaticDistribution
         lambda_o = 30e9
         shear_modulus_o = 30e9
         xi_o = -0.8
+        chi = 0.7
+        xi_d = -0.9
         outputs = exodus
+        block = '1 3'
+    [] 
+    [stress_elastic]
+        type = ADComputeLinearElasticStress
+        outputs = exodus
+        block = '2'
+    []
+    [elasticity_tensor]
+        type = ADComputeIsotropicElasticityTensor
+        lambda = 30e9
+        shear_modulus = 30e9
     []
     [getxi]
         type = ADComputeXi
         outputs = exodus
     []
-    [initialdamage]
-        type = ADInitialDamageBenchmark
-        nucl_center = '0 -5000 0'
-        fault_plane = '-2500 2500 -7500 -2500 -500 500'
-        nucl_distance = 400
-        nucl_thickness = 200
-        nucl_damage = 0.7
-        e_damage = 0.7
-        e_sigma = 2.5e2
+    [initial_damage_surround]
+        type = ADInitialDamageCycleSim3DPlane
+        sigma = 5e2
+        peak_val = 0.7
+        len_of_fault_strike = 8000
+        len_of_fault_dip = 3000
+        nucl_center = '0 0 -7500'
+        output_properties = 'initial_damage'      
         outputs = exodus
-    [] 
+    []
+    [initial_breakage_surround]
+        type = ADInitialBreakageCycleSim3DPlane
+        sigma = 5e2
+        peak_val = 0.1
+        len_of_fault_strike = 8000
+        len_of_fault_dip = 3000
+        nucl_center = '0 0 -7500'
+        output_properties = 'initial_breakage'      
+        outputs = exodus
+    []
 []  
-
-[Functions]
-[]
 
 [Preconditioning]
     [smp]
@@ -115,113 +148,103 @@
   
 [Executioner]
     type = Steady
-    solve_type = NEWTON
-    l_max_its = 10
-    l_tol = 1e-6
-    nl_rel_tol = 1e-8
-    nl_abs_tol = 1e-10
-    nl_max_its = 10
-    petsc_options_iname = '-ksp_type -pc_type -pc_hypre_type  -ksp_initial_guess_nonzero -ksp_pc_side -ksp_max_it -ksp_rtol -ksp_atol'
-    petsc_options_value = 'gmres        hypre      boomeramg                   True        right       1500        1e-7      1e-9    '
+    solve_type = 'NEWTON'
+    l_max_its = 100
+    l_tol = 1e-7
+    nl_rel_tol = 1e-10
+    nl_max_its = 20
+    nl_abs_tol = 1e-12
+    # this is very robust, use as default
+    petsc_options_iname = '-ksp_type -pc_type -ksp_initial_guess_nonzero'
+    petsc_options_value = 'gmres     hypre  True'
+    # petsc_options_iname = '-pc_type -pc_factor_shift_type'
+    # petsc_options_value = 'lu       NONZERO'
+    # petsc_options_iname = '-ksp_gmres_restart -pc_type -sub_pc_type'
+    # petsc_options_value = '101                asm      lu'
+    # petsc_options_iname = '-ksp_type -pc_type -pc_hypre_type  -ksp_initial_guess_nonzero -ksp_pc_side -ksp_max_it -ksp_rtol -ksp_atol'
+    # petsc_options_value = 'gmres        hypre      boomeramg                   True        right       1500        1e-7      1e-9    '
     automatic_scaling = true
-    line_search = basic
 []  
 
 [Outputs]
-    exodus = true   
-    #show = 'initial_damage xi_initial'
+    exodus = true       
 []
 
-#We assume the simulation is loaded with compressive pressure and shear stress
 [BCs]
-    [pressure_right]
-        type = ADPressure
-        variable = disp_x
-        displacements = 'disp_x disp_y disp_z'
-        boundary = right
-        factor = 135e6
-    []
-    [pressure_left]
-        type = ADPressure
-        variable = disp_x
-        displacements = 'disp_x disp_y disp_z'
-        boundary = left
-        factor = 135e6
-    []
-    [pressure_front]
-        type = ADPressure
+    #Note: use neuamnnBC gives minimum waves than pressureBC
+    [static_pressure_top]
+        type = ADNeumannBC
         variable = disp_z
-        displacements = 'disp_x disp_y disp_z'
-        boundary = front
-        factor = 120e6
-    []
-    [pressure_back]
-        type = ADPressure
-        variable = disp_z
-        displacements = 'disp_x disp_y disp_z'
-        boundary = back
-        factor = 120e6        
-    []
-    [pressure_top]
-        type = ADPressure
-        variable = disp_y
-        displacements = 'disp_x disp_y disp_z'
         boundary = top
-        factor = 127.5e6         
-    []
-    [pressure_bottom]
-        type = ADPressure
-        variable = disp_y
+        value = -50e6
         displacements = 'disp_x disp_y disp_z'
+    []
+    [static_pressure_bottom]
+        type = ADNeumannBC
+        variable = disp_z
         boundary = bottom
-        factor = 127.5e6              
-    []
-    #
-    [pressure_shear_front]
+        value = 50e6
+        displacements = 'disp_x disp_y disp_z'
+    []     
+    [static_pressure_left]
         type = ADNeumannBC
         variable = disp_x
-        displacements = 'disp_x disp_y disp_z'
-        boundary = front
-        value = 55e6
-    []
-    [pressure_shear_back]
-        type = ADNeumannBC
-        variable = disp_x
-        displacements = 'disp_x disp_y disp_z'
-        boundary = back
-        value = -55e6   
-    []
-    [pressure_shear_left]
-        type = ADNeumannBC
-        variable = disp_z
-        displacements = 'disp_x disp_y disp_z'
         boundary = left
-        value = -55e6
-    []
-    [pressure_shear_right]
-        type = ADNeumannBC
-        variable = disp_z
+        value = 50e6
         displacements = 'disp_x disp_y disp_z'
+    []  
+    [static_pressure_right]
+        type = ADNeumannBC
+        variable = disp_x
         boundary = right
-        value = 55e6     
+        value = -50e6
+        displacements = 'disp_x disp_y disp_z'
+    [] 
+    [static_pressure_front]
+        type = ADNeumannBC
+        variable = disp_y
+        boundary = front
+        value = 50e6
+        displacements = 'disp_x disp_y disp_z'
+    []  
+    [static_pressure_back]
+        type = ADNeumannBC
+        variable = disp_y
+        boundary = back
+        value = -50e6
+        displacements = 'disp_x disp_y disp_z'
     []
-    #
-    [fix_ptr_x]
+    [static_pressure_front_shear]
+        type = ADNeumannBC
+        variable = disp_x
+        boundary = front
+        value = -20e6
+        displacements = 'disp_x disp_y disp_z'
+    []  
+    [static_pressure_back_shear]
+        type = ADNeumannBC
+        variable = disp_x
+        boundary = back
+        value = 20e6
+        displacements = 'disp_x disp_y disp_z'
+    []    
+    # fix ptr
+    [./fix_cptr1_x]
         type = ADDirichletBC
         variable = disp_x
-        value = 0
         boundary = corner_ptr
+        value = 0
     []
-    [fix_ptr_y]
+    [./fix_cptr1_y]
         type = ADDirichletBC
         variable = disp_y
-        value = 0
         boundary = corner_ptr
+        value = 0
     []
-    [fix_ptr_z]
+    [./fix_cptr1_z]
         type = ADDirichletBC
         variable = disp_z
-        value = 0
         boundary = corner_ptr
-    []
+        value = 0
+    []     
 []
