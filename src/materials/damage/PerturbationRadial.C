@@ -22,7 +22,7 @@ PerturbationRadial::validParams()
   params.addClassDescription("Material used in Create Time Dependent Damage Perturbation in the Dynamic Solve");
   params.addRequiredParam<std::vector<Real>>("nucl_center", "nucleation center (x,y,z)");
   params.addRequiredParam<Real>("peak_value","the peak damage value apply region normal to the fault (exponential decay)");
-  params.addRequiredParam<Real>("thickness","the standard deviation used in apply damage value normal to the fault (exponential decay)");
+  params.addRequiredParam<Real>("thickness","the thickness used in apply damage value normal to the fault (exponential decay)");
   params.addRequiredParam<Real>("length","the standard deviation used in apply damage value normal to the fault (exponential decay)");
   params.addRequiredParam<Real>("duration","duration to reach peak damage");
   params.addRequiredParam<std::string>("perturbation_type", "Type of perturbation: 'damage' or 'shear_stress'"); // New parameter
@@ -36,6 +36,9 @@ PerturbationRadial::PerturbationRadial(const InputParameters & parameters)
   _damage_perturbation_old(getMaterialPropertyOldByName<Real>("damage_perturbation")),
   _shear_stress_perturbation(declareProperty<Real>("shear_stress_perturbation")),
   _shear_stress_perturbation_old(getMaterialPropertyOldByName<Real>("shear_stress_perturbation")),
+  _nucl_center_mat(declareProperty<std::vector<Real>>("nucl_center_mat")),
+  _thickness_mat(declareProperty<Real>("thickness_mat")),
+  _length_mat(declareProperty<Real>("length_mat")),
   _nucl_center(getParam<std::vector<Real>>("nucl_center")),
   _peak_value(getParam<Real>("peak_value")),
   _thickness(getParam<Real>("thickness")),
@@ -55,37 +58,42 @@ PerturbationRadial::initQpStatefulProperties()
 {
   _damage_perturbation[_qp] = 0.0;
   _shear_stress_perturbation[_qp] = 0.0;
+  _nucl_center_mat[_qp] = _nucl_center;
+  _thickness_mat[_qp] = _thickness;
+  _length_mat[_qp] = _length;
 }
 
 void
 PerturbationRadial::computeQpProperties()
 {
 
-  //Get coordinates
-  //here no rotation is applied yet
-  Real xcoord = _q_point[_qp](0); //strike
-  Real ycoord = _q_point[_qp](1); //dip
-  Real zcoord = _q_point[_qp](2); //normal
+  // Get the current point coordinates in the mesh
+  const Real xcoord = _q_point[_qp](0); // strike direction
+  const Real ycoord = _q_point[_qp](1); // normal direction
+  const Real zcoord = _q_point[_qp](2); // dip direction
 
-  Real sigma_x = _length / _sigma_divisor;
-  Real sigma_y = _length / _sigma_divisor;
-  Real gaussian_factor = _peak_value; // Maximum perturbation
+  // We define a 2D Gaussian in the XZ plane, ignoring y in the exponent
+  // The characteristic "sigma" is length / sigma_divisor
+  const Real sigma_x = _length / _sigma_divisor;
+  const Real sigma_z = _length / _sigma_divisor;
+  const Real gaussian_factor = _peak_value; // maximum amplitude of the Gaussian
 
-  // Compute distance from nucleation center (XY plane only)
-  Real dx = xcoord - _nucl_center[0];
-  Real dy = ycoord - _nucl_center[1];
+  // Distance in XZ from the nucleation center
+  // If your center is (0, 0, -7500), then _nucl_center might be [0, 0, -7500].
+  const Real dx = xcoord - _nucl_center[0];
+  const Real dz = zcoord - _nucl_center[2];
 
-  // 2D Gaussian distribution in XY plane
-  Real gaussian_value = gaussian_factor * std::exp(
-    - (dx * dx) / (2.0 * sigma_x * sigma_x)
-    - (dy * dy) / (2.0 * sigma_y * sigma_y)
-  );
+  // 2D Gaussian distribution in the XZ plane:
+  //    G(x,z) = peak_value * exp( - [dx^2 / (2*sigma_x^2) + dz^2 / (2*sigma_z^2)] )
+  const Real gaussian_value = gaussian_factor *
+                             std::exp(-((dx * dx) / (2.0 * sigma_x * sigma_x) +
+                                        (dz * dz) / (2.0 * sigma_z * sigma_z)));
 
   // Scale Gaussian value over time
   Real scaled_gaussian_value = 0.0;
   if (_t <= _duration)
   {
-    scaled_gaussian_value = gaussian_value / (_duration / _dt);
+    scaled_gaussian_value = gaussian_value * (_t / _duration);
   }
   else
   {
@@ -95,7 +103,7 @@ PerturbationRadial::computeQpProperties()
   // Check Z direction constraint and apply perturbation
   Real dalpha_damage = 0.0;
   Real dalpha_stress = 0.0;
-  if (zcoord >= _nucl_center[2] - _thickness / 2.0 && zcoord <= _nucl_center[2] + _thickness / 2.0)
+  if (ycoord >= _nucl_center[1] - _thickness / 2.0 && ycoord <= _nucl_center[1] + _thickness / 2.0)
   {
     dalpha_damage = _damage_perturbation_old[_qp] + scaled_gaussian_value;
     dalpha_stress = _shear_stress_perturbation_old[_qp] + scaled_gaussian_value;
@@ -120,5 +128,10 @@ PerturbationRadial::computeQpProperties()
   {
     mooseError("Invalid perturbation type: " + _perturbation_type);
   }
+
+  // Update nucleation center, thickness, and length
+  _nucl_center_mat[_qp] = _nucl_center;
+  _thickness_mat[_qp] = _thickness;
+  _length_mat[_qp] = _length;
 
 }

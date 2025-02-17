@@ -40,6 +40,15 @@ protected:
   /// Material property old shear stress perturbation
   const MaterialProperty<Real> & _shear_stress_perturbation_old;
 
+  /// Material property nucleation center
+  MaterialProperty<std::vector<Real>> & _nucl_center_mat;
+
+  /// Material property thickness
+  MaterialProperty<Real> & _thickness_mat;
+
+  /// Material property length
+  MaterialProperty<Real> & _length_mat;
+
   /// nucleation center (x,y,z)
   std::vector<Real> _nucl_center;
 

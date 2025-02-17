@@ -121,11 +121,6 @@ protected:
   const MaterialProperty<Real> & _initial_damage;
   const MaterialProperty<Real> & _initial_breakage;
 
-  const MaterialProperty<Real> & _initial_shear_stress;
-
-  /// damage perturbation
-  const MaterialProperty<Real> & _damage_perturbation;
-
   /// shear stress perturbation
   const MaterialProperty<Real> & _shear_stress_perturbation;
 
@@ -149,4 +144,9 @@ protected:
 
   /// dimension
   const unsigned int _dim;
+
+  /// get shear stress perturbation needed properties
+  const MaterialProperty<std::vector<Real>> & _nucl_center_mat;
+  const MaterialProperty<Real> & _thickness_mat;
+  const MaterialProperty<Real> & _length_mat;
 };

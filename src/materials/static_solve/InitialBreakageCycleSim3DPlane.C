@@ -57,7 +57,7 @@ InitialBreakageCycleSim3DPlane::InitialBreakageCycleSim3DPlane(const InputParame
     _use_background_randalpha(getParam<bool>("use_background_randalpha")),
     _randalpha(_use_background_randalpha ? &coupledValue("randalpha") : nullptr),
     _use_damage_perturb(getParam<bool>("use_damage_perturb")),
-    _damage_perturbation(_use_damage_perturb ? &getMaterialProperty<Real>("damage_perturb") : nullptr),
+    _damage_perturbation(_use_damage_perturb ? &getMaterialProperty<Real>("damage_perturbation") : nullptr),
     _nucl_center(getParam<std::vector<Real>>("nucl_center"))
 {
 }

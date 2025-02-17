@@ -1,10 +1,13 @@
 SetFactory("OpenCASCADE");
 
+// UNIT: m
+
 // Define mesh sizes
-lc_fault = 100;
-lc = 1000;
+lc_fault = 100; // Finer mesh size inside the fault zone
+lc = 1000;     // Coarser mesh size outside
 
 // Define the big box (outer domain)
+// Later the region will be block 2, and use linear elastic material
 big_xmin = -15000;
 big_xmax = 15000;
 big_ymin = -15000;
@@ -13,6 +16,7 @@ big_zmin = -15000;
 big_zmax = 0;
 
 // Define the small fault zone box
+// The region will be block 3, and use continuum damage breakage material
 small_xmin = -5000;
 small_xmax = 5000;
 small_ymin = -1000;
@@ -21,6 +25,7 @@ small_zmin = -10000;
 small_zmax = -5000;
 
 // Define the inner damage zone box
+// The region will be block 1, and use continuum damage breakage material   
 damage_xmin = -4000;
 damage_xmax = 4000;
 damage_ymin = -100;
@@ -67,7 +72,7 @@ EndFor
 Printf("Number of volumes created: %g", #volumes[]);
 
 // Mesh the geometry
-// Mesh 3;
+Mesh 3;
 
 // Optional: Elevate the mesh order
 // SetOrder 2;

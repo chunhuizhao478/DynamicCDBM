@@ -1,5 +1,11 @@
 #continuum damage-breakage model dynamics
 
+##########################################################################################################################################
+#Mesh section
+#FileMeshGenerator: read mesh file
+#SideSetsFromNormalsGenerator: generate side sets from normals
+#ExtraNodesetGenerator: generate extra nodeset - here we use it to define corner points associated with the bottom boundary
+##########################################################################################################################################
 [Mesh]
     [./msh]
         type = FileMeshGenerator
@@ -91,7 +97,10 @@
     
 []
 
-
+##############################################
+#Variables section
+#disp_x, disp_y, disp_z: displacement field
+##############################################
 [Variables]
     [disp_x]
         order = FIRST
@@ -107,6 +116,11 @@
     []
 []
 
+############################################################################################
+#AuxVariables section
+#gradient of damage variable (not used): alpha_grad_x, alpha_grad_y, alpha_grad_z
+#initial_shear_stress_aux: initial shear stress
+############################################################################################
 [AuxVariables]
     [alpha_grad_x]
     []
@@ -120,12 +134,17 @@
     []
     [vel_z]
     []
-    [initial_damage_aux]
+    [initial_shear_stress_aux]
         order = CONSTANT
         family = MONOMIAL
     []
 []
 
+#############################################################################################################
+#AuxKernels section
+#CompVarRate: compute the rate of a variable: vel_x, vel_y, vel_z
+#SolutionAux: get a solution from static solve and define in an auxiliary variable: initial_shear_stress_aux
+#############################################################################################################
 [AuxKernels]
     [Vel_x]
         type = CompVarRate
@@ -145,14 +164,19 @@
         coupled = disp_z
         execute_on = 'TIMESTEP_END'
     []
-    [initial_damage]
+    [initial_shear_stress_aux]
         type = SolutionAux
-        variable = initial_damage_aux
+        variable = initial_shear_stress_aux
         solution = init_sol_components
-        from_variable = initial_damage
+        from_variable = stress_01
     []
 []
 
+##############################################
+#Kernel section
+#StressDivergenceTensors: compute the divergence of stress tensor, in all three directions
+#InertialForce: compute the inertial force, in all three directions
+##############################################
 [Kernels]
     [dispkernel_x]
         type = StressDivergenceTensors
@@ -189,9 +213,21 @@
     []       
 []
 
-[AuxKernels]
-[]
-
+###################################################################
+#Materials section
+#ComputeSmallStrain: compute the small strain
+#GenericConstantMaterial: define the density
+#ComputeDamageBreakageStress3D: compute the stress field
+#ComputeLinearElasticStress: compute the elastic stress field
+#ComputeIsotropicElasticityTensor: compute the elasticity tensor
+#InitialDamageCycleSim3DPlane: define the initial damage field
+#InitialBreakageCycleSim3DPlane: define the initial breakage field
+#PerturbationRadial: define the perturbation field
+#ParsedMaterial: define the initial shear stress field
+###################################################################
+#Block 1, 3: use continuum damage breakage model
+#Block 2: use linear elastic model
+###################################################################
 [Materials]
     [strain]
         type = ComputeSmallStrain
@@ -200,27 +236,43 @@
     [] 
     [density]
         type = GenericConstantMaterial
-        prop_names = 'density nonADdensity'
-        prop_values = '2700 2700'
+        prop_names = 'density'
+        prop_values = '2700'
     []
     [stress_medium]
         type = ComputeDamageBreakageStress3D
         alpha_grad_x = alpha_grad_x
         alpha_grad_y = alpha_grad_y
         alpha_grad_z = alpha_grad_z
-        output_properties = 'B alpha_damagedvar xi eps_p'
+        output_properties = 'B alpha_damagedvar xi eps_p eps_e I1 I2 xi stress'
         block = '1 3'
-        # outputs = exodus
+        outputs = exodus
     [] 
     [stress_elastic]
         type = ComputeLinearElasticStress
         block = '2'
+        output_properties = 'elastic_strain stress'
+        outputs = exodus
     []
     [elasticity_tensor]
         type = ComputeIsotropicElasticityTensor
         lambda = 30e9
         shear_modulus = 30e9
     []
+    ################################################################################
+    #initial damage field
+    #sigma = 5e2: sigma value
+    #peak_val = 0.7: peak value of the initial damage
+    #len_of_fault_strike = 8000: length of the fault in the x-direction
+    #len_of_fault_dip = 3000: length of the fault in the z-direction
+    #nucl_center = '0 0 -7500': nucleation center
+    ################################################################################
+    #within the damage zone plane: len_of_fault_strike by len_of_fault_dip
+    #the initial damage value = 0.7
+    #outside the damage zone plane: initial damage experience exponential decay
+    #Real alpha_o = _peak_val * std::exp(-1.0 * (r * r) / (_sigma * _sigma));
+    #r = std::sqrt(dx * dx + dy * dy + dz * dz);
+    ################################################################################
     [initial_damage_surround]
         type = InitialDamageCycleSim3DPlane
         sigma = 5e2
@@ -229,8 +281,22 @@
         len_of_fault_dip = 3000
         nucl_center = '0 0 -7500'
         output_properties = 'initial_damage'      
-        # outputs = exodus
+        outputs = exodus
     []
+    ################################################################################
+    #initial breakage field
+    #sigma = 5e2: sigma value
+    #peak_val = 0.1: peak value of the initial breakage
+    #len_of_fault_strike = 8000: length of the fault in the x-direction
+    #len_of_fault_dip = 3000: length of the fault in the z-direction
+    #nucl_center = '0 0 -7500': nucleation center
+    ################################################################################
+    #within the breakage zone plane: len_of_fault_strike by len_of_fault_dip
+    #the initial breakaege value = 0.7
+    #outside the breakage zone plane: initial damage experience exponential decay
+    #Real alpha_o = _peak_val * std::exp(-1.0 * (r * r) / (_sigma * _sigma));
+    #r = std::sqrt(dx * dx + dy * dy + dz * dz);
+    ################################################################################
     [initial_breakage_surround]
         type = InitialBreakageCycleSim3DPlane
         sigma = 5e2
@@ -239,32 +305,55 @@
         len_of_fault_dip = 3000
         nucl_center = '0 0 -7500'
         output_properties = 'initial_breakage'      
-        # outputs = exodus
+        outputs = exodus
     []
-    [dummy_damage_perturb]
-        type = GenericConstantMaterial
-        prop_names = 'damage_perturb'
-        prop_values = '0'
-        block = '1 2 3'
-    []
-    [dummy_material]
-        type = GenericConstantMaterial
-        prop_names = 'damage_perturbation initial_shear_stress shear_stress_perturbation'
-        prop_values = '0 0 0'
+    ################################################################################
+    #perturbation field
+    #perturbation field is defined as a radial shear stress perturbation
+    #peak_value = 10e6: peak value of the perturbation
+    #thickness = 200: thickness of the perturbation (along normal y direction)
+    #length = 1000: length of the perturbation (along normal x,z direction)
+    #duration = 1.0: duration of the perturbation
+    #perturbation_type = 'shear_stress': perturbation type
+    #sigma_divisor = 2.0: divisor of the sigma
+    #see the code snippet below for more details
+    # // Get the current point coordinates in the mesh
+    # const Real xcoord = _q_point[_qp](0); // strike direction
+    # const Real ycoord = _q_point[_qp](1); // normal direction
+    # const Real zcoord = _q_point[_qp](2); // dip direction
+    #
+    # // We define a 2D Gaussian in the XZ plane, ignoring y in the exponent
+    # // The characteristic "sigma" is length / sigma_divisor
+    # const Real sigma_x = _length / _sigma_divisor;
+    # const Real sigma_z = _length / _sigma_divisor;
+    # const Real gaussian_factor = _peak_value; // maximum amplitude of the Gaussian
+    #
+    # // Distance in XZ from the nucleation center
+    # // If your center is (0, 0, -7500), then _nucl_center might be [0, 0, -7500].
+    # const Real dx = xcoord - _nucl_center[0];
+    # const Real dz = zcoord - _nucl_center[2];
+    #
+    # // 2D Gaussian distribution in the XZ plane:
+    # //    G(x,z) = peak_value * exp( - [dx^2 / (2*sigma_x^2) + dz^2 / (2*sigma_z^2)] )
+    # const Real gaussian_value = gaussian_factor *
+    #                            std::exp(-((dx * dx) / (2.0 * sigma_x * sigma_x) +
+    #                                       (dz * dz) / (2.0 * sigma_z * sigma_z)));
+    ################################################################################
+    [shear_stress_perturbation]
+        type = PerturbationRadial
+        nucl_center = '0 0 -7500'
+        peak_value = 10e6
+        thickness = 200
+        length = 1000
+        duration = 1.0
+        perturbation_type = 'shear_stress'
+        sigma_divisor = 2.0
+        output_properties = 'shear_stress_perturbation damage_perturbation'
+        outputs = exodus
     []
 []  
 
 [Functions]
-[]
-
-[UserObjects]
-    [./init_sol_components]
-      type = SolutionUserObject
-      mesh = '../static_solve/static_solve_out.e'
-      system_variables = 'disp_x disp_y disp_z initial_damage'
-      timestep = LATEST
-      force_preaux = true
-    [../]
 []
 
 [Postprocessors]
@@ -276,11 +365,27 @@
         type = NodalExtremeValue
         variable = vel_y
     [../]
+    [./maxvelz]
+        type = NodalExtremeValue
+        variable = vel_z
+    [../]
 [../]
-  
+
+#########################################################################################################
+#Executioner Section
+#type = Transient: Specify the type of executioner, in this case, a transient (time-dependent) simulation
+#dt = 1e-4: Specify the time step size
+#end_time = 10.0: Specify the end time of the simulation
+#num_steps = 10: Optionally, you can specify the number of steps instead of end_time
+##TimeIntegrator: Specify the time integrator to use
+##type = CentralDifference: Specify the type of time integrator, in this case, a central difference scheme
+##solve_type = consistent: Specify the solve type, in this case, a consistent solve (as opposed to lumped)
+##use_constant_mass = true: Optionally, you can specify to use constant mass matrix
+#CFL condition needs to be satisfied: dt < factor * dx / pressure_wave_speed
+#########################################################################################################
 [Executioner]
     type = Transient
-    dt = 1e-4
+    dt = 1e-3
     end_time = 10.0
     # num_steps = 10
     [TimeIntegrator]
@@ -290,18 +395,53 @@
     []
 []
 
+#########################################################################################################
+#Outputs Section
+#exodus = true: Specify that we want to output the solution to an Exodus file
+#time_step_interval = 1: Optionally, you can specify the time step interval at which to output the solution
+#show = : Optionally, you can specify which variables to output to the Exodus file
+##[./csv]: Optionally, you can specify to output the solution to a CSV file
+##type = CSV: Specify the type of output, in this case, a CSV file
+##time_step_interval = 1: Optionally, you can specify the time step interval at which to output the solution
+##show = : Optionally, you can specify which variables to output to the CSV file
+#########################################################################################################
 [Outputs] 
-    #save the solution to a exodus file every 0.1 seconds
-    exodus = false
-    # time_step_interval = 1
+    ### save the solution to a exodus file every [time_step_interval] time steps]
+    exodus = true
+    time_step_interval = 1
+    #############################################
+    ##disp_x, disp_y, disp_z: displacement field
+    ##vel_x, vel_y, vel_z: velocity field
+    ##alpha_damagedvar: damage variable
+    ##B: breakage variable
+    ##initial_damage: initial damage field
+    ##initial_breakage: initial breakage field
+    ##stress_00, stress_01, stress_02, stress_11, stress_12, stress_22: stress field
+    ##eps_e_00, eps_e_01, eps_e_02, eps_e_11, eps_e_12, eps_e_22: elastic strain field
+    ##eps_p_00, eps_p_01, eps_p_02, eps_p_11, eps_p_12, eps_p_22: plastic strain field
+    ##I1, I2: strain invariants
+    ##xi: strain invariants ratio
+    ##shear_stress_perturbation: perturbation field
+    #############################################
+    show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B initial_damage initial_breakage stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
     [./csv]
         type = CSV
         time_step_interval = 1
-        show = 'maxvelx maxvely'
+        show = 'maxvelx maxvely maxvelz'
     [../]
 []
 
 #We assume the simulation is loaded with compressive pressure and shear stress
+#############################################################################################################################################################
+#BCs Section
+#Note: use neuamnnBC gives minimum waves than pressureBC
+#Coordinate system: x: strike, y: normal , z: dip
+#The following BCs are applied to the top, bottom, left, right, front, and back boundaries
+#Note depends on the coordinate system, the normal direction is different
+#Confinement pressure: static_pressure_top, static_pressure_bottom, static_pressure_left, static_pressure_right, static_pressure_front, static_pressure_back
+#Shear stress: static_pressure_front_shear, static_pressure_back_shear
+#Constraints on corner_ptr: fix_cptr1_x, fix_cptr1_y, fix_cptr1_z
+#############################################################################################################################################################
 [BCs]
     #Note: use neuamnnBC gives minimum waves than pressureBC
     [static_pressure_top]
@@ -381,6 +521,241 @@
     []     
 []
 
+#####################################
+#BCs Section
+#Absorbing boundary conditions
+#####################################
+[BCs]
+    ##non-reflecting bc
+    #
+    [./dashpot_top_x]
+        type = NonReflectDashpotBC3d
+        component = 0
+        variable = disp_x
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = top
+    []
+    [./dashpot_top_y]
+        type = NonReflectDashpotBC3d
+        component = 1
+        variable = disp_y
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = top
+    []
+    [./dashpot_top_z]
+        type = NonReflectDashpotBC3d
+        component = 2
+        variable = disp_z
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = top
+    []
+    #
+    [./dashpot_bottom_x]
+        type = NonReflectDashpotBC3d
+        component = 0
+        variable = disp_x
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = bottom
+    []
+    [./dashpot_bottom_y]
+        type = NonReflectDashpotBC3d
+        component = 1
+        variable = disp_y
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = bottom
+    []
+    [./dashpot_bottom_z]
+        type = NonReflectDashpotBC3d
+        component = 2
+        variable = disp_z
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = bottom
+    []
+    #
+    [./dashpot_left_x]
+        type = NonReflectDashpotBC3d
+        component = 0
+        variable = disp_x
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = left
+    []
+    [./dashpot_left_y]
+        type = NonReflectDashpotBC3d
+        component = 1
+        variable = disp_y
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = left
+    []
+    [./dashpot_left_z]
+        type = NonReflectDashpotBC3d
+        component = 2
+        variable = disp_z
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = left
+    []
+    #
+    [./dashpot_right_x]
+        type = NonReflectDashpotBC3d
+        component = 0
+        variable = disp_x
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = right
+    []
+    [./dashpot_right_y]
+        type = NonReflectDashpotBC3d
+        component = 1
+        variable = disp_y
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = right
+    []
+    [./dashpot_right_z]
+        type = NonReflectDashpotBC3d
+        component = 2
+        variable = disp_z
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = right
+    []
+    #
+    [./dashpot_front_x]
+        type = NonReflectDashpotBC3d
+        component = 0
+        variable = disp_x
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = front
+    []
+    [./dashpot_front_y]
+        type = NonReflectDashpotBC3d
+        component = 1
+        variable = disp_y
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = front
+    []
+    [./dashpot_front_z]
+        type = NonReflectDashpotBC3d
+        component = 2
+        variable = disp_z
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = front
+    []
+    #
+    [./dashpot_back_x]
+        type = NonReflectDashpotBC3d
+        component = 0
+        variable = disp_x
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = back
+    []
+    [./dashpot_back_y]
+        type = NonReflectDashpotBC3d
+        component = 1
+        variable = disp_y
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = back
+    []
+    [./dashpot_back_z]
+        type = NonReflectDashpotBC3d
+        component = 2
+        variable = disp_z
+        disp_x = disp_x
+        disp_y = disp_y
+        disp_z = disp_z
+        p_wave_speed = 5773.5
+        shear_wave_speed = 3333.3
+        boundary = back
+    []
+[]    
+
+#############################################################################################################################################################
+#UserObjects Section
+#init_sol_components: SolutionUserObject
+##mesh: The mesh file to use, in this case, the static solution mesh
+##system_variables: The system variables to use, in this case, disp_x, disp_y, disp_z
+##timestep: The time step to use, in this case, the latest time step (LATEST), static solve has two time steps, initial and latest
+##force_preaux: Whether to force the preaux to be used, in this case, true, then SolutioAux will be used 
+#############################################################################################################################################################
+[UserObjects]
+    [./init_sol_components]
+      type = SolutionUserObject
+      mesh = '../static_solve/static_solve_out.e'
+      system_variables = 'disp_x disp_y disp_z stress_01'
+      timestep = LATEST
+      force_preaux = true
+    [../]
+[]
+
+#############################################################################################################################################################
+#ICs Section
+#Initial conditions are applied to the solution variables from the "init_sol_components" in [UserObjects] section
+#for all three direction: disp_x_ic, disp_y_ic, disp_z_ic
+#############################################################################################################################################################
 [ICs]
     [disp_x_ic]
       type = SolutionIC

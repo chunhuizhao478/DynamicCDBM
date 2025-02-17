@@ -77,16 +77,17 @@ ComputeDamageBreakageStress3D::ComputeDamageBreakageStress3D(const InputParamete
     _D(getParam<Real>("D")),
     _initial_damage(getMaterialPropertyByName<Real>("initial_damage")),
     _initial_breakage(getMaterialPropertyByName<Real>("initial_breakage")),
-    _initial_shear_stress(getMaterialPropertyByName<Real>("initial_shear_stress")),
-    _damage_perturbation(getMaterialPropertyByName<Real>("damage_perturbation")),
-    _shear_stress_perturbation(getMaterialPropertyByName<Real>("shear_stress_perturbation")),
+    _shear_stress_perturbation(getMaterialPropertyOldByName<Real>("shear_stress_perturbation")),
     _Cd_constant(getParam<Real>("Cd_constant")),
     _C1(getParam<Real>("C_1")),
     _C2(getParam<Real>("C_2")),
     _beta_width(getParam<Real>("beta_width")),
     _CdCb_multiplier(getParam<Real>("CdCb_multiplier")),
     _CBH_constant(getParam<Real>("CBH_constant")),
-    _dim(_mesh.dimension())
+    _dim(_mesh.dimension()),
+    _nucl_center_mat(getMaterialPropertyByName<std::vector<Real>>("nucl_center_mat")),
+    _thickness_mat(getMaterialPropertyByName<Real>("thickness_mat")),
+    _length_mat(getMaterialPropertyByName<Real>("length_mat"))
 {
 }
 
@@ -154,7 +155,7 @@ ComputeDamageBreakageStress3D::computeQpStress()
   else{}       
 
   //check below initial damage (fix initial damage)
-  if ( alpha_out < _initial_damage[_qp] + _damage_perturbation[_qp] ){ alpha_out = _initial_damage[_qp] + _damage_perturbation[_qp]; }
+  if ( alpha_out < _initial_damage[_qp]){ alpha_out = _initial_damage[_qp]; }
   else{}
 
   _alpha_damagedvar[_qp] = alpha_out;
@@ -232,8 +233,8 @@ ComputeDamageBreakageStress3D::computeQpStress()
 
   //Add shear perturbation
   if (_shear_stress_perturbation[_qp] != 0){
-    sigma_total(0,2) = _initial_shear_stress[_qp] + _shear_stress_perturbation[_qp];
-    sigma_total(2,0) = _initial_shear_stress[_qp] + _shear_stress_perturbation[_qp];
+    sigma_total(0,1) += _shear_stress_perturbation[_qp];
+    sigma_total(1,0) += _shear_stress_perturbation[_qp];
   }
 
   sigma_d = sigma_total - 0.3333 * (sigma_total(0,0) + sigma_total(1,1) + sigma_total(2,2)) * I;
@@ -352,110 +353,3 @@ Real
 ComputeDamageBreakageStress3D::alphacr_root2(Real xi, Real gamma_damaged_r) {
     return 2 * _shear_modulus_o / (gamma_damaged_r * (xi - 2 * _xi_0));
 }
-
-// void
-// ComputeDamageBreakageStress3D::computeQpTangentModulus(Real I1, 
-//                                                        Real I2, 
-//                                                        Real xi, 
-//                                                        Real B,
-//                                                        Real shear_modulus_out,
-//                                                        Real gamma_damaged_out,
-//                                                        Real a0,
-//                                                        Real a1,
-//                                                        Real a2,
-//                                                        Real a3,
-//                                                        RankTwoTensor Ee)
-// {
-
-//   // //define functions for derivatives dstress_dstrain
-//   RankFourTensor tangent;
-
-//   //delta function
-//   auto delta = [](int i, int j) -> Real {
-//     return (i == j) ? 1.0 : 0.0;
-//   };
-
-//   //dI1_dE_{kl}
-//   auto dI1dE = [&](int k, int l) -> Real {
-//     return delta(k,l);
-//   };
-
-//   //dI2_dE_{kl}
-//   auto dI2dE = [&](int k, int l) -> Real {
-//     return 2 * Ee(k,l);
-//   };
-
-//   //dxi_dE_{kl}
-//   auto dxidE = [&](int k, int l) -> Real {
-    
-//     // Epsilon to avoid division by zero
-//     const Real epsilon = 1e-12;
-//     // Adjust I2 if necessary
-//     Real adjusted_I2 = I2;
-//     if (I2 <= epsilon) {
-//       //mooseWarning("I2 is zero or too small (I2 = ", I2, "), adjusting to epsilon.");
-//       adjusted_I2 = epsilon;
-//     }
-
-//     Real dxidE = 0.5 * pow(adjusted_I2,-1.5) * dI2dE(k,l) * I1;
-//     //mooseInfo("I1 = ", I1, ", I2 = ", I2);
-//     if (std::isnan(dxidE)){mooseError("dxidE");}
-//     return delta(k,l) * pow(adjusted_I2,-0.5) - 0.5 * pow(adjusted_I2,-1.5) * dI2dE(k,l) * I1;
-//   };
-
-//   //dE_{ij}_dE_{kl}
-//   auto dEdE = [&](int i, int j, int k, int l) -> Real {
-//     return delta(i,k) * delta(j,l);
-//     //return 0.5 * ( delta(i,k) * delta(j,l) + delta(i,l) * delta(j,k) ); //its symmetric form
-//   };
-
-//   //dxi^{-1}_dE_{kl}
-//   auto dxim1dE = [&](int k, int l) -> Real {
-//     return -1.0 * pow(xi,-2.0) * dxidE(k,l);
-//   };
-
-//   //dxi^3_dE_{kl}
-//   auto dxi3dE = [&](int k, int l) -> Real {
-//     return 3 * pow(xi,2) * dxidE(k,l);
-//   };
-
-//   //dSe_{ij}_dE_{kl}
-//   auto dSedE = [&](int i, int j, int k, int l) -> Real {
-//     Real dSedE_components = (- gamma_damaged_out * dxim1dE(k,l) ) * I1 * delta(i,j);
-//     dSedE_components += ( _lambda_o - gamma_damaged_out / xi ) * dI1dE(k,l) * delta(i,j);
-//     dSedE_components += (- gamma_damaged_out * dxidE(k,l) ) * Ee(i,j);
-//     dSedE_components += ( 2 * shear_modulus_out - gamma_damaged_out * xi ) * dEdE(i,j,k,l);
-//     if (std::isnan(dSedE_components)){mooseError("dSedE_components");}
-//     return dSedE_components;
-//   };
-
-//   //dSb_{ij}_dE_{kl}
-//   auto dSbdE = [&](int i, int j, int k, int l) -> Real {
-//     Real dSbdE_components = ( a1 * dxim1dE(k,l) + 3 * a3 * dxidE(k,l) ) * I1 * delta(i,j);
-//     dSbdE_components += ( 2 * a2 + a1 / xi + 3 * a3 * xi ) * dI1dE(k,l) * delta(i,j);
-//     dSbdE_components += ( a1 * dxidE(k,l) - a3 * dxi3dE(k,l) ) * Ee(i,j);
-//     dSbdE_components += ( 2 * a0 + a1 * xi - a3 * pow(xi,3) ) * dEdE(i,j,k,l);
-//     return dSbdE_components;
-//   };
-
-//   //dS_{ij}_dE_{kl}
-//   auto dSdE = [&](int i, int j, int k, int l) -> Real {
-//     return (1 - B) * dSedE(i,j,k,l) + B * dSbdE(i,j,k,l);
-//   };
-
-//   // Compute tangent modulus C
-//   for (unsigned int i = 0; i < _dim; i++){
-//     for (unsigned int j = 0; j < _dim; j++){
-//       for (unsigned int k = 0; k < _dim; k++){
-//         for (unsigned int l = 0; l < _dim; l++){
-//           if (std::isnan(dSdE(i,j,k,l))){mooseError("encounter nan error: dSdE(i,j,k,l)");}
-//           tangent(i,j,k,l) += dSdE(i,j,k,l);
-//         }
-//       }
-//     }
-//   }
-
-//   //update jacobian
-//   _Jacobian_mult[_qp] = tangent;
-
-// }
