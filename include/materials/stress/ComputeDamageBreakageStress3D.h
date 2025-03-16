@@ -48,21 +48,8 @@ protected:
   /// @return the second root of critical alpha_cr
   Real alphacr_root2(Real xi, Real gamma_damaged_r);
 
-  /// Function: Compute initial strain based on initial stress
-  void setupInitial();
-
   /// @brief Compute elasticity tensor for small strain
-  void computeQpTangentModulus(Real I1, 
-                               Real I2, 
-                               Real xi, 
-                               Real B,
-                               Real shear_modulus_out, 
-                               Real gamma_damaged_out, 
-                               Real a0, 
-                               Real a1, 
-                               Real a2, 
-                               Real a3, 
-                               RankTwoTensor Ee);
+  virtual void computeQpTangentModulus(RankFourTensor & tangent, Real I1, Real I2, Real xi, RankTwoTensor Ee);
 
   /// additional variables
   /// strain invariants ratio: onset of damage evolution

@@ -1,6 +1,12 @@
 #continuum damage-breakage model dynamics
 
 ##########################################################################################################################################
+#User Parameters section
+dt = 1e-3 #time step size
+end_time = 20.0 #end time of the simulation
+time_step_interval = 100 #output interval
+
+##########################################################################################################################################
 #Mesh section
 #FileMeshGenerator: read mesh file
 #SideSetsFromNormalsGenerator: generate side sets from normals
@@ -81,7 +87,7 @@
     beta_width = 0.03 #1e-3
     
     #<material parameter: compliance or fluidity of the fine grain granular material>: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
-    C_g = 1e-10
+    C_g = 1e-8
     
     #<coefficient of power law indexes>: see flow rule (power law rheology): refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     m1 = 10
@@ -118,6 +124,8 @@
 
 ############################################################################################
 #AuxVariables section
+#velocity field: vel_x, vel_y, vel_z
+#acceleration field: accel_x, accel_y, accel_z
 #gradient of damage variable (not used): alpha_grad_x, alpha_grad_y, alpha_grad_z
 #initial_shear_stress_aux: initial shear stress
 ############################################################################################
@@ -134,6 +142,12 @@
     []
     [vel_z]
     []
+    [accel_x]
+    []
+    [accel_y]
+    []
+    [accel_z]
+    []
     [initial_shear_stress_aux]
         order = CONSTANT
         family = MONOMIAL
@@ -142,26 +156,54 @@
 
 #############################################################################################################
 #AuxKernels section
-#CompVarRate: compute the rate of a variable: vel_x, vel_y, vel_z
+#NewmarkVelAux: compute the rate of a variable: vel_x, vel_y, vel_z using Nemwark time integration
+#NewmarkAccelAux: compute the acceleration of a variable: accel_x, accel_y, accel_z using Nemwark time integration
 #SolutionAux: get a solution from static solve and define in an auxiliary variable: initial_shear_stress_aux
 #############################################################################################################
 [AuxKernels]
-    [Vel_x]
-        type = CompVarRate
+    [accel_x]
+        type = NewmarkAccelAux
+        variable = accel_x
+        displacement = disp_x
+        velocity = vel_x
+        beta = 0.25
+        execute_on = 'TIMESTEP_END'
+    []
+    [vel_x]
+        type = NewmarkVelAux
         variable = vel_x
-        coupled = disp_x
+        acceleration = accel_x
+        gamma = 0.5
         execute_on = 'TIMESTEP_END'
     []
-    [Vel_y]
-        type = CompVarRate
+    [accel_y]
+        type = NewmarkAccelAux
+        variable = accel_y
+        displacement = disp_y
+        velocity = vel_y
+        beta = 0.25
+        execute_on = 'TIMESTEP_END'
+    []
+    [vel_y]
+        type = NewmarkVelAux
         variable = vel_y
-        coupled = disp_y
+        acceleration = accel_y
+        gamma = 0.5
         execute_on = 'TIMESTEP_END'
     []
-    [Vel_z]
-        type = CompVarRate
+    [accel_z]
+        type = NewmarkAccelAux
+        variable = accel_z
+        displacement = disp_z
+        velocity = vel_z
+        beta = 0.25
+        execute_on = 'TIMESTEP_END'
+    []
+    [vel_z]
+        type = NewmarkVelAux
         variable = vel_z
-        coupled = disp_z
+        acceleration = accel_z
+        gamma = 0.5
         execute_on = 'TIMESTEP_END'
     []
     [initial_shear_stress_aux]
@@ -175,7 +217,7 @@
 ##############################################
 #Kernel section
 #StressDivergenceTensors: compute the divergence of stress tensor, in all three directions
-#InertialForce: compute the inertial force, in all three directions
+#InertialForce: compute the inertial force, in all three directions, using Newmark time integration
 ##############################################
 [Kernels]
     [dispkernel_x]
@@ -200,16 +242,31 @@
         type = InertialForce
         use_displaced_mesh = false
         variable = disp_x
+        acceleration = accel_x
+        velocity = vel_x
+        beta = 0.25
+        gamma = 0.5
+        eta = 0
     []
     [./inertia_y]
         type = InertialForce
         use_displaced_mesh = false
         variable = disp_y
+        acceleration = accel_y
+        velocity = vel_y
+        beta = 0.25
+        gamma = 0.5
+        eta = 0
     [] 
     [./inertia_z]
         type = InertialForce
         use_displaced_mesh = false
         variable = disp_z
+        acceleration = accel_z
+        velocity = vel_z
+        beta = 0.25
+        gamma = 0.5
+        eta = 0
     []       
 []
 
@@ -265,7 +322,7 @@
     #peak_val = 0.7: peak value of the initial damage
     #len_of_fault_strike = 8000: length of the fault in the x-direction
     #len_of_fault_dip = 3000: length of the fault in the z-direction
-    #nucl_center = '0 0 -7500': nucleation center
+    #nucl_center = '0 0 -7500': plane center
     ################################################################################
     #within the damage zone plane: len_of_fault_strike by len_of_fault_dip
     #the initial damage value = 0.7
@@ -289,7 +346,7 @@
     #peak_val = 0.1: peak value of the initial breakage
     #len_of_fault_strike = 8000: length of the fault in the x-direction
     #len_of_fault_dip = 3000: length of the fault in the z-direction
-    #nucl_center = '0 0 -7500': nucleation center
+    #nucl_center = '0 0 -7500': plane center
     ################################################################################
     #within the breakage zone plane: len_of_fault_strike by len_of_fault_dip
     #the initial breakaege value = 0.7
@@ -383,16 +440,40 @@
 ##use_constant_mass = true: Optionally, you can specify to use constant mass matrix
 #CFL condition needs to be satisfied: dt < factor * dx / pressure_wave_speed
 #########################################################################################################
+[Preconditioning]
+    [smp]
+      type = SMP
+      full = true
+    []
+[]
+
 [Executioner]
     type = Transient
-    dt = 1e-3
-    end_time = 10.0
+    solve_type = 'NEWTON'
+    # solve_type = 'PJFNK'
+    start_time = -1e-12
+    end_time = ${end_time}
     # num_steps = 10
-    [TimeIntegrator]
-        type = CentralDifference
-        solve_type = consistent
-        # use_constant_mass = true
-    []
+    l_max_its = 100
+    l_tol = 1e-7
+    nl_rel_tol = 1e-6
+    nl_max_its = 8
+    nl_abs_tol = 1e-8
+    petsc_options_iname = '-ksp_type -pc_type'
+    petsc_options_value = 'gmres     hypre'
+    # petsc_options_iname = '-pc_type -pc_factor_shift_type'
+    # petsc_options_value = 'lu       NONZERO'
+    # petsc_options_iname = '-ksp_type -pc_type -pc_hypre_type  -ksp_initial_guess_nonzero -ksp_pc_side -ksp_max_it -ksp_rtol -ksp_atol'
+    # petsc_options_value = 'gmres        hypre      boomeramg                   True        right       1500        1e-7      1e-9    '
+    automatic_scaling = true
+    # nl_forced_its = 3
+    # line_search = 'bt'
+    dt = ${dt}
+    [./TimeIntegrator]
+        type = NewmarkBeta
+        beta = 0.25
+        gamma = 0.5
+    [../]
 []
 
 #########################################################################################################
@@ -408,7 +489,7 @@
 [Outputs] 
     ### save the solution to a exodus file every [time_step_interval] time steps]
     exodus = true
-    time_step_interval = 1
+    time_step_interval = ${time_step_interval}
     #############################################
     ##disp_x, disp_y, disp_z: displacement field
     ##vel_x, vel_y, vel_z: velocity field
@@ -426,10 +507,23 @@
     show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B initial_damage initial_breakage stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
     [./csv]
         type = CSV
-        time_step_interval = 1
+        time_step_interval = ${time_step_interval}
         show = 'maxvelx maxvely maxvelz'
     [../]
 []
+
+#############################################################################################################
+#Controls Section
+#This is used for first steady state solve, we close all inertial terms, absorbing boundary conditions
+#############################################################################################################
+[Controls] # turns off inertial terms for the FIRST time step
+  [./period0]
+    type = TimePeriod
+    disable_objects = '*/vel_x */vel_y */vel_z */accel_x */accel_y */accel_z */inertia_x */inertia_y */inertia_z */dashpot_front_x */dashpot_front_y */dashpot_front_z */dashpot_back_x */dashpot_back_y */dashpot_back_z */dashpot_left_x */dashpot_left_y */dashpot_left_z */dashpot_right_x */dashpot_right_y */dashpot_right_z */dashpot_top_x */dashpot_top_y */dashpot_top_z */dashpot_bottom_x */dashpot_bottom_y */dashpot_bottom_z'
+    start_time = -1e-12
+    end_time = ${dt} # dt used in the simulation
+  []
+[../]
 
 #We assume the simulation is loaded with compressive pressure and shear stress
 #############################################################################################################################################################
@@ -528,208 +622,262 @@
 [BCs]
     ##non-reflecting bc
     #
-    [./dashpot_top_x]
-        type = NonReflectDashpotBC3d
-        component = 0
-        variable = disp_x
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = top
-    []
-    [./dashpot_top_y]
-        type = NonReflectDashpotBC3d
-        component = 1
-        variable = disp_y
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = top
-    []
-    [./dashpot_top_z]
-        type = NonReflectDashpotBC3d
-        component = 2
-        variable = disp_z
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = top
-    []
-    #
-    [./dashpot_bottom_x]
-        type = NonReflectDashpotBC3d
-        component = 0
-        variable = disp_x
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = bottom
-    []
-    [./dashpot_bottom_y]
-        type = NonReflectDashpotBC3d
-        component = 1
-        variable = disp_y
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = bottom
-    []
-    [./dashpot_bottom_z]
-        type = NonReflectDashpotBC3d
-        component = 2
-        variable = disp_z
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = bottom
-    []
-    #
-    [./dashpot_left_x]
-        type = NonReflectDashpotBC3d
-        component = 0
-        variable = disp_x
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = left
-    []
-    [./dashpot_left_y]
-        type = NonReflectDashpotBC3d
-        component = 1
-        variable = disp_y
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = left
-    []
-    [./dashpot_left_z]
-        type = NonReflectDashpotBC3d
-        component = 2
-        variable = disp_z
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = left
-    []
-    #
-    [./dashpot_right_x]
-        type = NonReflectDashpotBC3d
-        component = 0
-        variable = disp_x
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = right
-    []
-    [./dashpot_right_y]
-        type = NonReflectDashpotBC3d
-        component = 1
-        variable = disp_y
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = right
-    []
-    [./dashpot_right_z]
-        type = NonReflectDashpotBC3d
-        component = 2
-        variable = disp_z
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
-        boundary = right
-    []
-    #
     [./dashpot_front_x]
-        type = NonReflectDashpotBC3d
-        component = 0
+        type = FarmsNonReflectDashpotBC
         variable = disp_x
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 0
         boundary = front
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
     []
     [./dashpot_front_y]
-        type = NonReflectDashpotBC3d
-        component = 1
+        type = FarmsNonReflectDashpotBC
         variable = disp_y
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 1
         boundary = front
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
     []
     [./dashpot_front_z]
-        type = NonReflectDashpotBC3d
-        component = 2
+        type = FarmsNonReflectDashpotBC
         variable = disp_z
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 2
         boundary = front
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
     []
     #
     [./dashpot_back_x]
-        type = NonReflectDashpotBC3d
-        component = 0
+        type = FarmsNonReflectDashpotBC
         variable = disp_x
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 0
         boundary = back
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
     []
     [./dashpot_back_y]
-        type = NonReflectDashpotBC3d
-        component = 1
+        type = FarmsNonReflectDashpotBC
         variable = disp_y
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 1
         boundary = back
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
     []
     [./dashpot_back_z]
-        type = NonReflectDashpotBC3d
-        component = 2
+        type = FarmsNonReflectDashpotBC
         variable = disp_z
-        disp_x = disp_x
-        disp_y = disp_y
-        disp_z = disp_z
-        p_wave_speed = 5773.5
-        shear_wave_speed = 3333.3
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 2
         boundary = back
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    #
+    [./dashpot_top_x]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_x
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 0
+        boundary = top
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_top_y]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_y
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 1
+        boundary = top
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_top_z]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_z
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 2
+        boundary = top
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    #
+    [./dashpot_bottom_x]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_x
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 0
+        boundary = bottom
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_bottom_y]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_y
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 1
+        boundary = bottom
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_bottom_z]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_z
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 2
+        boundary = bottom
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    #
+    [./dashpot_left_x]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_x
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 0
+        boundary = left
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_left_y]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_y
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 1
+        boundary = left
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_left_z]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_z
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 2
+        boundary = left
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    #
+    [./dashpot_right_x]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_x
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 0
+        boundary = right
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_right_y]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_y
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 1
+        boundary = right
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
+    []
+    [./dashpot_right_z]
+        type = FarmsNonReflectDashpotBC
+        variable = disp_z
+        displacements = 'disp_x disp_y disp_z'
+        velocities = 'vel_x vel_y vel_z'
+        accelerations = 'accel_x accel_y accel_z'
+        component = 2
+        boundary = right
+        beta = 0.25
+        gamma = 0.5
+        shear_wave_speed = 3333.33
+        p_wave_speed = 5773.5
+        density = 2700
     []
 []    
 
