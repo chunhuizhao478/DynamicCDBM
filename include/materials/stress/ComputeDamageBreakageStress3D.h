@@ -108,7 +108,9 @@ protected:
   const MaterialProperty<Real> & _initial_damage;
   const MaterialProperty<Real> & _initial_breakage;
 
-  /// shear stress perturbation
+  /// perturbation (damage)
+  const MaterialProperty<Real> & _damage_perturbation;
+  /// perturbation (shear stress)
   const MaterialProperty<Real> & _shear_stress_perturbation;
 
   /// coefficient of positive damage evolution

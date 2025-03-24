@@ -77,6 +77,7 @@ ComputeDamageBreakageStress3D::ComputeDamageBreakageStress3D(const InputParamete
     _D(getParam<Real>("D")),
     _initial_damage(getMaterialPropertyByName<Real>("initial_damage")),
     _initial_breakage(getMaterialPropertyByName<Real>("initial_breakage")),
+    _damage_perturbation(getMaterialPropertyByName<Real>("damage_perturbation")),
     _shear_stress_perturbation(getMaterialPropertyOldByName<Real>("shear_stress_perturbation")),
     _Cd_constant(getParam<Real>("Cd_constant")),
     _C1(getParam<Real>("C_1")),
@@ -155,7 +156,7 @@ ComputeDamageBreakageStress3D::computeQpStress()
   else{}       
 
   //check below initial damage (fix initial damage)
-  if ( alpha_out < _initial_damage[_qp]){ alpha_out = _initial_damage[_qp]; }
+  if ( alpha_out < _initial_damage[_qp] + _damage_perturbation[_qp]){ alpha_out = _initial_damage[_qp] + _damage_perturbation[_qp]; }
   else{}
 
   _alpha_damagedvar[_qp] = alpha_out;
@@ -231,13 +232,13 @@ ComputeDamageBreakageStress3D::computeQpStress()
   sigma_b = (2 * a2 + a1 / xi + 3 * a3 * xi) * I1 * RankTwoTensor::Identity() + (2 * a0 + a1 * xi - a3 * std::pow(xi, 3)) * eps_e;
   sigma_total = (1 - B_out) * sigma_s + B_out * sigma_b;
 
+  sigma_d = sigma_total - 0.3333 * (sigma_total(0,0) + sigma_total(1,1) + sigma_total(2,2)) * I;
+
   //Add shear perturbation
   if (_shear_stress_perturbation[_qp] != 0){
     sigma_total(0,1) += _shear_stress_perturbation[_qp];
     sigma_total(1,0) += _shear_stress_perturbation[_qp];
   }
-
-  sigma_d = sigma_total - 0.3333 * (sigma_total(0,0) + sigma_total(1,1) + sigma_total(2,2)) * I;
 
   _eps_total[_qp] = eps_p + eps_e;
   _eps_p[_qp] = eps_p;

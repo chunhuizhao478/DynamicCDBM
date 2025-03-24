@@ -93,7 +93,7 @@ PerturbationRadial::computeQpProperties()
   Real scaled_gaussian_value = 0.0;
   if (_t <= _duration)
   {
-    scaled_gaussian_value = gaussian_value / (_duration / _dt);
+    scaled_gaussian_value = gaussian_value * (_t / _duration);
   }
   else
   {
@@ -105,8 +105,8 @@ PerturbationRadial::computeQpProperties()
   Real dalpha_stress = 0.0;
   if (ycoord >= _nucl_center[1] - _thickness / 2.0 && ycoord <= _nucl_center[1] + _thickness / 2.0)
   {
-    dalpha_damage = _damage_perturbation_old[_qp] + scaled_gaussian_value;
-    dalpha_stress = _shear_stress_perturbation_old[_qp] + scaled_gaussian_value;
+    dalpha_damage = scaled_gaussian_value;
+    dalpha_stress = scaled_gaussian_value;
   }
   else
   {
