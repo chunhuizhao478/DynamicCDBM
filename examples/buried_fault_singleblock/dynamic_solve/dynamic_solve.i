@@ -532,7 +532,8 @@ time_step_interval = 20 #output interval
     ##xi: strain invariants ratio
     ##shear_stress_perturbation: perturbation field
     #############################################
-    show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
+    # show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
+    show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B xi damage_perturbation'
     [./csv]
         type = CSV
         time_step_interval = ${time_step_interval}
