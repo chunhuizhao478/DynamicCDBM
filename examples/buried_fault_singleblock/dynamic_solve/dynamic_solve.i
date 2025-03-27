@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 20 #output interval
+time_step_interval = 1 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -382,7 +382,7 @@ time_step_interval = 20 #output interval
         type = ConstantMaterial
         property_name = 'initial_breakage'
         output_properties = 'initial_breakage'      
-        value = 0.1
+        value = 0.0
         block = '1'
     []
     [initial_breakage_surround_elastic]

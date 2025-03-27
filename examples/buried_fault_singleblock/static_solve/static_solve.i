@@ -230,7 +230,7 @@
     [initial_breakage_surround_damage]
         type = ADConstantMaterial
         property_name = 'initial_breakage'
-        value = 0.1
+        value = 0.0
         block = '1'
     []
     [initial_breakage_surround_elastic]

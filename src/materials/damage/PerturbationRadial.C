@@ -97,7 +97,7 @@ PerturbationRadial::computeQpProperties()
   }
   else
   {
-    scaled_gaussian_value = 0;
+    scaled_gaussian_value = gaussian_value;
   }
 
   // Check Z direction constraint and apply perturbation
