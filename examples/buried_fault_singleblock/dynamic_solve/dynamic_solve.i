@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 10 #output interval
+time_step_interval = 20 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -55,7 +55,7 @@ time_step_interval = 10 #output interval
     xi_0 = -0.75
     
     #<strain invariants ratio: onset of breakage healing>: tunable param, see ggw183.pdf
-    xi_d = -0.9
+    xi_d = -1.0
     
     #<strain invariants ratio: maximum allowable value>: set boundary
     #Xu_etal_P15-2D
@@ -481,7 +481,7 @@ time_step_interval = 10 #output interval
     # solve_type = 'PJFNK'
     start_time = -1e-12
     end_time = ${end_time}
-    num_steps = 100
+    num_steps = 1000
     l_max_its = 100
     l_tol = 1e-7
     nl_rel_tol = 1e-6
