@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 1 #output interval
+time_step_interval = 100 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -75,10 +75,10 @@ time_step_interval = 1 #output interval
 
     #<coefficient of healing for breakage evolution>: refer to "Lyakhovsky_Ben-Zion_P14" (10 * C_B)
     # CBCBH_multiplier = 0.0
-    CBH_constant = 1e4
+    CBH_constant = 0
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
-    C_1 = 300
+    C_1 = 0
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
     C_2 = 0.05
@@ -430,7 +430,7 @@ time_step_interval = 1 #output interval
         peak_value = 15e6
         thickness = 100
         length = 1000
-        duration = 0.01
+        duration = 1.0
         perturbation_type = 'shear_stress'
         sigma_divisor = 2.0
         output_properties = 'shear_stress_perturbation damage_perturbation'
