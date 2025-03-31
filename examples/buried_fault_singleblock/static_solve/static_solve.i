@@ -141,9 +141,9 @@
         type = ADComputeDamageStressStaticDistribution
         lambda_o = 32e9
         shear_modulus_o = 32e9
-        xi_o = -0.75
+        xi_o = -1.0
         chi = 0.8
-        xi_d = -0.9
+        xi_d = -1.0
         outputs = exodus
         block = '1'
     [] 
@@ -352,14 +352,14 @@
         type = ADNeumannBC
         variable = disp_x
         boundary = front
-        value = -30e6
+        value = -25e6
         displacements = 'disp_x disp_y disp_z'
     []  
     [static_pressure_back_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = back
-        value = 30e6
+        value = 25e6
         displacements = 'disp_x disp_y disp_z'
     []    
     # fix ptr

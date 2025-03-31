@@ -67,7 +67,7 @@ time_step_interval = 20 #output interval
     xi_min = -1.8
 
     #if option 2, use Cd_constant
-    Cd_constant = 1.86e5
+    Cd_constant = 1.86e6
 
     #<coefficient gives positive breakage evolution >: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     #The multiplier between Cd and Cb: Cb = CdCb_multiplier * Cd
@@ -427,7 +427,7 @@ time_step_interval = 20 #output interval
     [damage_perturbation]
         type = PerturbationRadial
         nucl_center = '-5000 0 -7500'
-        peak_value = 10e6
+        peak_value = 15e6
         thickness = 100
         length = 1000
         duration = 0.01
@@ -613,14 +613,14 @@ time_step_interval = 20 #output interval
         type = ADNeumannBC
         variable = disp_x
         boundary = front
-        value = -30e6
+        value = -25e6
         displacements = 'disp_x disp_y disp_z'
     []  
     [static_pressure_back_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = back
-        value = 30e6
+        value = 25e6
         displacements = 'disp_x disp_y disp_z'
     []      
     # fix ptr
