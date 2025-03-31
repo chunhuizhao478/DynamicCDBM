@@ -921,7 +921,7 @@ time_step_interval = 1 #output interval
 [UserObjects]
     [./init_sol_components]
       type = SolutionUserObject
-      mesh = '../static_solve/static_solve_large_out.e'
+      mesh = '../static_solve/static_solve_out.e'
       system_variables = 'disp_x disp_y disp_z stress_01'
       timestep = LATEST
       force_preaux = true
