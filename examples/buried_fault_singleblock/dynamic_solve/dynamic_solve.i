@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 20 #output interval
+time_step_interval = 100 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -481,7 +481,7 @@ time_step_interval = 20 #output interval
     # solve_type = 'PJFNK'
     start_time = -1e-12
     end_time = ${end_time}
-    num_steps = 1000
+    # num_steps = 1000
     l_max_its = 100
     l_tol = 1e-7
     nl_rel_tol = 1e-6
