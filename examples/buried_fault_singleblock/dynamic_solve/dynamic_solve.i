@@ -52,7 +52,7 @@ time_step_interval = 20 #output interval
     shear_modulus_o = 32e9
     
     #<strain invariants ratio: onset of damage evolution>: relate to internal friction angle, refer to "note_mar25"
-    xi_0 = -0.75
+    xi_0 = -1.0
     
     #<strain invariants ratio: onset of breakage healing>: tunable param, see ggw183.pdf
     xi_d = -1.0
