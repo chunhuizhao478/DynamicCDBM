@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 100 #output interval
+time_step_interval = 1 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -15,7 +15,7 @@ time_step_interval = 100 #output interval
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../meshfile/mesh_singleblock.msh'
+        file = '../meshfile/mesh_singleblock_large.msh'
     []
     [./sidesets]
         input = msh
@@ -30,10 +30,10 @@ time_step_interval = 100 #output interval
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -15000 -15000 -15000;
-                   15000 -15000 -15000;
-                   15000 15000  -15000;
-                  -15000 15000  -15000'
+        coord = ' -30000 -30000 -30000;
+                   30000 -30000 -30000;
+                   30000 30000  -30000;
+                  -30000 30000  -30000'
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -613,14 +613,14 @@ time_step_interval = 100 #output interval
         type = ADNeumannBC
         variable = disp_x
         boundary = front
-        value = -25e6
+        value = -30e6
         displacements = 'disp_x disp_y disp_z'
     []  
     [static_pressure_back_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = back
-        value = 25e6
+        value = 30e6
         displacements = 'disp_x disp_y disp_z'
     []      
     # fix ptr
@@ -921,7 +921,7 @@ time_step_interval = 100 #output interval
 [UserObjects]
     [./init_sol_components]
       type = SolutionUserObject
-      mesh = '../static_solve/static_solve_out.e'
+      mesh = '../static_solve/static_solve_large_out.e'
       system_variables = 'disp_x disp_y disp_z stress_01'
       timestep = LATEST
       force_preaux = true

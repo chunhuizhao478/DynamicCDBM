@@ -9,7 +9,7 @@
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../meshfile/mesh_singleblock.msh'
+        file = '../meshfile/mesh_singleblock_large.msh'
     []
     [./sidesets]
         input = msh
@@ -24,10 +24,10 @@
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -15000 -15000 -15000;
-                   15000 -15000 -15000;
-                   15000 15000  -15000;
-                  -15000 15000  -15000'
+        coord = ' -30000 -30000 -30000;
+                   30000 -30000 -30000;
+                   30000 30000  -30000;
+                  -30000 30000  -30000'
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -352,14 +352,14 @@
         type = ADNeumannBC
         variable = disp_x
         boundary = front
-        value = -25e6
+        value = -30e6
         displacements = 'disp_x disp_y disp_z'
     []  
     [static_pressure_back_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = back
-        value = 25e6
+        value = 30e6
         displacements = 'disp_x disp_y disp_z'
     []    
     # fix ptr
