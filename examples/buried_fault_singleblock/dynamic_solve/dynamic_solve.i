@@ -67,7 +67,7 @@ time_step_interval = 100 #output interval
     xi_min = -1.8
 
     #if option 2, use Cd_constant
-    Cd_constant = 1.86e6
+    Cd_constant = 1.86e5
 
     #<coefficient gives positive breakage evolution >: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     #The multiplier between Cd and Cb: Cb = CdCb_multiplier * Cd
@@ -87,7 +87,7 @@ time_step_interval = 100 #output interval
     beta_width = 0.05 #1e-3
     
     #<material parameter: compliance or fluidity of the fine grain granular material>: refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
-    C_g = 1e-12
+    C_g = 1e-10
     
     #<coefficient of power law indexes>: see flow rule (power law rheology): refer to "Lyak_BZ_JMPS14_splitstrain" Table 1
     m1 = 10
@@ -427,10 +427,10 @@ time_step_interval = 100 #output interval
     [damage_perturbation]
         type = PerturbationRadial
         nucl_center = '-5000 0 -7500'
-        peak_value = 15e6
+        peak_value = 10e6
         thickness = 100
         length = 1000
-        duration = 1.0
+        duration = 0.1
         perturbation_type = 'shear_stress'
         sigma_divisor = 2.0
         output_properties = 'shear_stress_perturbation damage_perturbation'
