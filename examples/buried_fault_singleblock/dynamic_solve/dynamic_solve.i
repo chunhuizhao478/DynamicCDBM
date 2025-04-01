@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 50 #output interval
+time_step_interval = 2 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -426,8 +426,8 @@ time_step_interval = 50 #output interval
     ################################################################################
     [damage_perturbation]
         type = PerturbationRadial
-        nucl_center = '-5000 0 -7500'
-        peak_value = 5e6
+        nucl_center = '0 0 -7500'
+        peak_value = 1e6
         thickness = 100
         length = 1000
         duration = 0.1
