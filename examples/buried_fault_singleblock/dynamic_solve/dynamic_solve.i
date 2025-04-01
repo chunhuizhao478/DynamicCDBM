@@ -427,7 +427,7 @@ time_step_interval = 50 #output interval
     [damage_perturbation]
         type = PerturbationRadial
         nucl_center = '-5000 0 -7500'
-        peak_value = 10e6
+        peak_value = 5e6
         thickness = 100
         length = 1000
         duration = 0.1
