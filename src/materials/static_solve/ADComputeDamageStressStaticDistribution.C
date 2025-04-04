@@ -32,7 +32,8 @@ ADComputeDamageStressStaticDistribution::ADComputeDamageStressStaticDistribution
   _xi_d(getParam<Real>("xi_d")),
   _chi(getParam<Real>("chi")),
   _initial_damage_val(getADMaterialPropertyByName<Real>("initial_damage")),
-  _initial_breakage_val(getADMaterialPropertyByName<Real>("initial_breakage"))
+  _initial_breakage_val(getADMaterialPropertyByName<Real>("initial_breakage")),
+  _alpha_damagedvar(declareADProperty<Real>("alpha_damagedvar"))
 {
 }
 
@@ -64,9 +65,14 @@ ADComputeDamageStressStaticDistribution::computeQpStress()
   ADReal a2 = avec[2];
   ADReal a3 = avec[3];
 
+  ADReal initial_damage_val = 0.1 * _t;
+  ADReal shear_modulus = _shear_modulus_o + _xi_o * initial_damage_val * gamma_r;
+  ADReal gamma_damaged_out = initial_damage_val * gamma_r;
+  _alpha_damagedvar[_qp] = initial_damage_val;
+
   // Evaluate shear modulus
-  ADReal shear_modulus = _shear_modulus_o + _xi_o * _initial_damage_val[_qp] * gamma_r;
-  ADReal gamma_damaged_out = _initial_damage_val[_qp] * gamma_r;
+  // ADReal shear_modulus = _shear_modulus_o + _xi_o * _initial_damage_val[_qp] * gamma_r;
+  // ADReal gamma_damaged_out = _initial_damage_val[_qp] * gamma_r;
 
   //
   const ADReal epsilon = 1e-12;

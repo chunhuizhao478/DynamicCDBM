@@ -63,4 +63,7 @@ protected:
   /// @brief initial breakage value
   const ADMaterialProperty<Real> & _initial_breakage_val;
 
+  /// @brief damage value
+  ADMaterialProperty<Real> & _alpha_damagedvar;
+
 };

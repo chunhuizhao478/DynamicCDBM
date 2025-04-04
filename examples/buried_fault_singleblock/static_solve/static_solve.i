@@ -24,10 +24,7 @@
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -30000 -30000 -30000;
-                   30000 -30000 -30000;
-                   30000 30000  -30000;
-                  -30000 30000  -30000'
+        coord = ' -30000 -30000 -30000'
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -139,8 +136,8 @@
     ###################################################################
     [stress]
         type = ADComputeDamageStressStaticDistribution
-        lambda_o = 32e9
-        shear_modulus_o = 32e9
+        lambda_o = 32.04e9
+        shear_modulus_o = 32.04e9
         xi_o = -1.0
         chi = 0.8
         xi_d = -1.0
@@ -159,8 +156,8 @@
     []
     [elasticity_tensor]
         type = ADComputeIsotropicElasticityTensor
-        lambda = 32e9
-        shear_modulus = 32e9
+        lambda = 32.04e9
+        shear_modulus = 32.04e9
     []
     ###################################################################
     [getxi]
@@ -194,9 +191,9 @@
     [initial_damage_surround_damage]
         type = ADConstantMaterial
         property_name = 'initial_damage'
-        value = 0.7
+        value = 0
         block = '1'
-    []
+    []   
     [initial_damage_surround_elastic]
         type = ADConstantMaterial
         property_name = 'initial_damage'
@@ -241,6 +238,13 @@
     []    
 []  
 
+[Functions]
+    [ramp_up_damage]
+        type = ParsedFunction
+        expression = '0.1 * t'
+    []
+[]
+
 ###############################
 #Preconditioning section
 #SMP: use SMP preconditioner
@@ -266,13 +270,15 @@
 #automatic_scaling = true: specify to use automatic scaling
 ################################################################################################
 [Executioner]
-    type = Steady
+    type = Transient
     solve_type = 'NEWTON'
     l_max_its = 100
     l_tol = 1e-7
-    nl_rel_tol = 1e-10
-    nl_max_its = 20
-    nl_abs_tol = 1e-12
+    nl_rel_tol = 1e-6
+    nl_max_its = 100
+    nl_abs_tol = 1e-8
+    num_steps = 7
+    dt = 1
     # this is very robust, use as default
     petsc_options_iname = '-ksp_type -pc_type -ksp_initial_guess_nonzero'
     petsc_options_value = 'gmres     hypre  True'
@@ -282,7 +288,8 @@
     # petsc_options_value = '101                asm      lu'
     # petsc_options_iname = '-ksp_type -pc_type -pc_hypre_type  -ksp_initial_guess_nonzero -ksp_pc_side -ksp_max_it -ksp_rtol -ksp_atol'
     # petsc_options_value = 'gmres        hypre      boomeramg                   True        right       1500        1e-7      1e-9    '
-    automatic_scaling = true
+    # automatic_scaling = true
+    line_search = 'bt'
 []  
 
 ################################################
@@ -347,21 +354,36 @@
         boundary = back
         value = -50e6
         displacements = 'disp_x disp_y disp_z'
-    []
+    []  
+    #
     [static_pressure_front_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = front
-        value = -30e6
+        value = -15e6
         displacements = 'disp_x disp_y disp_z'
-    []  
+    []
     [static_pressure_back_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = back
-        value = 30e6
+        value = 15e6
         displacements = 'disp_x disp_y disp_z'
-    []    
+    []
+    [static_pressure_left_shear]
+        type = ADNeumannBC
+        variable = disp_y
+        boundary = left
+        value = -15e6
+        displacements = 'disp_x disp_y disp_z'
+    []
+    [static_pressure_right_shear]
+        type = ADNeumannBC
+        variable = disp_y
+        boundary = right
+        value = 15e6
+        displacements = 'disp_x disp_y disp_z'
+    []
     # fix ptr
     [./fix_cptr1_x]
         type = ADDirichletBC

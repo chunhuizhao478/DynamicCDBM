@@ -22,12 +22,18 @@
                     0 0 1'
         new_boundary = 'left right front back bottom top'
     []
+    # [./extranodeset1]
+    #     type = ExtraNodesetGenerator
+    #     coord = ' -15000 -15000 -15000;
+    #                15000 -15000 -15000;
+    #                15000 15000  -15000;
+    #               -15000 15000  -15000'
+    #     new_boundary = corner_ptr
+    #     input = sidesets
+    # []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -15000 -15000 -15000;
-                   15000 -15000 -15000;
-                   15000 15000  -15000;
-                  -15000 15000  -15000'
+        coord = ' -15000 -15000 -15000'
         new_boundary = corner_ptr
         input = sidesets
     []

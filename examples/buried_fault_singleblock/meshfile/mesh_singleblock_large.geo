@@ -52,12 +52,12 @@ BooleanFragments{ Volume{big_box,damage_box}; Delete; }{}
 Field[1] = Box;
 Field[1].VIn = lc_fault;  // Finer mesh inside the fault zone
 Field[1].VOut = lc;       // Coarser mesh outside
-Field[1].XMin = damage_xmin;
-Field[1].XMax = damage_xmax;
-Field[1].YMin = damage_ymin;
-Field[1].YMax = damage_ymax;
-Field[1].ZMin = damage_zmin;
-Field[1].ZMax = damage_zmax;
+Field[1].XMin = damage_xmin - 250;
+Field[1].XMax = damage_xmax + 250;
+Field[1].YMin = damage_ymin - 250;
+Field[1].YMax = damage_ymax + 250;
+Field[1].ZMin = damage_zmin - 250;
+Field[1].ZMax = damage_zmax + 250;
 
 // Set the background mesh size
 Background Field = 1;

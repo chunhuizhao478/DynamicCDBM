@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 2 #output interval
+time_step_interval = 1 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -30,10 +30,7 @@ time_step_interval = 2 #output interval
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -30000 -30000 -30000;
-                   30000 -30000 -30000;
-                   30000 30000  -30000;
-                  -30000 30000  -30000'
+        coord = ' -30000 -30000 -30000'
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -46,10 +43,10 @@ time_step_interval = 2 #output interval
     
     ##----continuum damage breakage model----##
     #initial lambda value (first lame constant) [Pa]
-    lambda_o = 32e9
+    lambda_o = 32.04e9
         
     #initial shear modulus value (second lame constant) [Pa]
-    shear_modulus_o = 32e9
+    shear_modulus_o = 32.04e9
     
     #<strain invariants ratio: onset of damage evolution>: relate to internal friction angle, refer to "note_mar25"
     xi_0 = -1.0
@@ -75,10 +72,10 @@ time_step_interval = 2 #output interval
 
     #<coefficient of healing for breakage evolution>: refer to "Lyakhovsky_Ben-Zion_P14" (10 * C_B)
     # CBCBH_multiplier = 0.0
-    CBH_constant = 0
+    CBH_constant = 1e4
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
-    C_1 = 0
+    C_1 = 300
 
     #<coefficient of healing for damage evolution>: refer to "ggw183.pdf"
     C_2 = 0.05
@@ -294,7 +291,7 @@ time_step_interval = 2 #output interval
     [density]
         type = GenericConstantMaterial
         prop_names = 'density'
-        prop_values = '2700'
+        prop_values = '2670'
     []
     [stress_medium]
         type = ComputeDamageBreakageStress3D
@@ -313,8 +310,8 @@ time_step_interval = 2 #output interval
     []
     [elasticity_tensor]
         type = ComputeIsotropicElasticityTensor
-        lambda = 32e9
-        shear_modulus = 32e9
+        lambda = 32.04e9
+        shear_modulus = 32.04e9
     []
     ################################################################################
     #initial damage field
@@ -427,7 +424,7 @@ time_step_interval = 2 #output interval
     [damage_perturbation]
         type = PerturbationRadial
         nucl_center = '0 0 -7500'
-        peak_value = 1e6
+        peak_value = 5e6
         thickness = 100
         length = 1000
         duration = 0.1
@@ -437,24 +434,6 @@ time_step_interval = 2 #output interval
         outputs = exodus
     []
 []  
-
-[Functions]
-[]
-
-[Postprocessors]
-    [./maxvelx]
-        type = NodalExtremeValue
-        variable = vel_x
-    [../]
-    [./maxvely]
-        type = NodalExtremeValue
-        variable = vel_y
-    [../]
-    [./maxvelz]
-        type = NodalExtremeValue
-        variable = vel_z
-    [../]
-[../]
 
 #########################################################################################################
 #Executioner Section
@@ -532,13 +511,13 @@ time_step_interval = 2 #output interval
     ##xi: strain invariants ratio
     ##shear_stress_perturbation: perturbation field
     #############################################
-    # show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
-    show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B xi shear_stress_perturbation'
-    [./csv]
-        type = CSV
-        time_step_interval = ${time_step_interval}
-        show = 'maxvelx maxvely maxvelz'
-    [../]
+    show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
+    # show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B xi shear_stress_perturbation'
+    # [./csv]
+    #     type = CSV
+    #     time_step_interval = ${time_step_interval}
+    #     show = 'maxvelx maxvely maxvelz'
+    # [../]
 []
 
 #############################################################################################################
@@ -609,20 +588,35 @@ time_step_interval = 2 #output interval
         value = -50e6
         displacements = 'disp_x disp_y disp_z'
     []
+    #
     [static_pressure_front_shear]
-        type = ADNeumannBC
+        type = NeumannBC
         variable = disp_x
         boundary = front
-        value = -30e6
+        value = -15e6
         displacements = 'disp_x disp_y disp_z'
-    []  
+    []
     [static_pressure_back_shear]
-        type = ADNeumannBC
+        type = NeumannBC
         variable = disp_x
         boundary = back
-        value = 30e6
+        value = 15e6
         displacements = 'disp_x disp_y disp_z'
-    []      
+    []
+    [static_pressure_left_shear]
+        type = NeumannBC
+        variable = disp_y
+        boundary = left
+        value = -15e6
+        displacements = 'disp_x disp_y disp_z'
+    []
+    [static_pressure_right_shear]
+        type = NeumannBC
+        variable = disp_y
+        boundary = right
+        value = 15e6
+        displacements = 'disp_x disp_y disp_z'
+    []     
     # fix ptr
     [./fix_cptr1_x]
         type = DirichletBC
@@ -661,9 +655,9 @@ time_step_interval = 2 #output interval
         boundary = front
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_front_y]
         type = FarmsNonReflectDashpotBC
@@ -675,9 +669,9 @@ time_step_interval = 2 #output interval
         boundary = front
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_front_z]
         type = FarmsNonReflectDashpotBC
@@ -689,9 +683,9 @@ time_step_interval = 2 #output interval
         boundary = front
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     #
     [./dashpot_back_x]
@@ -704,9 +698,9 @@ time_step_interval = 2 #output interval
         boundary = back
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_back_y]
         type = FarmsNonReflectDashpotBC
@@ -718,9 +712,9 @@ time_step_interval = 2 #output interval
         boundary = back
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_back_z]
         type = FarmsNonReflectDashpotBC
@@ -732,9 +726,9 @@ time_step_interval = 2 #output interval
         boundary = back
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     #
     [./dashpot_top_x]
@@ -747,9 +741,9 @@ time_step_interval = 2 #output interval
         boundary = top
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_top_y]
         type = FarmsNonReflectDashpotBC
@@ -761,9 +755,9 @@ time_step_interval = 2 #output interval
         boundary = top
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_top_z]
         type = FarmsNonReflectDashpotBC
@@ -775,9 +769,9 @@ time_step_interval = 2 #output interval
         boundary = top
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     #
     [./dashpot_bottom_x]
@@ -790,9 +784,9 @@ time_step_interval = 2 #output interval
         boundary = bottom
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_bottom_y]
         type = FarmsNonReflectDashpotBC
@@ -804,9 +798,9 @@ time_step_interval = 2 #output interval
         boundary = bottom
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_bottom_z]
         type = FarmsNonReflectDashpotBC
@@ -818,9 +812,9 @@ time_step_interval = 2 #output interval
         boundary = bottom
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     #
     [./dashpot_left_x]
@@ -833,9 +827,9 @@ time_step_interval = 2 #output interval
         boundary = left
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_left_y]
         type = FarmsNonReflectDashpotBC
@@ -847,9 +841,9 @@ time_step_interval = 2 #output interval
         boundary = left
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_left_z]
         type = FarmsNonReflectDashpotBC
@@ -861,9 +855,9 @@ time_step_interval = 2 #output interval
         boundary = left
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     #
     [./dashpot_right_x]
@@ -876,9 +870,9 @@ time_step_interval = 2 #output interval
         boundary = right
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_right_y]
         type = FarmsNonReflectDashpotBC
@@ -890,9 +884,9 @@ time_step_interval = 2 #output interval
         boundary = right
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
     [./dashpot_right_z]
         type = FarmsNonReflectDashpotBC
@@ -904,9 +898,9 @@ time_step_interval = 2 #output interval
         boundary = right
         beta = 0.25
         gamma = 0.5
-        shear_wave_speed = 3333.33
-        p_wave_speed = 5773.5
-        density = 2700
+        shear_wave_speed = 3464
+        p_wave_speed = 6000
+        density = 2670
     []
 []    
 
