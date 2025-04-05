@@ -52,7 +52,7 @@ time_step_interval = 20 #output interval
     xi_0 = -1.0
     
     #<strain invariants ratio: onset of breakage healing>: tunable param, see ggw183.pdf
-    xi_d = -1.0
+    xi_d = -1.15
     
     #<strain invariants ratio: maximum allowable value>: set boundary
     #Xu_etal_P15-2D
@@ -424,11 +424,11 @@ time_step_interval = 20 #output interval
     [damage_perturbation]
         type = PerturbationRadial
         nucl_center = '0 0 -7500'
-        peak_value = 15e6
+        peak_value = 0.3
         thickness = 100
         length = 1000
         duration = 0.1
-        perturbation_type = 'shear_stress'
+        perturbation_type = 'damage'
         sigma_divisor = 2.0
         output_properties = 'shear_stress_perturbation damage_perturbation'
         outputs = exodus
