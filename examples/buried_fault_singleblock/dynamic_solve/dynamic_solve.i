@@ -30,7 +30,7 @@ time_step_interval = 20 #output interval
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -30000 -30000 -30000'
+        coord = ' -10000 -10000 -15000'
         new_boundary = corner_ptr
         input = sidesets
     []
