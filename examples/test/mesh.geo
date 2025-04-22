@@ -4,15 +4,15 @@ SetFactory("OpenCASCADE");
 
 // Define mesh sizes
 lc_fault = 100; // Finer mesh size inside the fault zone
-lc = 1000;     // Coarser mesh size outside
+lc = 2000;     // Coarser mesh size outside
 
 // Define the big box (outer domain)
 // Later the region will be block 2, and use linear elastic material
-big_xmin = -12000;
-big_xmax = 12000;
-big_ymin = -10000;
-big_ymax = 10000;
-big_zmin = -13000;
+big_xmin = -60000;
+big_xmax = 60000;
+big_ymin = -60000;
+big_ymax = 60000;
+big_zmin = -60000;
 big_zmax = 0;
 
 // Define the small fault zone box
@@ -48,19 +48,20 @@ Box(damage_box) = {damage_xmin, damage_ymin, damage_zmin, (damage_xmax-damage_xm
 // Boolean fragment to properly embed both fault zone and damage zone inside the big box
 BooleanFragments{ Volume{big_box,small_box,damage_box}; Delete; }{}
 
-// Field 1: Mesh size inside the fault zone
-Field[1] = Box;
-Field[1].VIn = lc_fault;  // Finer mesh inside the fault zone
-Field[1].VOut = lc;       // Coarser mesh outside
-Field[1].XMin = small_xmin;
-Field[1].XMax = small_xmax;
-Field[1].YMin = small_ymin;
-Field[1].YMax = small_ymax;
-Field[1].ZMin = small_zmin;
-Field[1].ZMax = small_zmax;
+// 1. Create a Distance field from points that define the refined region
+Field[1] = Distance;
+Field[1].SurfacesList = {13,14,15,16,17,18};
 
-// Set the background mesh size
-Background Field = 1;
+// 2. Create a Threshold field that smoothly transitions the mesh size
+Field[2] = Threshold;
+Field[2].IField = 1;
+Field[2].LcMin = lc_fault;
+Field[2].LcMax = lc;
+Field[2].DistMin = 1000;    // Adjust as needed
+Field[2].DistMax = 5000;  // Adjust as needed
+
+// Set the Threshold field as the background field
+Background Field = 2;
 
 // Assign Physical Volumes
 volumes[] = Volume{:};

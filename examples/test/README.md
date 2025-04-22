@@ -1,0 +1,1 @@
+Explore boundary condtions and effects on the solution

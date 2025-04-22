@@ -2,9 +2,9 @@
 
 ##########################################################################################################################################
 #User Parameters section
-dt = 1e-3 #time step size
+dt = 1e-1 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 20 #output interval
+time_step_interval = 1 #output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -15,7 +15,7 @@ time_step_interval = 20 #output interval
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../meshfile/mesh_singleblock_large.msh'
+        file = '../meshfile/mesh_singleblock_large2.msh'
     []
     [./sidesets]
         input = msh
@@ -30,7 +30,10 @@ time_step_interval = 20 #output interval
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -10000 -10000 -15000'
+        coord = ' -60000 -60000 -60000;
+                   60000 -60000 -60000;
+                   60000 60000  -60000;
+                  -60000 60000  -60000'
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -424,8 +427,8 @@ time_step_interval = 20 #output interval
     [damage_perturbation]
         type = PerturbationRadial
         nucl_center = '0 0 -7500'
-        peak_value = 15e6
-        thickness = 100
+        peak_value = 10e6
+        thickness = 200
         length = 1000
         duration = 0.1
         perturbation_type = 'shear_stress'
@@ -458,7 +461,7 @@ time_step_interval = 20 #output interval
     type = Transient
     solve_type = 'NEWTON'
     # solve_type = 'PJFNK'
-    start_time = -1e-12
+    start_time = 0
     end_time = ${end_time}
     # num_steps = 1000
     l_max_its = 100
@@ -466,8 +469,8 @@ time_step_interval = 20 #output interval
     nl_rel_tol = 1e-6
     nl_max_its = 20
     nl_abs_tol = 1e-8
-    petsc_options_iname = '-ksp_type -pc_type'
-    petsc_options_value = 'gmres     hypre'
+    petsc_options_iname = '-ksp_type -pc_type -ksp_initial_guess_nonzero'
+    petsc_options_value = 'gmres     hypre  True'
     # petsc_options_iname = '-pc_type -pc_factor_shift_type'
     # petsc_options_value = 'lu       NONZERO'
     # petsc_options_iname = '-ksp_type -pc_type -pc_hypre_type  -ksp_initial_guess_nonzero -ksp_pc_side -ksp_max_it -ksp_rtol -ksp_atol'
@@ -524,14 +527,14 @@ time_step_interval = 20 #output interval
 #Controls Section
 #This is used for first steady state solve, we close all inertial terms, absorbing boundary conditions
 #############################################################################################################
-[Controls] # turns off inertial terms for the FIRST time step
-  [./period0]
-    type = TimePeriod
-    disable_objects = '*/vel_x */vel_y */vel_z */accel_x */accel_y */accel_z */inertia_x */inertia_y */inertia_z */dashpot_front_x */dashpot_front_y */dashpot_front_z */dashpot_back_x */dashpot_back_y */dashpot_back_z */dashpot_left_x */dashpot_left_y */dashpot_left_z */dashpot_right_x */dashpot_right_y */dashpot_right_z */dashpot_top_x */dashpot_top_y */dashpot_top_z */dashpot_bottom_x */dashpot_bottom_y */dashpot_bottom_z'
-    start_time = -1e-12
-    end_time = ${dt} # dt used in the simulation
-  []
-[../]
+# [Controls] # turns off inertial terms for the FIRST time step
+#   [./period0]
+#     type = TimePeriod
+#     disable_objects = '*/vel_x */vel_y */vel_z */accel_x */accel_y */accel_z */inertia_x */inertia_y */inertia_z */dashpot_front_x */dashpot_front_y */dashpot_front_z */dashpot_back_x */dashpot_back_y */dashpot_back_z */dashpot_left_x */dashpot_left_y */dashpot_left_z */dashpot_right_x */dashpot_right_y */dashpot_right_z */dashpot_top_x */dashpot_top_y */dashpot_top_z */dashpot_bottom_x */dashpot_bottom_y */dashpot_bottom_z'
+#     start_time = -1e-12
+#     end_time = ${dt} # dt used in the simulation
+#   []
+# [../]
 
 #We assume the simulation is loaded with compressive pressure and shear stress
 #############################################################################################################################################################
@@ -587,7 +590,7 @@ time_step_interval = 20 #output interval
         boundary = back
         value = -50e6
         displacements = 'disp_x disp_y disp_z'
-    []
+    []  
     #
     [static_pressure_front_shear]
         type = NeumannBC
@@ -616,7 +619,7 @@ time_step_interval = 20 #output interval
         boundary = right
         value = 15e6
         displacements = 'disp_x disp_y disp_z'
-    []     
+    []
     # fix ptr
     [./fix_cptr1_x]
         type = DirichletBC
