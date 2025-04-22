@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 1 #output interval
+time_step_interval = 50 #output interval
 
 ##########################################################################################################################################
 #Mesh section
