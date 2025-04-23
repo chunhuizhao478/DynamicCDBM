@@ -401,7 +401,7 @@ time_step_interval = 50 #output interval
         nucl_center = '0 0 -6500'
         peak_value = 10e6
         thickness = 200
-        length = 1000
+        length = 2000
         duration = 1.0
         perturbation_type = 'shear_stress'
         sigma_divisor = 2.0
@@ -487,7 +487,7 @@ time_step_interval = 50 #output interval
     ##shear_stress_perturbation: perturbation field
     #############################################
     # show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
-    show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B xi shear_stress_perturbation stress_01 eps_e_01 eps_p_01'
+    show = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01'
     # [./csv]
     #     type = CSV
     #     time_step_interval = ${time_step_interval}
@@ -920,5 +920,34 @@ time_step_interval = 50 #output interval
       variable = disp_z
       solution_uo = init_sol_components
       from_variable = disp_z
+    []
+[]
+
+#############################################################################################################################################################
+#sample the data
+[Positions]
+    [pos]
+      type = InputPositions
+      positions = '0 0 -6500
+                   -1000 0 -6500
+                   -2000 0 -6500
+                   -3000 0 -6500
+                   -4000 0 -6500
+                   -5000 0 -6500
+                   1000 0 -6500
+                   2000 0 -6500
+                   3000 0 -6500
+                   4000 0 -6500
+                   5000 0 -6500'
+    []
+[]
+
+[VectorPostprocessors]
+    [point_sample]
+        type = PositionsFunctorValueSampler
+        functors = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01 eps_e_01 eps_p_01'
+        positions = 'pos'
+        sort_by = id
+        execute_on = TIMESTEP_END
     []
 []
