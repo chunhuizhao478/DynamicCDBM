@@ -5,6 +5,7 @@
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
 time_step_interval = 50 #output interval
+csv_output_interval = 1 #csv output interval
 
 ##########################################################################################################################################
 #Mesh section
@@ -490,7 +491,7 @@ time_step_interval = 50 #output interval
     show = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01'
     [./csv]
         type = CSV
-        time_step_interval = 1
+        time_step_interval = ${csv_output_interval}
         # show = 'maxvelx maxvely maxvelz'
         show = 'point_sample'
     [../]
