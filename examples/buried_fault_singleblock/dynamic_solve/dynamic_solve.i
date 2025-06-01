@@ -15,7 +15,7 @@ time_step_interval = 1 #output interval
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../meshfile/mesh_singleblock_large2.msh'
+        file = '../meshfile/mesh_singleblock_large.msh'
     []
     [./sidesets]
         input = msh
@@ -459,11 +459,11 @@ time_step_interval = 1 #output interval
 
 [Executioner]
     type = Transient
-    solve_type = 'NEWTON'
-    # solve_type = 'PJFNK'
+    # solve_type = 'NEWTON'
+    solve_type = 'PJFNK'
     start_time = 0
     end_time = ${end_time}
-    # num_steps = 1000
+    num_steps = 10
     l_max_its = 100
     l_tol = 1e-7
     nl_rel_tol = 1e-6

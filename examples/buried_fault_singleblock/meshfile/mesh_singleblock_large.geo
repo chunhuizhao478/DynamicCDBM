@@ -3,7 +3,7 @@ SetFactory("OpenCASCADE");
 // UNIT: m
 
 // Define mesh sizes
-lc_fault = 50; // Finer mesh size inside the fault zone
+lc_fault = 25; // Finer mesh size inside the fault zone
 lc = 1000;     // Coarser mesh size outside
 
 // Define the big box (outer domain)

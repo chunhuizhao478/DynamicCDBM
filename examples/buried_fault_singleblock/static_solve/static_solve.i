@@ -9,7 +9,7 @@
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../meshfile/mesh_singleblock_large2.msh'
+        file = '../meshfile/mesh_singleblock_large.msh'
     []
     [./sidesets]
         input = msh
@@ -274,7 +274,8 @@
 ################################################################################################
 [Executioner]
     type = Transient
-    solve_type = 'NEWTON'
+    # solve_type = 'NEWTON'
+    solve_type = 'PJFNK'
     l_max_its = 100
     l_tol = 1e-7
     nl_rel_tol = 1e-6
