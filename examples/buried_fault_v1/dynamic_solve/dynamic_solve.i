@@ -4,7 +4,7 @@
 #User Parameters section
 dt = 1e-3 #time step size
 end_time = 20.0 #end time of the simulation
-time_step_interval = 50 #output interval
+time_step_interval = 100 #output interval
 csv_output_interval = 1 #csv output interval
 
 ##########################################################################################################################################
@@ -436,7 +436,7 @@ csv_output_interval = 1 #csv output interval
     # solve_type = 'PJFNK'
     start_time = 0
     end_time = ${end_time}
-    num_steps = 20
+    num_steps = 100
     l_max_its = 100
     l_tol = 1e-7
     nl_rel_tol = 1e-6
