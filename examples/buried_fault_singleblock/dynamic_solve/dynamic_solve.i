@@ -30,10 +30,10 @@ time_step_interval = 1 #output interval
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -60000 -60000 -60000;
-                   60000 -60000 -60000;
-                   60000 60000  -60000;
-                  -60000 60000  -60000'
+        coord = ' -10000 -10000 -10000;
+                   10000 -10000 -10000;
+                   10000 10000  -10000;
+                  -10000 10000  -10000'
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -521,6 +521,11 @@ time_step_interval = 1 #output interval
     #     time_step_interval = ${time_step_interval}
     #     show = 'maxvelx maxvely maxvelz'
     # [../]
+    [checkpoint]
+        type = Checkpoint
+        time_step_interval = 20
+        num_files = 2
+    []
 []
 
 #############################################################################################################
