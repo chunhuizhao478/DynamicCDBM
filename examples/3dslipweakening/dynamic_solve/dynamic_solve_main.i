@@ -45,7 +45,9 @@ initial_strike_stress_value = -120e6 #initial strike stress value
 elem_size = 200 #element size for initial shear stress perturbation
 dt = 0.0025 #time step size
 end_time = 4 #end time for simulation
-time_step_interval = 40 #time step interval for output
+exodus_time_step_interval = 40 #time step interval for output
+checkpoint_time_step_interval = 80 #time step interval for checkpoint output
+checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
 
 [Mesh]
@@ -779,8 +781,13 @@ time_step_interval = 40 #time step interval for output
 
 [Outputs]
     exodus = true
-    time_step_interval = ${time_step_interval}
+    time_step_interval = ${exodus_time_step_interval}
     show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z B_aux alpha_damagedvar_aux xi_aux'
+    [checkpoint]
+        type = Checkpoint
+        time_step_interval = ${checkpoint_time_step_interval}
+        num_files = ${checkpoint_num_files}
+    []
 []
 
 [BCs]
