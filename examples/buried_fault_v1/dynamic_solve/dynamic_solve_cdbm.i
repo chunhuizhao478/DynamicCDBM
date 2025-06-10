@@ -297,18 +297,18 @@ csv_output_interval = 1 #csv output interval
         prop_names = 'density'
         prop_values = '2670'
     []
-    # [stress_medium]
-    #     type = ComputeDamageBreakageStress3D
-    #     alpha_grad_x = alpha_grad_x
-    #     alpha_grad_y = alpha_grad_y
-    #     alpha_grad_z = alpha_grad_z
-    #     output_properties = 'B alpha_damagedvar xi eps_p eps_e I1 I2 xi stress'
-    #     block = '1 3'
-    #     outputs = exodus
-    # [] 
+    [stress_medium]
+        type = ComputeDamageBreakageStress3D
+        alpha_grad_x = alpha_grad_x
+        alpha_grad_y = alpha_grad_y
+        alpha_grad_z = alpha_grad_z
+        output_properties = 'B alpha_damagedvar xi eps_p eps_e I1 I2 xi stress'
+        block = '1 3'
+        outputs = exodus
+    [] 
     [stress_elastic]
         type = ComputeLinearElasticStress
-        block = '1 2 3'
+        block = '2'
         output_properties = 'elastic_strain stress'
         outputs = exodus
     []
@@ -469,33 +469,33 @@ csv_output_interval = 1 #csv output interval
 ##time_step_interval = 1: Optionally, you can specify the time step interval at which to output the solution
 ##show = : Optionally, you can specify which variables to output to the CSV file
 #########################################################################################################
-# [Outputs] 
-#     ### save the solution to a exodus file every [time_step_interval] time steps]
-#     exodus = true
-#     time_step_interval = ${time_step_interval}
-#     #############################################
-#     ##disp_x, disp_y, disp_z: displacement field
-#     ##vel_x, vel_y, vel_z: velocity field
-#     ##alpha_damagedvar: damage variable
-#     ##B: breakage variable
-#     ##initial_damage: initial damage field
-#     ##initial_breakage: initial breakage field
-#     ##stress_00, stress_01, stress_02, stress_11, stress_12, stress_22: stress field
-#     ##eps_e_00, eps_e_01, eps_e_02, eps_e_11, eps_e_12, eps_e_22: elastic strain field
-#     ##eps_p_00, eps_p_01, eps_p_02, eps_p_11, eps_p_12, eps_p_22: plastic strain field
-#     ##I1, I2: strain invariants
-#     ##xi: strain invariants ratio
-#     ##shear_stress_perturbation: perturbation field
-#     #############################################
-#     # show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
-#     show = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01 stress_11 eps_e_01 eps_e_11 eps_p_01 eps_p_11'
-#     [./csv]
-#         type = CSV
-#         time_step_interval = ${csv_output_interval}
-#         # show = 'maxvelx maxvely maxvelz'
-#         show = 'point_sample'
-#     [../]
-# []
+[Outputs] 
+    ### save the solution to a exodus file every [time_step_interval] time steps]
+    exodus = true
+    time_step_interval = ${time_step_interval}
+    #############################################
+    ##disp_x, disp_y, disp_z: displacement field
+    ##vel_x, vel_y, vel_z: velocity field
+    ##alpha_damagedvar: damage variable
+    ##B: breakage variable
+    ##initial_damage: initial damage field
+    ##initial_breakage: initial breakage field
+    ##stress_00, stress_01, stress_02, stress_11, stress_12, stress_22: stress field
+    ##eps_e_00, eps_e_01, eps_e_02, eps_e_11, eps_e_12, eps_e_22: elastic strain field
+    ##eps_p_00, eps_p_01, eps_p_02, eps_p_11, eps_p_12, eps_p_22: plastic strain field
+    ##I1, I2: strain invariants
+    ##xi: strain invariants ratio
+    ##shear_stress_perturbation: perturbation field
+    #############################################
+    # show = 'disp_x disp_y disp_z vel_x vel_y vel_z alpha_damagedvar B stress_00 stress_01 stress_02 stress_11 stress_12 stress_22 eps_e_00 eps_e_01 eps_e_02 eps_e_11 eps_e_12 eps_e_22 eps_p_00 eps_p_01 eps_p_02 eps_p_11 eps_p_12 eps_p_22 xi shear_stress_perturbation'
+    show = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01 stress_11 eps_e_01 eps_e_11 eps_p_01 eps_p_11'
+    [./csv]
+        type = CSV
+        time_step_interval = ${csv_output_interval}
+        # show = 'maxvelx maxvely maxvelz'
+        show = 'point_sample'
+    [../]
+[]
 
 #############################################################################################################
 #Controls Section
