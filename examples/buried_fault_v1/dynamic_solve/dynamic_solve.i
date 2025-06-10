@@ -309,8 +309,8 @@ csv_output_interval = 1 #csv output interval
     [stress_elastic]
         type = ComputeLinearElasticStress
         block = '1 2 3'
-        output_properties = 'elastic_strain stress'
-        outputs = exodus
+        # output_properties = 'elastic_strain stress'
+        # outputs = exodus
     []
     [elasticity_tensor]
         type = ComputeIsotropicElasticityTensor
@@ -338,8 +338,8 @@ csv_output_interval = 1 #csv output interval
         len_of_fault_strike = 10000
         len_of_fault_dip = 5000
         nucl_center = '0 0 -6500'
-        output_properties = 'initial_damage'      
-        outputs = exodus
+        # output_properties = 'initial_damage'      
+        # outputs = exodus
     [] 
     ################################################################################
     #initial breakage field
@@ -362,8 +362,8 @@ csv_output_interval = 1 #csv output interval
         len_of_fault_strike = 10000
         len_of_fault_dip = 5000
         nucl_center = '0 0 -6500'
-        output_properties = 'initial_breakage'      
-        outputs = exodus
+        # output_properties = 'initial_breakage'      
+        # outputs = exodus
     []  
     ################################################################################
     #perturbation field
@@ -406,8 +406,8 @@ csv_output_interval = 1 #csv output interval
         duration = 1.0
         perturbation_type = 'shear_stress'
         sigma_divisor = 2.0
-        output_properties = 'shear_stress_perturbation damage_perturbation'
-        outputs = exodus
+        # output_properties = 'shear_stress_perturbation damage_perturbation'
+        # outputs = exodus
     []
 []  
 
