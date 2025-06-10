@@ -926,30 +926,30 @@ csv_output_interval = 1 #csv output interval
 []
 
 #############################################################################################################################################################
-#sample the data
-[Positions]
-    [pos]
-      type = InputPositions
-      positions = '0 0 -6500
-                   -1000 0 -6500
-                   -2000 0 -6500
-                   -3000 0 -6500
-                   -4000 0 -6500
-                   -5000 0 -6500
-                   1000 0 -6500
-                   2000 0 -6500
-                   3000 0 -6500
-                   4000 0 -6500
-                   5000 0 -6500'
-    []
-[]
+# #sample the data
+# [Positions]
+#     [pos]
+#       type = InputPositions
+#       positions = '0 0 -6500
+#                    -1000 0 -6500
+#                    -2000 0 -6500
+#                    -3000 0 -6500
+#                    -4000 0 -6500
+#                    -5000 0 -6500
+#                    1000 0 -6500
+#                    2000 0 -6500
+#                    3000 0 -6500
+#                    4000 0 -6500
+#                    5000 0 -6500'
+#     []
+# []
 
-[VectorPostprocessors]
-    [point_sample]
-        type = PositionsFunctorValueSampler
-        functors = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01 eps_e_01 eps_p_01'
-        positions = 'pos'
-        sort_by = id
-        execute_on = TIMESTEP_END
-    []
-[]
+# [VectorPostprocessors]
+#     [point_sample]
+#         type = PositionsFunctorValueSampler
+#         functors = 'vel_x vel_y vel_z alpha_damagedvar B xi stress_01 eps_e_01 eps_p_01'
+#         positions = 'pos'
+#         sort_by = id
+#         execute_on = TIMESTEP_END
+#     []
+# []
