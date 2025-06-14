@@ -4,8 +4,9 @@
 density = 2670 #density
 lambda_o = 3.204e10 #first lame constant
 shear_modulus_o = 3.204e10 #second lame constant
-Cs = 3464 #shear wave speed
-Cp = 6000 #pressure wave speed
+shear_modulus_d = 3.204e10 #second lame constant ## damaged shear modulus as input
+Cs = '${fparse shear_modulus_d / density }' #shear wave speed
+Cp = '${fparse (lambda_o + 2 * shear_modulus_d) / density }' #pressure wave speed
 ##-------------------------##
 
 ##Slip weakening parameters##
@@ -31,7 +32,7 @@ chi = 0.8 #energy ratio
 ##-------------------------##
 
 ##initial stress parameters##
-peak_shear_value = 81.6e6 #initial shear stress perturbation peak value
+peak_shear_value = 70e6 #initial shear stress perturbation peak value
 domain_shear_value = 70e6 #initial shear stress perturbation domain value
 nucl_center_x = 0 #nucleation center x coordinate
 nucl_center_y = -2500 #nucleation center y coordinate
@@ -45,40 +46,50 @@ initial_strike_stress_value = -120e6 #initial strike stress value
 elem_size = 200 #element size for initial shear stress perturbation
 dt = 0.0025 #time step size
 end_time = 4 #end time for simulation
-exodus_time_step_interval = 40 #time step interval for output
+exodus_time_step_interval = 1 #time step interval for output
 checkpoint_time_step_interval = 80 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
 
+# ##initial damage parameters##
+# initial_damage_domain_size = '${fparse 2 * elem_size }' #initial damage domain size
+# initial_damage_value = 0.7 #initial damage value within the fault zone
+# ##-------------------------##
+
+##coordinates ##
+#x: strike direction
+#y: dip direction (free surface is at y = 0, going down is negative) 
+#z: normal direction
+##-------------------------##
 [Mesh]
-    # [msh]
-    #   type = GeneratedMeshGenerator
-    #   dim = 3
-    #   xmin = -4000
-    #   xmax = 4000
-    #   ymin = -5000
-    #   ymax = 0
-    #   zmin = -2000
-    #   zmax = 2000
-    #   nx = 40
-    #   ny = 25
-    #   nz = 20
-    #   subdomain_ids = 1
-    # []
     [msh]
       type = GeneratedMeshGenerator
       dim = 3
-      xmin = -15000
-      xmax = 15000
-      ymin = -20000
+      xmin = -4000
+      xmax = 4000
+      ymin = -5000
       ymax = 0
-      zmin = -10000
-      zmax = 10000
-      nx = 150
-      ny = 100
-      nz = 100
+      zmin = -2000
+      zmax = 2000
+      nx = 40
+      ny = 25
+      nz = 20
       subdomain_ids = 1
     []
+    # [msh]
+    #   type = GeneratedMeshGenerator
+    #   dim = 3
+    #   xmin = -15000
+    #   xmax = 15000
+    #   ymin = -20000
+    #   ymax = 0
+    #   zmin = -10000
+    #   zmax = 10000
+    #   nx = 150
+    #   ny = 100
+    #   nz = 100
+    #   subdomain_ids = 1
+    # []
     [./new_block_1]
       type = ParsedSubdomainMeshGenerator
       input = msh
@@ -633,6 +644,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
         prop_names = initial_damage
         prop_values = 0
     []
+    # [initial_damage]
+    #     type = NearFaultInitialDamage
+    #     distance_from_fault = ${initial_damage_domain_size}
+    #     initial_damage_value = ${initial_damage_value}
+    #     output_properties = initial_damage
+    #     outputs = exodus
+    # []
     [initial_breakage]
         type = GenericConstantMaterial
         prop_names = initial_breakage
@@ -651,7 +669,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     []
     [elasticity]
         type = ComputeIsotropicElasticityTensor
-        shear_modulus = ${shear_modulus_o}
+        shear_modulus = ${shear_modulus_d}
         lambda = ${lambda_o}
     []
     [./czm_mat]
@@ -680,6 +698,16 @@ checkpoint_num_files = 2 #number of files for checkpoint output
                             func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
         eigenstrain_name = static_initial_strain_tensor
     [../] 
+    # [./strain_from_initial_stress]
+    #     type = ComputeDamageBreakageEigenstrainFromInitialStress
+    #     initial_stress = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
+    #                       func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
+    #                       func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
+    #     eigenstrain_name = static_initial_strain_tensor
+    #     lambda_o = ${lambda_o}
+    #     shear_modulus_o = ${shear_modulus_o}
+    #     xi_o = ${xi_0}
+    # [../] 
     [./static_initial_stress_tensor_slipweakening]
         type = GenericFunctionRankTwoTensor
         tensor_name = static_initial_stress_tensor_slipweakening
