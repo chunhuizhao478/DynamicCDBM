@@ -145,23 +145,23 @@
         chi = 0.8
         xi_d = -0.9
         outputs = exodus
-        block = '1 3'
+        # block = '1 3'
     [] 
     ###################################################################
     #lambda = 30e9: lambda value
     #shear_modulus = 30e9: shear modulus value
     #this only applies to block 2
     ###################################################################
-    [stress_elastic]
-        type = ADComputeLinearElasticStress
-        outputs = exodus
-        block = '2'
-    []
-    [elasticity_tensor]
-        type = ADComputeIsotropicElasticityTensor
-        lambda = 32.04e9
-        shear_modulus = 32.04e9
-    []
+    # [stress_elastic]
+    #     type = ADComputeLinearElasticStress
+    #     outputs = exodus
+    #     block = '2'
+    # []
+    # [elasticity_tensor]
+    #     type = ADComputeIsotropicElasticityTensor
+    #     lambda = 32.04e9
+    #     shear_modulus = 32.04e9
+    # []
     ###################################################################
     [getxi]
         type = ADComputeXi
