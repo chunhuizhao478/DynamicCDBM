@@ -6,6 +6,8 @@ Define Function for Initial Static Friction Coefficient for benchmark
 
 #include "Function.h"
 
+class SolutionUserObjectBase;
+
 class InitialShearStressCDBM : public Function
 {
 public:
@@ -16,14 +18,27 @@ public:
   using Function::value;
   virtual Real value(Real t, const Point & p) const override;
 
+  /**
+   * Setup the function for use
+   * Gathers a pointer to the SolutionUserObject containing the solution that
+   * was read. A pointer is required because Functions are created prior to UserObjects,
+   * see Moose.C.
+   */
+  virtual void initialSetup() override;
+
   Real _peak_value;
-  Real _domain_value;
 
   Real _nucl_center_x;
-  Real _nucl_center_y;
+  Real _nucl_center_z;
 
   Real _nucl_size;
   
   Real _elem_size;
+
+  /// Pointer to SolutionUserObject containing the solution of interest
+  const SolutionUserObjectBase * _solution_object_ptr;
+
+  /// The local SolutionUserObject index for the variable extracted from the file
+  unsigned int _solution_object_var_index;
 
 };

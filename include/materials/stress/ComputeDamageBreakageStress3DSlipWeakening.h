@@ -51,6 +51,15 @@ protected:
   /// @brief Compute elasticity tensor for small strain
   virtual void computeQpTangentModulus(RankFourTensor & tangent, Real I1, Real I2, Real xi, RankTwoTensor Ee);
 
+  /// @brief Setup initial values for the first step
+  void setupInitial();
+
+  /// @brief Compute deviatoric stress tensor
+  void computeDeviatroicStrainRateTensor();
+
+  /// @brief Compute strain rate dependent Cd
+  void computeStrainRateCd();
+
   /// additional variables
   /// strain invariants ratio: onset of damage evolution
   Real _xi_0;
@@ -91,11 +100,6 @@ protected:
   const MaterialProperty<RankTwoTensor> & _eps_e_old;
   const MaterialProperty<RankTwoTensor> & _sigma_d_old;
 
-  //add grad term
-  const VariableValue & _alpha_grad_x;
-  const VariableValue & _alpha_grad_y;
-  const VariableValue & _alpha_grad_z;
-
   /// diffusion coefficient
   Real _D;
 
@@ -133,4 +137,21 @@ protected:
 
   /// dimension
   const unsigned int _dim;
+
+  int & _step;
+
+  /// matprop : deviatoric stress tensor
+  MaterialProperty<Real> & _deviatroic_strain_rate;
+  const MaterialProperty<Real> & _deviatroic_strain_rate_old;
+
+  /// matprop : Cd
+  MaterialProperty<Real> & _Cd_mat;
+  const MaterialProperty<Real> & _Cd_mat_old;
+
+  /// strain rate dependent Cd parameters
+  bool _use_strain_rate_dependent_Cd;
+  Real _m_exponent;
+  Real _strain_rate_hat;
+  Real _cd_hat;
+
 };

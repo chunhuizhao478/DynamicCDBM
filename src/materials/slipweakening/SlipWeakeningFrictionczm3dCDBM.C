@@ -11,18 +11,17 @@
 Material Description of Slip Weakening Friction 3d
 */
 
-#include "SlipWeakeningFrictionczm3d.h"
+#include "SlipWeakeningFrictionczm3dCDBM.h"
 #include "InterfaceKernel.h"
 
-registerMooseObject("DynamicCDBMApp", SlipWeakeningFrictionczm3d);
+registerMooseObject("DynamicCDBMApp", SlipWeakeningFrictionczm3dCDBM);
 
 InputParameters
-SlipWeakeningFrictionczm3d::validParams()
+SlipWeakeningFrictionczm3dCDBM::validParams()
 {
   InputParameters params = CZMComputeLocalTractionTotalBase::validParams();
   params.addClassDescription("linear slip weakening traction separation law.");
-  params.addRequiredParam<Real>("T2_o", "background normal traction");
-  params.addRequiredParam<Real>("T3_o", "background shear traction in dip dir");
+  params.addRequiredParam<Real>("mu_s", "value of static friction parameter");
   params.addRequiredParam<Real>("mu_d", "value of dynamic friction parameter");
   params.addRequiredParam<Real>("Dc", "value of characteristic length");
   params.addRequiredParam<Real>("len", "element edge length");
@@ -35,15 +34,12 @@ SlipWeakeningFrictionczm3d::validParams()
   params.addRequiredCoupledVar("reaction_slipweakening_x", "reaction in x dir");
   params.addRequiredCoupledVar("reaction_slipweakening_y", "reaction in y dir");
   params.addRequiredCoupledVar("reaction_slipweakening_z", "reaction in z dir");
-  params.addRequiredCoupledVar("mu_s", "static friction coefficient spatial distribution");
-  params.addRequiredCoupledVar("ini_shear_sts", "initial shear stress spatial distribution");
   return params;
 }
 
-SlipWeakeningFrictionczm3d::SlipWeakeningFrictionczm3d(const InputParameters & parameters)
+SlipWeakeningFrictionczm3dCDBM::SlipWeakeningFrictionczm3dCDBM(const InputParameters & parameters)
   : CZMComputeLocalTractionTotalBase(parameters),
-    _T2_o(getParam<Real>("T2_o")),
-    _T3_o(getParam<Real>("T3_o")),
+    _mu_s(getParam<Real>("mu_s")),
     _mu_d(getParam<Real>("mu_d")),
     _Dc(getParam<Real>("Dc")),
     _len(getParam<Real>("len")),
@@ -73,8 +69,7 @@ SlipWeakeningFrictionczm3d::SlipWeakeningFrictionczm3d(const InputParameters & p
     _disp_slipweakening_neighbor_y_old(coupledNeighborValueOld("disp_slipweakening_y")),
     _disp_slipweakening_z_old(coupledValueOld("disp_slipweakening_z")),
     _disp_slipweakening_neighbor_z_old(coupledNeighborValueOld("disp_slipweakening_z")),
-    _mu_s(coupledValue("mu_s")),
-    _ini_shear_sts(coupledValue("ini_shear_sts"))
+    _sts_init(getMaterialPropertyByName<RankTwoTensor>("static_initial_stress_tensor"))
 {
 
   // only works for small strain
@@ -85,7 +80,7 @@ SlipWeakeningFrictionczm3d::SlipWeakeningFrictionczm3d(const InputParameters & p
 }
 
 void
-SlipWeakeningFrictionczm3d::computeInterfaceTractionAndDerivatives()
+SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
 {
   // Global Displacement Jump
   RealVectorValue displacement_jump_global(
@@ -149,10 +144,14 @@ SlipWeakeningFrictionczm3d::computeInterfaceTractionAndDerivatives()
     A = (_len * _len / 4) * 4;
   }
 
+  // Get the initial stress tensor
+  RankTwoTensor sts_init = _sts_init[_qp];
+
   // Compute T1_o, T2_o, T3_o for current qp
-  Real T1_o = _ini_shear_sts[_qp];
-  Real T2_o = _T2_o;
-  Real T3_o = _T3_o;
+  //!!! Here we assume the fault is planar!!!
+  Real T1_o = sts_init(0,1);
+  Real T2_o = -1 * sts_init(1,1);
+  Real T3_o = sts_init(2,2);
 
   // Compute sticking stress
   Real T1 = (1 / _dt) * M * displacement_jump_rate_t / (2 * A) +
@@ -176,7 +175,7 @@ SlipWeakeningFrictionczm3d::computeInterfaceTractionAndDerivatives()
   Real slip_total = std::sqrt(displacement_jump_t*displacement_jump_t+displacement_jump_d*displacement_jump_d);
   if (slip_total < _Dc)
   {
-    tau_f = (_mu_s[_qp] - (_mu_s[_qp] - _mu_d) * slip_total / _Dc) *
+    tau_f = (_mu_s - (_mu_s - _mu_d) * slip_total / _Dc) *
             (-T2); // square for shear component
   }
   else

@@ -1,5 +1,32 @@
 #continuum damage-breakage model dynamics
 
+##mesh parameters
+bottom_nodes_coord =' -60000 -60000 -60000;
+                      60000 -60000 -60000;
+                      60000 60000  -60000;
+                     -60000 60000  -60000'
+
+##boundary loading parameters
+confining_pressure = 50e6 #Pa, confining pressure
+shear_traction = 20e6 #Pa, shear traction
+##-------------------------##
+
+##material properties
+lambda_o = 32.04e9 #Pa, first lame constant
+shear_modulus_o = 32.04e9 #Pa, second lame constant
+xi_o = -0.8 #strain invariants ratio: onset of damage evolution
+xi_d = -0.9 #strain invariants ratio: onset of breakage healing
+chi = 0.8 #ratio of solid energy and granular energy
+##-------------------------##
+
+##initial damage parameters
+sigma = 5e2
+peak_val = 0.7
+len_of_fault_strike = 30000
+len_of_fault_dip = 15000
+fault_center = '0 0 -7500'
+##-------------------------##
+
 ##########################################################################################################################################
 #Mesh section
 #FileMeshGenerator: read mesh file
@@ -24,10 +51,7 @@
     []
     [./extranodeset1]
         type = ExtraNodesetGenerator
-        coord = ' -60000 -60000 -60000;
-                   60000 -60000 -60000;
-                   60000 60000  -60000;
-                  -60000 60000  -60000'
+        coord = ${bottom_nodes_coord}
         new_boundary = corner_ptr
         input = sidesets
     []
@@ -139,11 +163,11 @@
     ###################################################################
     [stress]
         type = ADComputeDamageStressStaticDistribution
-        lambda_o = 32.04e9
-        shear_modulus_o = 32.04e9
-        xi_o = -0.8
-        chi = 0.8
-        xi_d = -0.9
+        lambda_o = ${lambda_o}
+        shear_modulus_o = ${shear_modulus_o}
+        xi_o = ${xi_o}
+        chi = ${chi}
+        xi_d = ${xi_d}
         outputs = exodus
         # block = '1 3'
     [] 
@@ -183,11 +207,11 @@
     ################################################################################
     [initial_damage_surround]
         type = ADInitialDamageCycleSim3DPlane
-        sigma = 5e2
-        peak_val = 0.7
-        len_of_fault_strike = 30000
-        len_of_fault_dip = 15000
-        nucl_center = '0 0 -7500'
+        sigma = ${sigma}
+        peak_val = ${peak_val}
+        len_of_fault_strike = ${len_of_fault_strike}
+        len_of_fault_dip = ${len_of_fault_dip}
+        nucl_center = ${fault_center}
         output_properties = 'initial_damage'      
         outputs = exodus
     []
@@ -206,14 +230,9 @@
     #r = std::sqrt(dx * dx + dy * dy + dz * dz);
     ################################################################################
     [initial_breakage_surround]
-        type = ADInitialBreakageCycleSim3DPlane
-        sigma = 5e2
-        peak_val = 0
-        len_of_fault_strike = 30000
-        len_of_fault_dip = 15000
-        nucl_center = '0 0 -7500'
-        output_properties = 'initial_breakage'      
-        outputs = exodus
+        type = ADGenericConstantMaterial
+        prop_names = 'initial_breakage'
+        prop_values = '0.0'
     []   
 []  
 
@@ -283,48 +302,33 @@
 #Shear stress: static_pressure_front_shear, static_pressure_back_shear
 #Constraints on corner_ptr: fix_cptr1_x, fix_cptr1_y, fix_cptr1_z
 #############################################################################################################################################################
-[BCs]
-    #Note: use neuamnnBC gives minimum waves than pressureBC
-    # [static_pressure_top]
-    #     type = ADNeumannBC
-    #     variable = disp_z
-    #     boundary = top
-    #     value = -50e6
-    #     displacements = 'disp_x disp_y disp_z'
-    # []
-    # [static_pressure_bottom]
-    #     type = ADNeumannBC
-    #     variable = disp_z
-    #     boundary = bottom
-    #     value = 50e6
-    #     displacements = 'disp_x disp_y disp_z'
-    # []     
+[BCs]    
     [static_pressure_left]
         type = ADNeumannBC
         variable = disp_x
         boundary = left
-        value = 50e6
+        value = ${confining_pressure}
         displacements = 'disp_x disp_y disp_z'
     []  
     [static_pressure_right]
         type = ADNeumannBC
         variable = disp_x
         boundary = right
-        value = -50e6
+        value = ${fparse -1 * confining_pressure}
         displacements = 'disp_x disp_y disp_z'
     [] 
     [static_pressure_front]
         type = ADNeumannBC
         variable = disp_y
         boundary = front
-        value = 50e6
+        value = ${confining_pressure}
         displacements = 'disp_x disp_y disp_z'
     []  
     [static_pressure_back]
         type = ADNeumannBC
         variable = disp_y
         boundary = back
-        value = -50e6
+        value = ${fparse -1 * confining_pressure}
         displacements = 'disp_x disp_y disp_z'
     []  
     #
@@ -332,28 +336,28 @@
         type = ADNeumannBC
         variable = disp_x
         boundary = front
-        value = -20e6
+        value = ${fparse -1 * shear_traction}
         displacements = 'disp_x disp_y disp_z'
     []
     [static_pressure_back_shear]
         type = ADNeumannBC
         variable = disp_x
         boundary = back
-        value = 20e6
+        value = ${shear_traction}
         displacements = 'disp_x disp_y disp_z'
     []
     [static_pressure_left_shear]
         type = ADNeumannBC
         variable = disp_y
         boundary = left
-        value = -20e6
+        value = ${fparse -1 * shear_traction}
         displacements = 'disp_x disp_y disp_z'
     []
     [static_pressure_right_shear]
         type = ADNeumannBC
         variable = disp_y
         boundary = right
-        value = 20e6
+        value = ${shear_traction}
         displacements = 'disp_x disp_y disp_z'
     []
     # fix ptr

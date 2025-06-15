@@ -39,11 +39,13 @@ ComputeDamageBreakageStress3DSlipWeakening::validParams()
   params.addRequiredParam<Real>( "CdCb_multiplier", "multiplier between Cd and Cb");
   params.addRequiredParam<Real>(    "CBH_constant", "constant CBH value");
   params.addRequiredParam<Real>(    "D", "D value");
-  
-  //variable parameters
-  params.addRequiredCoupledVar("alpha_grad_x", "damage variable gradient component in x computed from subApp");
-  params.addRequiredCoupledVar("alpha_grad_y", "damage variable gradient component in y computed from subApp");
-  params.addRequiredCoupledVar("alpha_grad_z", "damage variable gradient component in z computed from subApp");
+
+  //strain rate dependent Cd parameters
+  params.addParam<bool>("use_strain_rate_dependent_Cd", false,
+                        "Use strain rate dependent Cd (default: false)");
+  params.addParam<Real>( "m_exponent", 0.8, "strain rate dependent parameters");
+  params.addParam<Real>( "strain_rate_hat", 1e-4, "strain rate dependent parameters");
+  params.addParam<Real>( "cd_hat", 1.0, "strain rate dependent parameters");
 
   return params;
 }
@@ -71,9 +73,6 @@ ComputeDamageBreakageStress3DSlipWeakening::ComputeDamageBreakageStress3DSlipWea
     _eps_p_old(getMaterialPropertyOldByName<RankTwoTensor>("eps_p")),
     _eps_e_old(getMaterialPropertyOldByName<RankTwoTensor>("eps_e")),
     _sigma_d_old(getMaterialPropertyOldByName<RankTwoTensor>("sigma_d")),
-    _alpha_grad_x(coupledValue("alpha_grad_x")),
-    _alpha_grad_y(coupledValue("alpha_grad_y")),
-    _alpha_grad_z(coupledValue("alpha_grad_z")),
     _D(getParam<Real>("D")),
     _static_initial_stress_tensor(getMaterialProperty<RankTwoTensor>("static_initial_stress_tensor")),
     _static_initial_strain_tensor(getMaterialProperty<RankTwoTensor>("static_initial_strain_tensor")),
@@ -86,7 +85,16 @@ ComputeDamageBreakageStress3DSlipWeakening::ComputeDamageBreakageStress3DSlipWea
     _beta_width(getParam<Real>("beta_width")),
     _CdCb_multiplier(getParam<Real>("CdCb_multiplier")),
     _CBH_constant(getParam<Real>("CBH_constant")),
-    _dim(_mesh.dimension())
+    _dim(_mesh.dimension()),
+    _step(_fe_problem.timeStep()),
+    _deviatroic_strain_rate(declareProperty<Real>("deviatoric_strain_rate")),
+    _deviatroic_strain_rate_old(getMaterialPropertyOldByName<Real>("deviatoric_strain_rate")),
+    _Cd_mat(declareProperty<Real>("Cd_mat")),
+    _Cd_mat_old(getMaterialPropertyOldByName<Real>("Cd_mat")),
+    _use_strain_rate_dependent_Cd(getParam<bool>("use_strain_rate_dependent_Cd")),
+    _m_exponent(getParam<Real>("m_exponent")),
+    _strain_rate_hat(getParam<Real>("strain_rate_hat")),
+    _cd_hat(getParam<Real>("cd_hat"))
 {
 }
 
@@ -110,7 +118,8 @@ ComputeDamageBreakageStress3DSlipWeakening::initQpStatefulProperties()
 {
   _elastic_strain[_qp].zero();
   _stress[_qp].zero();
-  // _alpha_damagedvar[_qp] = _initial_damage[_qp];
+  _deviatroic_strain_rate[_qp] = 0.0;
+  _Cd_mat[_qp] = 0.0;
 
 }
 
@@ -127,138 +136,150 @@ ComputeDamageBreakageStress3DSlipWeakening::computeQpStress()
   Real a1 = avec[1];
   Real a2 = avec[2];
   Real a3 = avec[3];
-  
-  /* 
-  compute alpha and B parameters
-  */
 
-  /* compute alpha */
-  //compute forcing term
-  Real alpha_forcingterm;
-  if ( _xi_old[_qp] >= _xi_0 && _xi_old[_qp] <= _xi_max ){
-    alpha_forcingterm = (1 - _B_old[_qp]) * ( _Cd_constant * _I2_old[_qp] * ( _xi_old[_qp] - _xi_0 ) );
-  }
-  else if ( _xi_old[_qp] < _xi_0 && _xi_old[_qp] >= _xi_min ){
-    alpha_forcingterm = (1 - _B_old[_qp]) * ( _C1 * std::exp(_alpha_damagedvar_old[_qp]/_C2) * _I2_old[_qp] * ( _xi_old[_qp] - _xi_0 ) );
+  if (_step == 1){
+    setupInitial();
   }
   else{
-    mooseError("xi_old is OUT-OF-RANGE!.");   
+    
+    /* 
+    compute alpha and B parameters
+    */
+
+    //compute Cd
+    if (_use_strain_rate_dependent_Cd) // strain rate dependent Cd
+      computeStrainRateCd();
+    else // constant Cd
+      _Cd_mat[_qp] = _Cd_constant; 
+
+    /* compute alpha */
+    //compute forcing term
+    Real alpha_forcingterm;
+    if ( _xi_old[_qp] >= _xi_0 && _xi_old[_qp] <= _xi_max ){
+      alpha_forcingterm = (1 - _B_old[_qp]) * ( _Cd_mat[_qp] * _I2_old[_qp] * ( _xi_old[_qp] - _xi_0 ) );
+    }
+    else if ( _xi_old[_qp] < _xi_0 && _xi_old[_qp] >= _xi_min ){
+      alpha_forcingterm = (1 - _B_old[_qp]) * ( _C1 * std::exp(_alpha_damagedvar_old[_qp]/_C2) * _I2_old[_qp] * ( _xi_old[_qp] - _xi_0 ) );
+    }
+    else{
+      mooseError("xi_old is OUT-OF-RANGE!.");   
+    }
+
+    //update alpha at current time
+    Real alpha_out = _alpha_damagedvar_old[_qp] + _dt * alpha_forcingterm;
+
+    //check alpha within range
+    if ( alpha_out < 0 ){ alpha_out = 0.0; }
+    else if ( alpha_out > 1 ){ alpha_out = 1.0; }
+    else{}       
+
+    //check below initial damage (fix initial damage)
+    if ( alpha_out < _initial_damage[_qp] + _damage_perturbation[_qp]){ alpha_out = _initial_damage[_qp] + _damage_perturbation[_qp]; }
+    else{}
+
+    _alpha_damagedvar[_qp] = alpha_out;
+
+    /* compute B */
+    Real C_B = _CdCb_multiplier * _Cd_mat[_qp]; //multiplier between Cd and Cb
+
+    //compute xi_1
+    Real _xi_1 = _xi_0 + sqrt( pow(_xi_0 , 2) + 2 * _shear_modulus_o / _lambda_o );
+
+    //alphacr function
+    Real alphacr;
+    if ( _xi_old[_qp] < _xi_0 ){ alphacr = 1.0;} 
+    else if ( _xi_old[_qp] > _xi_0 && _xi_old[_qp] <= _xi_1 ){ alphacr = alphacr_root1(_xi_old[_qp],gamma_damaged_r);}
+    else if ( _xi_old[_qp] > _xi_1 && _xi_old[_qp] <= _xi_max ){ alphacr = alphacr_root2(_xi_old[_qp],gamma_damaged_r); }
+    else{std::cout<<"xi: "<<_xi_old[_qp]<<std::endl;mooseError("xi exceeds the maximum allowable range!");}
+
+    //compute forcing func
+    Real Prob = 1.0 / ( std::exp( (alphacr - _alpha_damagedvar_old[_qp]) / _beta_width ) + 1.0 );
+    Real B_forcingterm;
+    if ( _xi_old[_qp] >= _xi_d && _xi_old[_qp] <= _xi_max ){
+      B_forcingterm = 1.0 * C_B * Prob * (1-_B_old[_qp]) * _I2_old[_qp] * (_xi_old[_qp] - _xi_d); //could heal if xi < xi_0
+    }
+    else if ( _xi_old[_qp] < _xi_d && _xi_old[_qp] >= _xi_min ){
+      B_forcingterm = 1.0 * _CBH_constant * _I2_old[_qp] * ( _xi_old[_qp] - _xi_d ); //close healing
+    }
+    else{
+      mooseError("xi_old is OUT-OF-RANGE!.");
+    }
+
+    Real B_out = _B_old[_qp] + _dt * B_forcingterm;
+
+    //check breakage within range
+    if ( B_out < 0 ){ B_out = 0.0; }
+    else if ( B_out > 1 ){ B_out = 1.0; }
+    else{}   
+
+    //check below initial damage (fix initial damage)
+    if ( B_out < _initial_breakage[_qp] ){ B_out = _initial_breakage[_qp]; }
+    else{}
+
+    //save alpha and B
+    _B[_qp] = B_out;
+
+    //lambda, shear_modulus, gamma_damaged are updated
+    Real lambda_out = _lambda_o;
+    Real shear_modulus_out = _shear_modulus_o + alpha_out * _xi_0 * gamma_damaged_r;
+    Real gamma_damaged_out = alpha_out * gamma_damaged_r;
+
+    //save
+    _lambda[_qp] = lambda_out;
+    _shear_modulus[_qp] = shear_modulus_out;
+    _gamma_damaged[_qp] = gamma_damaged_out;
+
+    /* compute strain */
+    RankTwoTensor eps_p = _eps_p_old[_qp] + _dt * _C_g * std::pow(_B_old[_qp],_m1) * _sigma_d_old[_qp];
+    RankTwoTensor eps_t_inc = _mechanical_strain[_qp] - _mechanical_strain_old[_qp];
+    RankTwoTensor eps_total = _eps_total_old[_qp] + eps_t_inc;
+    RankTwoTensor eps_e = eps_total - eps_p;
+
+    const Real epsilon = 1e-12;
+    Real I1 = epsilon + eps_e(0,0) + eps_e(1,1) + eps_e(2,2);
+    Real I2 = epsilon + eps_e(0,0) * eps_e(0,0) + eps_e(1,1) * eps_e(1,1) + eps_e(2,2) * eps_e(2,2) + 2 * eps_e(0,1) * eps_e(0,1) + 2 * eps_e(0,2) * eps_e(0,2) + 2 * eps_e(1,2) * eps_e(1,2);
+    Real xi = I1/std::sqrt(I2);
+
+    //Represent sigma (solid(s) + granular(b))
+    RankTwoTensor sigma_s;
+    RankTwoTensor sigma_b;
+    RankTwoTensor sigma_total;
+    RankTwoTensor sigma_d;
+    const auto I = RankTwoTensor::Identity();
+
+    /* Compute stress */
+    sigma_s = (lambda_out - gamma_damaged_out / xi) * I1 * RankTwoTensor::Identity() + (2 * shear_modulus_out - gamma_damaged_out * xi) * eps_e;
+    sigma_b = (2 * a2 + a1 / xi + 3 * a3 * xi) * I1 * RankTwoTensor::Identity() + (2 * a0 + a1 * xi - a3 * std::pow(xi, 3)) * eps_e;
+    sigma_total = (1 - B_out) * sigma_s + B_out * sigma_b;
+
+    sigma_d = sigma_total - 0.3333 * (sigma_total(0,0) + sigma_total(1,1) + sigma_total(2,2)) * I;
+
+    _eps_total[_qp] = eps_p + eps_e;
+    _eps_p[_qp] = eps_p;
+    _eps_e[_qp] = eps_e;
+    _I1[_qp] = I1;
+    _I2[_qp] = I2;
+    _xi[_qp] = xi;
+    _sigma_d[_qp] = sigma_d;
+
+    // Rotate the stress state to the current configuration
+    // Here the stress increments are feed into the stress tensor
+    _stress[_qp] = sigma_total - _static_initial_stress_tensor[_qp];
+
+    // Also save the total stress tensor
+    _sts_total[_qp] = sigma_total;
+
+    // Assign value for elastic strain, which is equal to the mechanical strain
+    _elastic_strain[_qp] = eps_e; //- _static_initial_strain_tensor[_qp];
+
+    // Compute tangent
+    RankFourTensor tangent;
+    computeQpTangentModulus(tangent,I1,I2,xi,eps_e);
+    _Jacobian_mult[_qp] = tangent;
+
+    //Compute deviatoric strain rate tensor
+    computeDeviatroicStrainRateTensor();
   }
-
-  //update alpha at current time
-  Real alpha_out = _alpha_damagedvar_old[_qp] + _dt * alpha_forcingterm;
-
-  //check alpha within range
-  if ( alpha_out < 0 ){ alpha_out = 0.0; }
-  else if ( alpha_out > 1 ){ alpha_out = 1.0; }
-  else{}       
-
-  //check below initial damage (fix initial damage)
-  if ( alpha_out < _initial_damage[_qp] + _damage_perturbation[_qp]){ alpha_out = _initial_damage[_qp] + _damage_perturbation[_qp]; }
-  else{}
-
-  _alpha_damagedvar[_qp] = alpha_out;
-
-  /* compute B */
-  Real C_B = _CdCb_multiplier * _Cd_constant;
-
-  //compute xi_1
-  Real _xi_1 = _xi_0 + sqrt( pow(_xi_0 , 2) + 2 * _shear_modulus_o / _lambda_o );
-
-  //alphacr function
-  Real alphacr;
-  if ( _xi_old[_qp] < _xi_0 ){ alphacr = 1.0;} 
-  else if ( _xi_old[_qp] > _xi_0 && _xi_old[_qp] <= _xi_1 ){ alphacr = alphacr_root1(_xi_old[_qp],gamma_damaged_r);}
-  else if ( _xi_old[_qp] > _xi_1 && _xi_old[_qp] <= _xi_max ){ alphacr = alphacr_root2(_xi_old[_qp],gamma_damaged_r); }
-  else{std::cout<<"xi: "<<_xi_old[_qp]<<std::endl;mooseError("xi exceeds the maximum allowable range!");}
-
-  //compute forcing func
-  Real Prob = 1.0 / ( std::exp( (alphacr - _alpha_damagedvar_old[_qp]) / _beta_width ) + 1.0 );
-  Real B_forcingterm;
-  if ( _xi_old[_qp] >= _xi_d && _xi_old[_qp] <= _xi_max ){
-    B_forcingterm = 1.0 * C_B * Prob * (1-_B_old[_qp]) * _I2_old[_qp] * (_xi_old[_qp] - _xi_d); //could heal if xi < xi_0
-  }
-  else if ( _xi_old[_qp] < _xi_d && _xi_old[_qp] >= _xi_min ){
-    B_forcingterm = 1.0 * _CBH_constant * _I2_old[_qp] * ( _xi_old[_qp] - _xi_d ); //close healing
-  }
-  else{
-    mooseError("xi_old is OUT-OF-RANGE!.");
-  }
-
-  Real B_out = _B_old[_qp] + _dt * B_forcingterm;
-
-  //check breakage within range
-  if ( B_out < 0 ){ B_out = 0.0; }
-  else if ( B_out > 1 ){ B_out = 1.0; }
-  else{}   
-
-  //check below initial damage (fix initial damage)
-  if ( B_out < _initial_breakage[_qp] ){ B_out = _initial_breakage[_qp]; }
-  else{}
-
-  //save alpha and B
-  _B[_qp] = B_out;
-
-  //lambda, shear_modulus, gamma_damaged are updated
-  Real lambda_out = _lambda_o;
-  Real shear_modulus_out = _shear_modulus_o + alpha_out * _xi_0 * gamma_damaged_r;
-  Real gamma_damaged_out = alpha_out * gamma_damaged_r;
-
-  //save
-  _lambda[_qp] = lambda_out;
-  _shear_modulus[_qp] = shear_modulus_out;
-  _gamma_damaged[_qp] = gamma_damaged_out;
-
-  /* compute strain */
-  RankTwoTensor eps_p = _eps_p_old[_qp] + _dt * _C_g * std::pow(_B_old[_qp],_m1) * _sigma_d_old[_qp];
-  RankTwoTensor eps_e = _mechanical_strain[_qp] - eps_p;
-
-  const Real epsilon = 1e-16;
-  Real I1 = epsilon + eps_e(0,0) + eps_e(1,1) + eps_e(2,2);
-  Real I2 = epsilon + eps_e(0,0) * eps_e(0,0) + eps_e(1,1) * eps_e(1,1) + eps_e(2,2) * eps_e(2,2) + 2 * eps_e(0,1) * eps_e(0,1) + 2 * eps_e(0,2) * eps_e(0,2) + 2 * eps_e(1,2) * eps_e(1,2);
-  Real xi = I1/std::sqrt(I2);
-
-  //Represent sigma (solid(s) + granular(b))
-  RankTwoTensor sigma_s;
-  RankTwoTensor sigma_b;
-  RankTwoTensor sigma_total;
-  RankTwoTensor sigma_d;
-  const auto I = RankTwoTensor::Identity();
-
-  /* Compute stress */
-  sigma_s = (lambda_out - gamma_damaged_out / xi) * I1 * RankTwoTensor::Identity() + (2 * shear_modulus_out - gamma_damaged_out * xi) * eps_e;
-  sigma_b = (2 * a2 + a1 / xi + 3 * a3 * xi) * I1 * RankTwoTensor::Identity() + (2 * a0 + a1 * xi - a3 * std::pow(xi, 3)) * eps_e;
-  sigma_total = (1 - B_out) * sigma_s + B_out * sigma_b;
-
-  sigma_d = sigma_total - 0.3333 * (sigma_total(0,0) + sigma_total(1,1) + sigma_total(2,2)) * I;
-
-  _eps_total[_qp] = eps_p + eps_e;
-  _eps_p[_qp] = eps_p;
-  _eps_e[_qp] = eps_e;
-  _I1[_qp] = I1;
-  _I2[_qp] = I2;
-  _xi[_qp] = xi;
-  _sigma_d[_qp] = sigma_d;
-
-  // Rotate the stress state to the current configuration
-  // Here the stress increments are feed into the stress tensor
-  _stress[_qp] = sigma_total - _static_initial_stress_tensor[_qp];
-
-  // Also save the total stress tensor
-  _sts_total[_qp] = sigma_total;
-
-  // Assign value for elastic strain, which is equal to the mechanical strain
-  _elastic_strain[_qp] = eps_e; //- _static_initial_strain_tensor[_qp];
-
-  // Compute tangent
-  RankFourTensor tangent;
-  computeQpTangentModulus(tangent,I1,I2,xi,eps_e);
-  _Jacobian_mult[_qp] = tangent;
-
-  //Compute equivalent strain rate
-  RankTwoTensor epsilon_rate = (eps_p - _eps_p_old[_qp])/_dt;
-  Real epsilon_eq = sqrt(2/3*(epsilon_rate(0,0)*epsilon_rate(0,0)+epsilon_rate(1,1)*epsilon_rate(1,1)+epsilon_rate(2,2)*epsilon_rate(2,2)+2*epsilon_rate(0,1)*epsilon_rate(0,1)+2*epsilon_rate(0,2)*epsilon_rate(0,2)+2*epsilon_rate(1,2)*epsilon_rate(1,2)));
-  _epsilon_eq[_qp] = epsilon_eq;
 
 }
 
@@ -401,4 +422,90 @@ ComputeDamageBreakageStress3DSlipWeakening::computeQpTangentModulus(RankFourTens
   // Combine and assign tangent
   tangent = (1.0 - _B[_qp]) * dSedE + _B[_qp] * dSbdE;  
 
+}
+
+void
+ComputeDamageBreakageStress3DSlipWeakening::setupInitial()
+{
+
+  Real gamma_damaged_r = computegammar();
+
+  /// lambda (first lame const)
+  _lambda[_qp] = _lambda_o;
+  /// mu (shear modulus)
+  _shear_modulus[_qp] = _shear_modulus_o + _initial_damage[_qp] * _xi_0 * gamma_damaged_r;
+  /// gamma_damaged (damage modulus)
+  _gamma_damaged[_qp] = _initial_damage[_qp] * gamma_damaged_r;
+
+  //allpha, B
+  _alpha_damagedvar[_qp] = _initial_damage[_qp];
+  _B[_qp] = _initial_breakage[_qp];
+
+  //Get stress components
+  RankTwoTensor stress_initial = _static_initial_stress_tensor[_qp];
+  RankTwoTensor strain_initial = _static_initial_strain_tensor[_qp];
+
+  //Compute strain components using Hooke's Law
+  Real eps11_init = strain_initial(0,0);
+  Real eps22_init = strain_initial(1,1);
+  Real eps12_init = strain_initial(0,1);
+  Real eps13_init = strain_initial(0,2);
+  Real eps23_init = strain_initial(1,2);
+  Real eps33_init = strain_initial(2,2);
+  
+  //Compute xi, I1, I2
+  Real I1_init = eps11_init + eps22_init + eps33_init;
+  Real I2_init = eps11_init * eps11_init + eps22_init * eps22_init + eps33_init * eps33_init + 2 * eps12_init * eps12_init + 2 * eps13_init * eps13_init + 2 * eps23_init * eps23_init;
+  Real xi_init = I1_init / sqrt( I2_init );
+
+  //Compute eps
+  //eps_p
+  _eps_p[_qp](0,0) = 0.0; _eps_p[_qp](0,1) = 0.0; _eps_p[_qp](0,2) = 0.0;
+  _eps_p[_qp](1,0) = 0.0; _eps_p[_qp](1,1) = 0.0; _eps_p[_qp](1,2) = 0.0;
+  _eps_p[_qp](2,0) = 0.0; _eps_p[_qp](2,1) = 0.0; _eps_p[_qp](2,2) = 0.0;
+  //eps_e
+  _eps_e[_qp](0,0) = eps11_init; _eps_e[_qp](0,1) = eps12_init; _eps_e[_qp](0,2) = eps13_init;
+  _eps_e[_qp](1,0) = eps12_init; _eps_e[_qp](1,1) = eps22_init; _eps_e[_qp](1,2) = eps23_init;
+  _eps_e[_qp](2,0) = eps13_init; _eps_e[_qp](2,1) = eps23_init; _eps_e[_qp](2,2) = eps33_init;
+  //eps_total
+  _eps_total[_qp](0,0) = eps11_init; _eps_total[_qp](0,1) = eps12_init; _eps_total[_qp](0,2) = eps13_init;
+  _eps_total[_qp](1,0) = eps12_init; _eps_total[_qp](1,1) = eps22_init; _eps_total[_qp](1,2) = eps23_init;
+  _eps_total[_qp](2,0) = eps13_init; _eps_total[_qp](2,1) = eps23_init; _eps_total[_qp](2,2) = eps33_init;
+  //sts_total
+  _sts_total[_qp] = stress_initial;
+
+  //I1
+  _I1[_qp] = I1_init;
+  //I2
+  _I2[_qp] = I2_init;
+  //xi
+  _xi[_qp] = xi_init;
+}
+
+void
+ComputeDamageBreakageStress3DSlipWeakening::computeDeviatroicStrainRateTensor()
+{
+  //Compute strain rate E_dot = F^T * D * F
+  RankTwoTensor E_dot = (_eps_total[_qp] - _eps_total_old[_qp]) / _dt;
+  //Compute deviatoric strain rate tensor E_dev_dot 
+  RankTwoTensor E_dev_dot = E_dot - (1.0/3.0) * E_dot.trace() * RankTwoTensor::Identity();
+  //Compute J2_dot = 1/2 * E_dev_dot(i,j) * E_dev_dot(i,j)
+  Real J2_dot = 0.0;
+  for (unsigned int i = 0; i < 3; ++i){
+    for (unsigned int j = 0; j < 3; ++j){
+      J2_dot += 0.5 * E_dev_dot(i,j) * E_dev_dot(i,j);
+    }
+  }
+  //Compute equivalent strain rate
+  _deviatroic_strain_rate[_qp] = std::sqrt(2.0/3.0 * J2_dot);
+}
+
+void 
+ComputeDamageBreakageStress3DSlipWeakening::computeStrainRateCd()
+{
+  //_m_exponent: constant value - default value = 0.8
+  //_strain_rate_hat: constant value - default value = 1e-4
+  //_cd_hat: constant value - default value = 1
+  //_strain_rate: deviatoric strain rate, variable value passed from main app
+  _Cd_mat[_qp] = pow(10, 1 + _m_exponent * std::log10(_deviatroic_strain_rate_old[_qp]/_strain_rate_hat)) * _cd_hat;
 }
