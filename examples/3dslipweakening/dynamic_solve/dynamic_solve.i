@@ -240,31 +240,19 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     order = FIRST
     family = LAGRANGE
   []
-  [./mu_s]
-      order = CONSTANT
-      family = MONOMIAL
-  []
-  [./ini_shear_stress]
-    order = FIRST
-    family = MONOMIAL
-  []
-  [./ini_normal_stress]
-    order = FIRST
-    family = MONOMIAL
-  []
   ###
-  [jump_x_aux]
-    order = FIRST
-    family = MONOMIAL
-  []
-  [jump_x_rate_aux]
-    order = FIRST
-    family = MONOMIAL
-  []
-  [traction_x_aux]
-    order = FIRST
-    family = MONOMIAL
-  []  
+  # [jump_x_aux]
+  #   order = FIRST
+  #   family = MONOMIAL
+  # []
+  # [jump_x_rate_aux]
+  #   order = FIRST
+  #   family = MONOMIAL
+  # []
+  # [traction_x_aux]
+  #   order = FIRST
+  #   family = MONOMIAL
+  # []  
   ###
   #output CDB model properties
   [alpha_damagedvar_aux]
@@ -383,25 +371,25 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'TIMESTEP_END'
   []
   ###
-  [get_jump_x_aux]
-    type = MaterialRealAux
-    property = jump_x
-    variable = jump_x_aux
-    boundary = 'Block100_Block200'
-  []
-  [get_jump_x_rate_aux]
-    type = FDCompVarRate
-    variable = jump_x_rate_aux
-    coupled = jump_x
-    execute_on = 'TIMESTEP_END'
-    boundary = 'Block100_Block200'
-  []
-  [get_traction_x_aux]
-    type = MaterialRealAux
-    property = traction_x
-    variable = traction_x_aux
-    boundary = 'Block100_Block200'
-  []
+  # [get_jump_x_aux]
+  #   type = MaterialRealAux
+  #   property = jump_x
+  #   variable = jump_x_aux
+  #   boundary = 'Block100_Block200'
+  # []
+  # [get_jump_x_rate_aux]
+  #   type = FDCompVarRate
+  #   variable = jump_x_rate_aux
+  #   coupled = jump_x
+  #   execute_on = 'TIMESTEP_END'
+  #   boundary = 'Block100_Block200'
+  # []
+  # [get_traction_x_aux]
+  #   type = MaterialRealAux
+  #   property = traction_x
+  #   variable = traction_x_aux
+  #   boundary = 'Block100_Block200'
+  # []
   ###get CDB model properties
   [get_alpha_damagedvar]
       type = MaterialRealAux
@@ -522,10 +510,6 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 []
 
 [Functions]
-  [func_static_friction_coeff_mus]
-      type = ConstantFunction
-      value = ${mu_s}
-  []
   ###
   #the initial shear stress needs additional nucleation parameters
   [./func_initial_stress_xy]
@@ -554,11 +538,6 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'elastic_strain_02'
   []
-  [./func_initial_strain_yx]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'elastic_strain_10'
-  []
   [./func_initial_strain_yy]
     type = SolutionFunction
     solution = init_sol_components
@@ -569,21 +548,12 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'elastic_strain_12'
   []
-  [./func_initial_strain_zx]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'elastic_strain_20'
-  []
-  [./func_initial_strain_zy]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'elastic_strain_21'
-  []
   [./func_initial_strain_zz]
     type = SolutionFunction
     solution = init_sol_components
     from_variable = 'elastic_strain_22'
   []
+  ###
   [./func_initial_stress_xx]
     type = SolutionFunction
     solution = init_sol_components
@@ -599,11 +569,6 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'stress_02'
   []
-  [./func_initial_stress_yx]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'stress_10'
-  []
   [./func_initial_stress_yy]
     type = SolutionFunction
     solution = init_sol_components
@@ -613,16 +578,6 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     type = SolutionFunction
     solution = init_sol_components
     from_variable = 'stress_12'
-  []
-  [./func_initial_stress_zx]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'stress_20'
-  []
-  [./func_initial_stress_zy]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'stress_21'
   []
   [./func_initial_stress_zz]
     type = SolutionFunction
@@ -642,12 +597,8 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     type = SolutionUserObject
     mesh = '../static_solve/static_solve_out.e'
     system_variables = 'elastic_strain_00 elastic_strain_01 elastic_strain_02
-                        elastic_strain_10 elastic_strain_11 elastic_strain_12
-                        elastic_strain_20 elastic_strain_21 elastic_strain_22
-                        stress_00 stress_01 stress_02
-                        stress_10 stress_11 stress_12
-                        stress_20 stress_21 stress_22
-                        initial_damage disp_x disp_y disp_z'
+                        elastic_strain_11 elastic_strain_12 elastic_strain_22
+                        stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
     timestep = LATEST
     force_preaux = true
   [../]  
