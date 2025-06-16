@@ -151,7 +151,7 @@ SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
   //!!! Here we assume the fault is planar!!!
   Real T1_o = sts_init(0,1);
   Real T2_o = -1 * sts_init(1,1);
-  Real T3_o = sts_init(2,2);
+  Real T3_o = sts_init(0,2); //xz
 
   // Compute sticking stress
   Real T1 = (1 / _dt) * M * displacement_jump_rate_t / (2 * A) +
