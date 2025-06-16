@@ -11,7 +11,7 @@ xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
 zmin_fault = -15000 #zmin of fault
 # zmax_fault = 0 #zmax of fault
-elem_size = 200 #!!! element size near the fault, need to be consistent with the mesh file
+elem_size = 100 #!!! element size near the fault, need to be consistent with the mesh file
 ##-------------------------##
 
 ##material properties##
@@ -86,7 +86,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../mesh/tpv2053d_200m.msh'
+    file = '../mesh/tpv2053d_100m.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
