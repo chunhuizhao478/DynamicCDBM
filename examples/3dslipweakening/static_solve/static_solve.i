@@ -7,8 +7,8 @@ bottom_nodes_coord =' -60000 -60000 -60000;
                      -60000 60000  -60000'
 
 ##boundary loading parameters
-confining_pressure = 50e6 #Pa, confining pressure
-shear_traction = 20e6 #Pa, shear traction
+confining_pressure = 120e6 #Pa, confining pressure
+shear_traction = 70e6 #Pa, shear traction
 ##-------------------------##
 
 ##material properties
