@@ -8,13 +8,13 @@ bottom_nodes_coord =' -60000 -60000 -60000;
 
 ##boundary loading parameters
 confining_pressure = 120e6 #Pa, confining pressure
-shear_traction = 70e6 #Pa, shear traction
+shear_traction = 50e6 #Pa, shear traction
 ##-------------------------##
 
 ##material properties
 lambda_o = 32.04e9 #Pa, first lame constant
 shear_modulus_o = 32.04e9 #Pa, second lame constant
-xi_o = -0.8 #strain invariants ratio: onset of damage evolution
+xi_0 = -0.8 #strain invariants ratio: onset of damage evolution
 xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 chi = 0.8 #ratio of solid energy and granular energy
 ##-------------------------##
@@ -36,7 +36,7 @@ fault_center = '0 0 -7500'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/tpv2053d_100m.msh'
+        file = '../mesh/tpv2053d_400m.msh'
     []
     [./sidesets]
         input = msh
@@ -165,7 +165,7 @@ fault_center = '0 0 -7500'
         type = ADComputeDamageStressStaticDistribution
         lambda_o = ${lambda_o}
         shear_modulus_o = ${shear_modulus_o}
-        xi_o = ${xi_o}
+        xi_o = ${xi_0}
         chi = ${chi}
         xi_d = ${xi_d}
         outputs = exodus
