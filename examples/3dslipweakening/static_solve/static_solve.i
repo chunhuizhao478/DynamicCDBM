@@ -36,7 +36,7 @@ fault_center = '0 0 -7500'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/tpv2053d_400m.msh'
+        file = '../mesh/tpv2053d_100m.msh'
     []
     [./sidesets]
         input = msh
