@@ -507,5 +507,10 @@ ComputeDamageBreakageStress3DSlipWeakening::computeStrainRateCd()
   //_strain_rate_hat: constant value - default value = 1e-4
   //_cd_hat: constant value - default value = 1
   //_strain_rate: deviatoric strain rate, variable value passed from main app
-  _Cd_mat[_qp] = pow(10, 1 + _m_exponent * std::log10(_deviatroic_strain_rate_old[_qp]/_strain_rate_hat)) * _cd_hat;
+  if (_deviatroic_strain_rate_old[_qp] < _strain_rate_hat){
+    _Cd_mat[_qp] = 0.0; //if deviatoric strain rate is less than strain_rate_hat, Cd = 0
+  }
+  else{
+    _Cd_mat[_qp] = pow(10, 1 + _m_exponent * std::log10(_deviatroic_strain_rate_old[_qp]/_strain_rate_hat)) * _cd_hat;
+  }
 }
