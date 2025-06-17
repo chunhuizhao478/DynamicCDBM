@@ -27,6 +27,8 @@ Dc = 0.4 #characteristic length (m)
 q = 0.4 #damping ratio
 mu_s = 0.677 #static friction coefficient
 mu_d = 0.525 #dynamic friction coefficient
+
+use_cohesion = true #use cohesion
 ##-------------------------##
 
 ##CDB model parameters##
@@ -491,6 +493,8 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       mu_d = ${mu_d}
       Dc = ${Dc}
       len = ${elem_size}
+      use_cohesion = ${use_cohesion}
+      cohesion_function = 'func_cohesion'
       boundary = 'Block100_Block200'
   [../]
   [./static_initial_strain_tensor]
@@ -510,6 +514,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 []
 
 [Functions]
+  #cohesion 
+  [./func_cohesion]
+    type = ParsedFunction
+    expression = 'if(z >= -1000, 4e3 * z + 4e6, 0)'
+  []
   ###
   #the initial shear stress needs additional nucleation parameters
   [./func_initial_stress_xy]

@@ -34,6 +34,11 @@ SlipWeakeningFrictionczm3dCDBM::validParams()
   params.addRequiredCoupledVar("reaction_slipweakening_x", "reaction in x dir");
   params.addRequiredCoupledVar("reaction_slipweakening_y", "reaction in y dir");
   params.addRequiredCoupledVar("reaction_slipweakening_z", "reaction in z dir");
+  
+  //cohesion
+  params.addParam<bool>("use_cohesion", false, "add cohesion in the near surface region");
+  params.addParam<FunctionName>("cohesion_function", "The cohesion function");
+  
   return params;
 }
 
@@ -69,9 +74,15 @@ SlipWeakeningFrictionczm3dCDBM::SlipWeakeningFrictionczm3dCDBM(const InputParame
     _disp_slipweakening_neighbor_y_old(coupledNeighborValueOld("disp_slipweakening_y")),
     _disp_slipweakening_z_old(coupledValueOld("disp_slipweakening_z")),
     _disp_slipweakening_neighbor_z_old(coupledNeighborValueOld("disp_slipweakening_z")),
-    _sts_init(getMaterialPropertyByName<RankTwoTensor>("static_initial_stress_tensor"))
+    _sts_init(getMaterialPropertyByName<RankTwoTensor>("static_initial_stress_tensor")),
+    _use_cohesion(getParam<bool>("use_cohesion")),
+    _cohesion_function_name(getParam<FunctionName>("cohesion_function"))    
 {
-
+  //add cohesion function if use_cohesion is true
+  if (_use_cohesion){
+    _cohesion_function = &getFunctionByName(_cohesion_function_name);
+  }
+  
   // only works for small strain
   if (hasBlockMaterialProperty<RankTwoTensor>(_base_name + "strain_increment"))
   {
@@ -177,6 +188,14 @@ SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
   {
     tau_f = (_mu_s - (_mu_s - _mu_d) * slip_total / _Dc) *
             (-T2); // square for shear component
+
+    //add cohesion if use_cohesion is true
+    if (_use_cohesion)
+    {
+      Real cohesion = _cohesion_function->value(_t, _q_point[_qp]);
+      tau_f += cohesion;
+    }
+
   }
   else
   {

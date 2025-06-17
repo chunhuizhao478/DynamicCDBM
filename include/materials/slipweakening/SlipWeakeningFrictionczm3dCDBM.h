@@ -12,8 +12,8 @@ Material Description of Slip Weakening Friction 3d
 */
 
 #pragma once
-
 #include "CZMComputeLocalTractionTotalBase.h"
+#include "Function.h"
 
 class SlipWeakeningFrictionczm3dCDBM : public CZMComputeLocalTractionTotalBase
 {
@@ -63,4 +63,10 @@ protected:
   const VariableValue & _disp_slipweakening_neighbor_z_old;
 
   const MaterialProperty<RankTwoTensor> & _sts_init;
+
+  /// add cohesion
+  const bool _use_cohesion;
+  const FunctionName _cohesion_function_name;
+  const Function * _cohesion_function;
+    
 };
