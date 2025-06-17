@@ -29,6 +29,7 @@ mu_s = 0.677 #static friction coefficient
 mu_d = 0.525 #dynamic friction coefficient
 
 use_cohesion = true #use cohesion
+cohesion_expression = 'if(z >= -1000, 20e3 * z + 20e6, 0)'
 ##-------------------------##
 
 ##CDB model parameters##
@@ -517,7 +518,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   #cohesion 
   [./func_cohesion]
     type = ParsedFunction
-    expression = 'if(z >= -1000, 10e3 * z + 10e6, 0)'
+    expression = ${cohesion_expression}
   []
   ###
   #the initial shear stress needs additional nucleation parameters
