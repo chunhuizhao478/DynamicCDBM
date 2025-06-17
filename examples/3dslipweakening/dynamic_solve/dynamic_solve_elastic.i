@@ -521,16 +521,16 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   ###
   #the initial shear stress needs additional nucleation parameters
-  [./func_initial_stress_xy]
-      type = InitialShearStressCDBM
-      peak_value = ${peak_shear_value}
-      nucl_center_x = ${nucl_center_x}
-      nucl_center_z = ${nucl_center_z}
-      nucl_size = ${nucl_size}
-      elem_size = ${elem_size}
-      solution = init_sol_components
-      from_variable = 'stress_01'
-  []
+  # [./func_initial_stress_xy]
+  #     type = InitialShearStressCDBM
+  #     peak_value = ${peak_shear_value}
+  #     nucl_center_x = ${nucl_center_x}
+  #     nucl_center_z = ${nucl_center_z}
+  #     nucl_size = ${nucl_size}
+  #     elem_size = ${elem_size}
+  #     solution = init_sol_components
+  #     from_variable = 'stress_01'
+  # []
   ###
   [./func_initial_strain_xx]
     type = SolutionFunction
@@ -568,11 +568,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'stress_00'
   []
-  # [./func_initial_stress_xy]
-  #   type = SolutionFunction
-  #   solution = init_sol_components
-  #   from_variable = 'stress_01'
-  # []
+  [./func_initial_stress_xy]
+    type = SolutionFunction
+    solution = init_sol_components
+    from_variable = 'stress_01'
+  []
   [./func_initial_stress_xz]
     type = SolutionFunction
     solution = init_sol_components
