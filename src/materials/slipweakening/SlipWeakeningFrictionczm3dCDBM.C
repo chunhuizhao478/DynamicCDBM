@@ -213,8 +213,7 @@ SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
   }
 
   // Assign back traction in CZM
-  // RealVectorValue traction(T2 + T2_o, -T1 + T1_o, -T3 + T3_o);
-  RealVectorValue traction(0.0,0.0,0.0);
+  RealVectorValue traction(T2 + T2_o, -T1 + T1_o, -T3 + T3_o);
   _interface_traction[_qp] = traction;
   _dinterface_traction_djump[_qp] = 0;
 }
