@@ -68,10 +68,10 @@ fault_center = '0 0 -7500'
 ##-------------------------##
 
 ##initial stress parameters##
-peak_shear_value = 81.6e6 #initial shear stress perturbation peak value
+peak_shear_value = 85e6 #initial shear stress perturbation peak value
 nucl_center_x = 0 #nucleation center x coordinate
 nucl_center_z = -7500 #nucleation center y coordinate
-nucl_size = 3000 #nucleation size
+nucl_size = 5000 #nucleation size
 ##-------------------------##
 
 ##model parameters##
@@ -452,7 +452,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   #damage breakage model
   [stress_medium]
       type = ComputeDamageBreakageStress3DSlipWeakening
-      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate'
+      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate sts_total'
       use_strain_rate_dependent_Cd = ${use_strain_rate_dependent_Cd}
       m_exponent = ${m_exponent}
       strain_rate_hat = ${strain_rate_hat}
@@ -627,7 +627,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 
 [Outputs]
   exodus = true
-  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy Cd_mat deviatoric_strain_rate'
+  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z sts_total_00 sts_total_01 sts_total_11'
   time_step_interval = ${exodus_time_step_interval}
   [csv]
     type = CSV
