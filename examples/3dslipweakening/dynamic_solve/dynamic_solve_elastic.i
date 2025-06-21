@@ -26,7 +26,7 @@ shear_modulus_o = 3.204e10 #second lame constant
 Dc = 0.4 #characteristic length (m)
 q = 0.4 #damping ratio
 mu_s = 0.677 #static friction coefficient
-mu_d = 0.525 #dynamic friction coefficient
+mu_d = 0.55 #dynamic friction coefficient
 
 use_cohesion = true #use cohesion
 cohesion_expression = 'if(z >= -1000, 20e3 * z + 20e6, 0)'
