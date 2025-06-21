@@ -68,10 +68,10 @@ fault_center = '0 0 -7500'
 ##-------------------------##
 
 ##initial stress parameters##
-peak_shear_value = 85e6 #initial shear stress perturbation peak value
+peak_shear_value = 90e6 #initial shear stress perturbation peak value
 nucl_center_x = 0 #nucleation center x coordinate
 nucl_center_z = -7500 #nucleation center y coordinate
-nucl_size = 5000 #nucleation size
+nucl_size = 6000 #nucleation size
 ##-------------------------##
 
 ##model parameters##
