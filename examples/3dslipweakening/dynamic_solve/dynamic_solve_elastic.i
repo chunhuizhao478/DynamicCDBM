@@ -498,18 +498,25 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       cohesion_function = 'func_cohesion'
       boundary = 'Block100_Block200'
   [../]
-  [./static_initial_strain_tensor]
+  [./static_initial_strain_tensor] #this is used in ComputeDamageBreakageStress3DSlipWeakening
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_strain_tensor
       tensor_functions = 'func_initial_strain_xx   func_initial_strain_xy      func_initial_strain_xz 
                           func_initial_strain_xy   func_initial_strain_yy      func_initial_strain_yz
                           func_initial_strain_xz   func_initial_strain_yz      func_initial_strain_zz'
   [../]
-  [./static_initial_stress_tensor]
+  [./static_initial_stress_tensor] #this is used in ComputeDamageBreakageStress3DSlipWeakening
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_stress_tensor
         tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
                             func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
+                            func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
+  [../]
+  [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
+      type = GenericFunctionRankTwoTensor
+      tensor_name = static_initial_stress_tensor
+        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
+                            func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
                             func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
 []
@@ -522,7 +529,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   ###
   #the initial shear stress needs additional nucleation parameters
-  [./func_initial_stress_xy]
+  [./func_initial_stress_xy_variable]
       type = InitialShearStressCDBM
       peak_value = ${peak_shear_value}
       nucl_center_x = ${nucl_center_x}
@@ -569,11 +576,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'stress_00'
   []
-  # [./func_initial_stress_xy]
-  #   type = SolutionFunction
-  #   solution = init_sol_components
-  #   from_variable = 'stress_01'
-  # []
+  [./func_initial_stress_xy]
+    type = SolutionFunction
+    solution = init_sol_components
+    from_variable = 'stress_01'
+  []
   [./func_initial_stress_xz]
     type = SolutionFunction
     solution = init_sol_components

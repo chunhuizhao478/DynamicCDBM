@@ -74,7 +74,7 @@ SlipWeakeningFrictionczm3dCDBM::SlipWeakeningFrictionczm3dCDBM(const InputParame
     _disp_slipweakening_neighbor_y_old(coupledNeighborValueOld("disp_slipweakening_y")),
     _disp_slipweakening_z_old(coupledValueOld("disp_slipweakening_z")),
     _disp_slipweakening_neighbor_z_old(coupledNeighborValueOld("disp_slipweakening_z")),
-    _sts_init(getMaterialPropertyByName<RankTwoTensor>("static_initial_stress_tensor")),
+    _sts_init(getMaterialPropertyByName<RankTwoTensor>("static_initial_stress_tensor_slipweakening")),
     _use_cohesion(getParam<bool>("use_cohesion")),
     _cohesion_function_name(getParam<FunctionName>("cohesion_function"))    
 {
