@@ -514,7 +514,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [../]
   [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
       type = GenericFunctionRankTwoTensor
-      tensor_name = static_initial_stress_tensor
+      tensor_name = static_initial_stress_tensor_slipweakening
         tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
                             func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
                             func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
