@@ -452,7 +452,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   #damage breakage model
   [stress_medium]
       type = ComputeDamageBreakageStress3DSlipWeakening
-      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate'
+      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate sts_total'
       use_strain_rate_dependent_Cd = ${use_strain_rate_dependent_Cd}
       m_exponent = ${m_exponent}
       strain_rate_hat = ${strain_rate_hat}
@@ -634,7 +634,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 
 [Outputs]
   exodus = true
-  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy Cd_mat deviatoric_strain_rate'
+  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux sts_total_xx sts_total_yy sts_total_xy Cd_mat deviatoric_strain_rate'
   time_step_interval = ${exodus_time_step_interval}
   [csv]
     type = CSV
