@@ -70,8 +70,8 @@ fault_center = '0 0 -7500'
 ##initial stress parameters##
 peak_shear_value = 90e6 #initial shear stress perturbation peak value
 nucl_center_x = 0 #nucleation center x coordinate
-nucl_center_z = -7500 #nucleation center y coordinate
-nucl_size = 6000 #nucleation size
+nucl_center_z = -7500 #nucleation center z coordinate
+nucl_size = 3000 #nucleation size
 ##-------------------------##
 
 ##model parameters##
@@ -94,13 +94,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
     input = msh
-    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y < 0'
+    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y > 0'
     block_id = 100
   []
   [./new_block_2]
     type = ParsedSubdomainMeshGenerator
     input = new_block_1
-    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y > 0'
+    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y < 0'
     block_id = 200
   []       
   [./split_1]
