@@ -12,8 +12,8 @@ Material Description of Slip Weakening Friction 3d
 */
 
 #pragma once
+
 #include "CZMComputeLocalTractionTotalBase.h"
-#include "Function.h"
 
 class SlipWeakeningFrictionczm3dCDBM : public CZMComputeLocalTractionTotalBase
 {
@@ -24,7 +24,7 @@ public:
 protected:
   /// method computing the total traction and its derivatives
   void computeInterfaceTractionAndDerivatives() override;
-
+  
   Real _mu_s;
   Real _mu_d;
   Real _Dc;
@@ -62,11 +62,13 @@ protected:
   const VariableValue & _disp_slipweakening_z_old;
   const VariableValue & _disp_slipweakening_neighbor_z_old;
 
-  const MaterialProperty<RankTwoTensor> & _sts_init;
+  // Initial shear stress tensor
+  const MaterialProperty<RankTwoTensor> & _static_initial_stress_tensor;
 
-  /// add cohesion
-  const bool _use_cohesion;
-  const FunctionName _cohesion_function_name;
-  const Function * _cohesion_function;
-    
+  // Use forced rupture
+  bool _use_forced_rupture;
+  Real _t0;
+  const VariableValue & _cohesion_aux;
+  const VariableValue & _forced_rupture_aux;
+  const VariableValue & _fluid_pressure_aux;
 };

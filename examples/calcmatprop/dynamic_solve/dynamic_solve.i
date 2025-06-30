@@ -23,10 +23,10 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##-------------------------##
 
 ##Slip weakening parameters##
-Dc = 1.2 #characteristic length (m)
+Dc = 0.4 #characteristic length (m)
 q = 0.4 #damping ratio
 mu_s = 0.677 #static friction coefficient
-mu_d = 0.55 #dynamic friction coefficient
+mu_d = 0.525 #dynamic friction coefficient
 
 use_cohesion = true #use cohesion
 cohesion_expression = 'if(z >= -1000, 20e3 * z + 20e6, 0)'
@@ -42,7 +42,7 @@ Cd_constant = 0 #coefficient gives positive damage evolution
 
 ###rate dependent Cd
 ###note: if use_strain_rate_dependent_Cd is true, Cd_constant will be ignored
-use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
+use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
 strain_rate_hat = 1e-4 #strain rate dependent parameters
 cd_hat = 1.0 #strain rate dependent parameters
@@ -67,14 +67,12 @@ len_of_fault_dip = 15000
 fault_center = '0 0 -7500'
 ##-------------------------##
 
-#nucleation parameters
+##initial stress parameters##
+peak_shear_value = 81.6e6 #initial shear stress perturbation peak value
 nucl_center_x = 0 #nucleation center x coordinate
-nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -7500 #nucleation center y coordinate
-r_crit = 4000 #critical distance to hypocenter (m)
-Vs = 3464 #shear wave speed (m/s)
-t0 = 0.5 #nucleation time (s)
-##------------------------------------------------------------------##
+nucl_size = 3000 #nucleation size
+##-------------------------##
 
 ##model parameters##
 dt = 0.0025 #time step size
@@ -91,18 +89,18 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../mesh/tpv2053d_100m.msh'
+    file = '../mesh/tpv2053d_400m.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
     input = msh
-    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y > 0'
+    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y < 0'
     block_id = 100
   []
   [./new_block_2]
     type = ParsedSubdomainMeshGenerator
     input = new_block_1
-    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y < 0'
+    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y > 0'
     block_id = 200
   []       
   [./split_1]
@@ -454,7 +452,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   #damage breakage model
   [stress_medium]
       type = ComputeDamageBreakageStress3DSlipWeakening
-      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate sts_total'
+      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate'
       use_strain_rate_dependent_Cd = ${use_strain_rate_dependent_Cd}
       m_exponent = ${m_exponent}
       strain_rate_hat = ${strain_rate_hat}
@@ -500,25 +498,18 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       cohesion_function = 'func_cohesion'
       boundary = 'Block100_Block200'
   [../]
-  [./static_initial_strain_tensor] #this is used in ComputeDamageBreakageStress3DSlipWeakening
+  [./static_initial_strain_tensor]
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_strain_tensor
       tensor_functions = 'func_initial_strain_xx   func_initial_strain_xy      func_initial_strain_xz 
                           func_initial_strain_xy   func_initial_strain_yy      func_initial_strain_yz
                           func_initial_strain_xz   func_initial_strain_yz      func_initial_strain_zz'
   [../]
-  [./static_initial_stress_tensor] #this is used in ComputeDamageBreakageStress3DSlipWeakening
+  [./static_initial_stress_tensor]
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_stress_tensor
         tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
                             func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
-                            func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
-  [../]
-  [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
-      type = GenericFunctionRankTwoTensor
-      tensor_name = static_initial_stress_tensor_slipweakening
-        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
-                            func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
                             func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
 []
@@ -531,7 +522,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   ###
   #the initial shear stress needs additional nucleation parameters
-  [./func_initial_stress_xy_variable]
+  [./func_initial_stress_xy]
       type = InitialShearStressCDBM
       peak_value = ${peak_shear_value}
       nucl_center_x = ${nucl_center_x}
@@ -578,11 +569,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'stress_00'
   []
-  [./func_initial_stress_xy]
-    type = SolutionFunction
-    solution = init_sol_components
-    from_variable = 'stress_01'
-  []
+  # [./func_initial_stress_xy]
+  #   type = SolutionFunction
+  #   solution = init_sol_components
+  #   from_variable = 'stress_01'
+  # []
   [./func_initial_stress_xz]
     type = SolutionFunction
     solution = init_sol_components
@@ -636,7 +627,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 
 [Outputs]
   exodus = true
-  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux sts_total_00 sts_total_11 sts_total_01 Cd_mat deviatoric_strain_rate'
+  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy Cd_mat deviatoric_strain_rate'
   time_step_interval = ${exodus_time_step_interval}
   [csv]
     type = CSV

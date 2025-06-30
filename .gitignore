@@ -332,3 +332,15 @@ examples/buried_fault/meshfile/cdbm_tpv2053d_buried_small.msh
 examples/buried_fault_dev/meshfile/cdbm_largeplane_coarse.msh
 examples/buried_fault_dev/meshfile/cdbm_largeplane_buried_coarse_newmethod.msh
 examples/buried_fault_dev/meshfile/cdbm_largeplane_buried_coarse.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/buried_fault_v1/meshfile/mesh.msh
+examples/3dslipweakening/mesh/tpv2053d_100m.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/3dslipweakening/mesh/tpv2053d_400m.msh
+examples/buried_fault_singleblock/meshfile/mesh_singleblock_large.msh
+examples/calcmatprop/mesh/tpv2053d_400m.msh
+examples/3dslipweakening/mesh/tpv2053d_200m.msh

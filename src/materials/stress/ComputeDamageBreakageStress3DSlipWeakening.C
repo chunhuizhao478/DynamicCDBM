@@ -38,7 +38,6 @@ ComputeDamageBreakageStress3DSlipWeakening::validParams()
   params.addRequiredParam<Real>(      "beta_width", "coefficient gives width of transitional region");
   params.addRequiredParam<Real>( "CdCb_multiplier", "multiplier between Cd and Cb");
   params.addRequiredParam<Real>(    "CBH_constant", "constant CBH value");
-  params.addRequiredParam<Real>(    "D", "D value");
 
   //strain rate dependent Cd parameters
   params.addParam<bool>("use_strain_rate_dependent_Cd", false,
@@ -73,7 +72,6 @@ ComputeDamageBreakageStress3DSlipWeakening::ComputeDamageBreakageStress3DSlipWea
     _eps_p_old(getMaterialPropertyOldByName<RankTwoTensor>("eps_p")),
     _eps_e_old(getMaterialPropertyOldByName<RankTwoTensor>("eps_e")),
     _sigma_d_old(getMaterialPropertyOldByName<RankTwoTensor>("sigma_d")),
-    _D(getParam<Real>("D")),
     _static_initial_stress_tensor(getMaterialProperty<RankTwoTensor>("static_initial_stress_tensor")),
     _static_initial_strain_tensor(getMaterialProperty<RankTwoTensor>("static_initial_strain_tensor")),
     _initial_damage(getMaterialPropertyByName<Real>("initial_damage")),
@@ -136,9 +134,6 @@ ComputeDamageBreakageStress3DSlipWeakening::computeQpStress()
   Real a1 = avec[1];
   Real a2 = avec[2];
   Real a3 = avec[3];
-
-  // std::cout<<"gamma_damaged_r: "<<gamma_damaged_r<<std::endl;
-  // std::cout<<"a0: "<<a0<<", a1: "<<a1<<", a2: "<<a2<<", a3: "<<a3<<std::endl;
 
   if (_step == 1){
     setupInitial();
@@ -309,8 +304,6 @@ ComputeDamageBreakageStress3DSlipWeakening::computecoefficients(Real gamma_damag
 
   //compute xi_1
   Real _xi_1 = _xi_0 + sqrt( pow(_xi_0 , 2) + 2 * _shear_modulus_o / _lambda_o );
-
-  // std::cout<<"xi_1: "<<_xi_1<<std::endl;
 
   //compute alpha_cr | xi = 0
   Real alpha_cr_xi0 = alphacr_root1(0, gamma_damaged_r);

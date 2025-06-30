@@ -34,11 +34,13 @@ SlipWeakeningFrictionczm3dCDBM::validParams()
   params.addRequiredCoupledVar("reaction_slipweakening_x", "reaction in x dir");
   params.addRequiredCoupledVar("reaction_slipweakening_y", "reaction in y dir");
   params.addRequiredCoupledVar("reaction_slipweakening_z", "reaction in z dir");
-  
-  //cohesion
-  params.addParam<bool>("use_cohesion", false, "add cohesion in the near surface region");
-  params.addParam<FunctionName>("cohesion_function", "The cohesion function");
-  
+  params.addParam<bool>("use_forced_rupture", false,
+                        "use forced rupture or not, default is false");
+  params.addParam<Real>("t0", 0.1,
+                        "time at which the forced rupture starts, default is 0.1");
+  params.addCoupledVar("cohesion_aux", "auxiliary variable for cohesion");
+  params.addCoupledVar("forced_rupture_aux", "auxiliary variable for forced rupture");
+  params.addCoupledVar("fluid_pressure_aux", "auxiliary variable for fluid pressure");
   return params;
 }
 
@@ -74,15 +76,14 @@ SlipWeakeningFrictionczm3dCDBM::SlipWeakeningFrictionczm3dCDBM(const InputParame
     _disp_slipweakening_neighbor_y_old(coupledNeighborValueOld("disp_slipweakening_y")),
     _disp_slipweakening_z_old(coupledValueOld("disp_slipweakening_z")),
     _disp_slipweakening_neighbor_z_old(coupledNeighborValueOld("disp_slipweakening_z")),
-    _sts_init(getMaterialPropertyByName<RankTwoTensor>("static_initial_stress_tensor_slipweakening")),
-    _use_cohesion(getParam<bool>("use_cohesion")),
-    _cohesion_function_name(getParam<FunctionName>("cohesion_function"))    
+    _static_initial_stress_tensor(getMaterialPropertyByName<RankTwoTensor>(_base_name + "static_initial_stress_tensor")),
+    _use_forced_rupture(getParam<bool>("use_forced_rupture")),
+    _t0(getParam<Real>("t0")),
+    _cohesion_aux(coupledValue("cohesion_aux")),
+    _forced_rupture_aux(coupledValue("forced_rupture_aux")),
+    _fluid_pressure_aux(coupledValue("fluid_pressure_aux"))
 {
-  //add cohesion function if use_cohesion is true
-  if (_use_cohesion){
-    _cohesion_function = &getFunctionByName(_cohesion_function_name);
-  }
-  
+
   // only works for small strain
   if (hasBlockMaterialProperty<RankTwoTensor>(_base_name + "strain_increment"))
   {
@@ -155,14 +156,11 @@ SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
     A = (_len * _len / 4) * 4;
   }
 
-  // Get the initial stress tensor
-  RankTwoTensor sts_init = _sts_init[_qp];
-
   // Compute T1_o, T2_o, T3_o for current qp
-  //!!! Here we assume the fault is planar!!!
-  Real T1_o = sts_init(0,1);
-  Real T2_o = -1 * sts_init(1,1);
-  Real T3_o = sts_init(0,2); //xz
+  //!!! rotation matrix is not applied here !!!
+  Real T1_o = _static_initial_stress_tensor[_qp](0, 1); // shear stress in t dir
+  Real T2_o = -1.0 * _static_initial_stress_tensor[_qp](1, 1); // normal stress in n dir
+  Real T3_o = _static_initial_stress_tensor[_qp](0, 2); // shear stress in d dir
 
   // Compute sticking stress
   Real T1 = (1 / _dt) * M * displacement_jump_rate_t / (2 * A) +
@@ -173,33 +171,69 @@ SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
                 (2 * A) +
             ((R_minus_local_n - R_plus_local_n) / (2 * A)) - T2_o;
 
-  // Compute fault traction
-  if (T2 < 0)
-  {
-  }
-  else
-  {
-    T2 = 0;
-  }
+  // Overstress nucleation
+  if (!_use_forced_rupture){
 
-  // Compute friction strength
-  Real slip_total = std::sqrt(displacement_jump_t*displacement_jump_t+displacement_jump_d*displacement_jump_d);
-  if (slip_total < _Dc)
-  {
-    tau_f = (_mu_s - (_mu_s - _mu_d) * slip_total / _Dc) *
-            (-T2); // square for shear component
-
-    //add cohesion if use_cohesion is true
-    if (_use_cohesion)
+    // Compute fault traction
+    if (T2 < 0)
     {
-      Real cohesion = _cohesion_function->value(_t, _q_point[_qp]);
-      tau_f += cohesion;
+    }
+    else
+    {
+      T2 = 0;
     }
 
+    // Compute friction strength
+    Real slip_total = std::sqrt(displacement_jump_t*displacement_jump_t+displacement_jump_d*displacement_jump_d);
+    if (slip_total < _Dc)
+    {
+      tau_f = (_mu_s - (_mu_s - _mu_d) * slip_total / _Dc) *
+              (-T2); // square for shear component
+    }
+    else
+    {
+      tau_f = _mu_d * (-T2);
+    }
+  
   }
-  else
-  {
-    tau_f = _mu_d * (-T2);
+  //Forced rupture nucleation
+  else{
+
+    //parameter f1
+    Real f1 = 0.0;
+    Real slip_total = std::sqrt(displacement_jump_t*displacement_jump_t+displacement_jump_d*displacement_jump_d);
+    if ( slip_total < _Dc ){
+      f1 = ( 1.0 * slip_total ) / ( 1.0 * _Dc );
+    }
+    else{
+      f1 = 1;
+    }
+
+    //parameter f2
+    //here we close the gradual reduction on mud, replace it by overstress
+    Real f2 = 0.0;
+    Real t0 = _t0;
+    Real T = _forced_rupture_aux[_qp];
+    if ( _t < T ){
+      f2 = 0.0;
+    }
+    else if ( _t > T && _t < T + t0 ){
+      f2 = ( _t - T ) / t0;
+    }
+    else{
+      f2 = 1;
+    }
+
+    Real mu = _mu_s + ( _mu_d - _mu_s ) * std::max(f1,f2);
+
+    Real Pf = _fluid_pressure_aux[_qp]; // fluid pressure
+
+    //tau_f
+    //T2: total normal stress acting on the fault, taken to be "positive" in compression: -T2
+    //treat tension on the fault the same as if the effective normal stress equals zero.
+    Real effective_stress = (-T2) - Pf;
+    tau_f = _cohesion_aux[_qp] + mu * std::max(effective_stress,0.0);
+
   }
 
   // Compute fault traction

@@ -100,9 +100,6 @@ protected:
   const MaterialProperty<RankTwoTensor> & _eps_e_old;
   const MaterialProperty<RankTwoTensor> & _sigma_d_old;
 
-  /// diffusion coefficient
-  Real _D;
-
   /// Get initial values
   const MaterialProperty<RankTwoTensor> & _static_initial_stress_tensor;
   const MaterialProperty<RankTwoTensor> & _static_initial_strain_tensor;
