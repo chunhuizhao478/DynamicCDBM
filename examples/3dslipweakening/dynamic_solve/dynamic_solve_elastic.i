@@ -23,7 +23,7 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##-------------------------##
 
 ##Slip weakening parameters##
-Dc = 1.2 #characteristic length (m)
+Dc = 0.4 #characteristic length (m)
 q = 0.4 #damping ratio
 mu_s = 0.677 #static friction coefficient
 mu_d = 0.55 #dynamic friction coefficient
@@ -67,14 +67,12 @@ len_of_fault_dip = 15000
 fault_center = '0 0 -7500'
 ##-------------------------##
 
-#nucleation parameters
+##initial stress parameters##
+peak_shear_value = 90e6 #initial shear stress perturbation peak value
 nucl_center_x = 0 #nucleation center x coordinate
-nucl_center_y = 0 #nucleation center y coordinate
-nucl_center_z = -7500 #nucleation center y coordinate
-r_crit = 4000 #critical distance to hypocenter (m)
-Vs = 3464 #shear wave speed (m/s)
-t0 = 0.5 #nucleation time (s)
-##------------------------------------------------------------------##
+nucl_center_z = -7500 #nucleation center z coordinate
+nucl_size = 3000 #nucleation size
+##-------------------------##
 
 ##model parameters##
 dt = 0.0025 #time step size

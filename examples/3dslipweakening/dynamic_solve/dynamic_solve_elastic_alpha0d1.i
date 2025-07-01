@@ -480,7 +480,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       prop_values = ${density}
   []
   [./czm_mat]
-      type = SlipWeakeningFrictionczm3dCDBM
+      type = SlipWeakeningFrictionczm3dCDBMOld
       disp_slipweakening_x     = disp_slipweakening_x
       disp_slipweakening_y     = disp_slipweakening_y
       disp_slipweakening_z     = disp_slipweakening_z
