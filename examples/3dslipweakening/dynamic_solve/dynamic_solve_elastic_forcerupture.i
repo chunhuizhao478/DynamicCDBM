@@ -30,9 +30,9 @@ mu_d = 0.55 #dynamic friction coefficient
 ##-------------------------##
 
 ##Cohesion parameters##
-cohesion_depth = 4000 #cohesion depth (m)
-cohesion_slope = 0.000675 #cohesion slope (MPa/m)
-cohesion_min = 1.0 #minimum cohesion value (MPa)
+cohesion_depth = 1000 #cohesion depth (m)
+cohesion_slope = 0.02 #cohesion slope (MPa/m)
+cohesion_min = 0 #minimum cohesion value (MPa)
 ##---------------------------------------------##
 
 ##CDB model parameters##
