@@ -36,7 +36,7 @@ fault_center = '0 0 -7500'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/tpv2053d_400m.msh'
+        file = '../mesh/tpv2053d_100m.msh'
     []
     [./sidesets]
         input = msh
@@ -265,9 +265,9 @@ fault_center = '0 0 -7500'
     solve_type = 'NEWTON'
     l_max_its = 100
     l_tol = 1e-7
-    nl_rel_tol = 1e-6
+    nl_rel_tol = 1e-10
     nl_max_its = 100
-    nl_abs_tol = 1e-8
+    nl_abs_tol = 1e-12
     # num_steps = 7 #total number of steps, initial damage value will be (total value / num_steps * t)
     # dt = 1 #dt here is not the time, but for increment step
     # this is very robust, use as default
