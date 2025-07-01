@@ -23,14 +23,17 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##-------------------------##
 
 ##Slip weakening parameters##
-Dc = 0.4 #characteristic length (m)
+Dc = 0.8 #characteristic length (m)
 q = 0.4 #damping ratio
 mu_s = 0.677 #static friction coefficient
 mu_d = 0.55 #dynamic friction coefficient
-
-use_cohesion = true #use cohesion
-cohesion_expression = 'if(z >= -1000, 20e3 * z + 20e6, 0)'
 ##-------------------------##
+
+##Cohesion parameters##
+cohesion_depth = 1000 #cohesion depth (m)
+cohesion_slope = 0.02 #cohesion slope (MPa/m)
+cohesion_min = 0 #minimum cohesion value (MPa)
+##---------------------------------------------##
 
 ##CDB model parameters##
 xi_0 = -0.8 #strain invariants ratio: onset of damage evolution
@@ -38,14 +41,6 @@ xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 
 ###constant Cd
 Cd_constant = 0 #coefficient gives positive damage evolution
-###
-
-###rate dependent Cd
-###note: if use_strain_rate_dependent_Cd is true, Cd_constant will be ignored
-use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
-m_exponent = 0.8 #strain rate dependent parameters
-strain_rate_hat = 1e-4 #strain rate dependent parameters
-cd_hat = 1.0 #strain rate dependent parameters
 ###
 
 CdCb_multiplier = 100 #multiplier between Cd and Cb
@@ -59,6 +54,8 @@ m2 = 1 #coefficient of power law indexes
 chi = 0.8 #energy ratio
 ##-------------------------##
 
+##initial stress parameters##
+
 ##initial damage parameters
 sigma = 5e2
 peak_val = 0.7
@@ -67,17 +64,19 @@ len_of_fault_dip = 15000
 fault_center = '0 0 -7500'
 ##-------------------------##
 
-##initial stress parameters##
-peak_shear_value = 90e6 #initial shear stress perturbation peak value
+#nucleation parameters
 nucl_center_x = 0 #nucleation center x coordinate
-nucl_center_z = -7500 #nucleation center z coordinate
-nucl_size = 3000 #nucleation size
-##-------------------------##
+nucl_center_y = 0 #nucleation center y coordinate
+nucl_center_z = -7500 #nucleation center y coordinate
+r_crit = 4000 #critical distance to hypocenter (m)
+Vs = 3464 #shear wave speed (m/s)
+t0 = 0.5 #nucleation time (s)
+##------------------------------------------------------------------##
 
 ##model parameters##
 dt = 0.0025 #time step size
 
-end_time = 6 #end time for simulation
+end_time = 12.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
 exodus_time_step_interval = 40 #time step interval for output
@@ -189,12 +188,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 
   # energy ratio
   chi = ${chi}
-
-  #diffusion coefficient #for structural stress coupling
-  D = 0
 []
 
 [AuxVariables]
+  ###
+  #slip weakening friction parameters
   [./resid_x]
     order = FIRST
     family = LAGRANGE
@@ -244,18 +242,49 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = LAGRANGE
   []
   ###
-  # [jump_x_aux]
-  #   order = FIRST
-  #   family = MONOMIAL
-  # []
-  # [jump_x_rate_aux]
-  #   order = FIRST
-  #   family = MONOMIAL
-  # []
-  # [traction_x_aux]
-  #   order = FIRST
-  #   family = MONOMIAL
-  # []  
+  #output initial shear stress
+  [ini_shear_sts_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  ###
+  #output jump, jump rate, traction quantities
+  [jump_x_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [jump_x_rate_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [traction_x_aux]
+    order = FIRST
+    family = MONOMIAL
+  [] 
+  [jump_y_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [jump_y_rate_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [traction_y_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [jump_z_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [jump_z_rate_aux]
+    order = FIRST
+    family = MONOMIAL
+  []
+  [traction_z_aux]
+    order = FIRST
+    family = MONOMIAL
+  []  
   ###
   #output CDB model properties
   [alpha_damagedvar_aux]
@@ -270,6 +299,19 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       order = FIRST
       family = MONOMIAL
   [] 
+  #
+  [cohesion_aux]
+    order = FIRST
+    family = LAGRANGE
+  []
+  [forced_rupture_aux]
+    order = FIRST
+    family = LAGRANGE
+  []
+  [fluid_pressure_aux]
+    order = FIRST
+    family = LAGRANGE
+  []
 []
 
 [Physics/SolidMechanics/CohesiveZone]
@@ -373,44 +415,118 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     variable = 'resid_z'
     execute_on = 'TIMESTEP_END'
   []
-  ###
-  # [get_jump_x_aux]
-  #   type = MaterialRealAux
-  #   property = jump_x
-  #   variable = jump_x_aux
-  #   boundary = 'Block100_Block200'
+  ### slip weakening cohesion
+  [get_cohesion_aux]
+    type = FunctionAux
+    variable = cohesion_aux
+    function = func_cohesion
+    execute_on = 'INITIAL TIMESTEP_BEGIN'
+  []
+  ### slip weakening forced rupture
+  [get_forced_rupture_aux]
+    type = FunctionAux
+    variable = forced_rupture_aux
+    function = func_forced_rupture
+    execute_on = 'INITIAL TIMESTEP_BEGIN'
+  []
+  ### fluid pressure
+  [get_fluid_pressure_aux]
+    type = FunctionAux
+    variable = fluid_pressure_aux
+    function = func_fluid_pressure
+    execute_on = 'INITIAL TIMESTEP_BEGIN'
+  []
+  ### slip weakening initial shear stress
+  # [get_ini_shear_stress_aux]
+  #   type = FunctionAux
+  #   variable = ini_shear_sts_aux
+  #   function = func_initial_stress_xy_variable
+  #   execute_on = 'TIMESTEP_BEGIN'
   # []
-  # [get_jump_x_rate_aux]
-  #   type = FDCompVarRate
-  #   variable = jump_x_rate_aux
-  #   coupled = jump_x
-  #   execute_on = 'TIMESTEP_END'
-  #   boundary = 'Block100_Block200'
-  # []
-  # [get_traction_x_aux]
-  #   type = MaterialRealAux
-  #   property = traction_x
-  #   variable = traction_x_aux
-  #   boundary = 'Block100_Block200'
-  # []
-  ###get CDB model properties
+  ### slip weakening strike direction
+  [get_jump_x_aux]
+    type = MaterialRealAux
+    property = jump_x
+    variable = jump_x_aux
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  [get_jump_x_rate_aux]
+    type = FDCompVarRate
+    variable = jump_x_rate_aux
+    coupled = jump_x
+    execute_on = 'TIMESTEP_END'
+    boundary = 'Block100_Block200'
+  []
+  [get_traction_x_aux]
+    type = MaterialRealAux
+    property = traction_x
+    variable = traction_x_aux
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  ### slip weakening normal direction
+  [get_jump_y_aux]
+    type = MaterialRealAux
+    property = jump_y
+    variable = jump_y_aux
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  [get_jump_y_rate_aux]
+    type = FDCompVarRate
+    variable = jump_y_rate_aux
+    coupled = jump_y
+    execute_on = 'TIMESTEP_END'
+    boundary = 'Block100_Block200'
+  []
+  [get_traction_y_aux]
+    type = MaterialRealAux
+    property = traction_y
+    variable = traction_y_aux
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  ### slip weakening dip direction
+  [get_jump_z_aux]
+    type = MaterialRealAux
+    property = jump_z
+    variable = jump_z_aux
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  [get_jump_z_rate_aux]
+    type = FDCompVarRate
+    variable = jump_z_rate_aux
+    coupled = jump_z
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  [get_traction_z_aux]
+    type = MaterialRealAux
+    property = traction_z
+    variable = traction_z_aux
+    boundary = 'Block100_Block200'
+    execute_on = 'TIMESTEP_END'
+  []
+  ### get CDB model properties
   [get_alpha_damagedvar]
-      type = MaterialRealAux
-      variable = alpha_damagedvar_aux
-      property = alpha_damagedvar
-      execute_on = 'TIMESTEP_END'
+    type = MaterialRealAux
+    variable = alpha_damagedvar_aux
+    property = alpha_damagedvar
+    execute_on = 'TIMESTEP_END'
   []
   [get_B]
-      type = MaterialRealAux
-      variable = B_aux
-      property = B
-      execute_on = 'TIMESTEP_END'
+    type = MaterialRealAux
+    variable = B_aux
+    property = B
+    execute_on = 'TIMESTEP_END'
   []
   [get_xi]
-      type = MaterialRealAux
-      variable = xi_aux
-      property = xi
-      execute_on = 'TIMESTEP_END'
+    type = MaterialRealAux
+    variable = xi_aux
+    property = xi
+    execute_on = 'TIMESTEP_END'
   []
   ###
 []
@@ -452,35 +568,26 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   #damage breakage model
   [stress_medium]
       type = ComputeDamageBreakageStress3DSlipWeakening
-      output_properties = 'B alpha_damagedvar xi Cd_mat deviatoric_strain_rate sts_total'
-      use_strain_rate_dependent_Cd = ${use_strain_rate_dependent_Cd}
-      m_exponent = ${m_exponent}
-      strain_rate_hat = ${strain_rate_hat}
-      cd_hat = ${cd_hat}
-      outputs = exodus
-  []
-  [initial_damage_surround]
-      type = InitialDamageCycleSim3DPlane
-      sigma = ${sigma}
-      peak_val = ${peak_val}
-      len_of_fault_strike = ${len_of_fault_strike}
-      len_of_fault_dip = ${len_of_fault_dip}
-      nucl_center = ${fault_center}
-      output_properties = 'initial_damage'      
+      output_properties = 'B alpha_damagedvar xi I1 I2'
       outputs = exodus
   []
   [dummy_material]
       type = GenericConstantMaterial
-      prop_names = 'initial_breakage damage_perturbation'
-      prop_values = '0 0'
+      prop_names = 'initial_breakage damage_perturbation density'
+      prop_values = '0 0 ${density}'
   []
-  [density]
-      type = GenericConstantMaterial
-      prop_names = density
-      prop_values = ${density}
+  [initial_damage_surround]
+    type = InitialDamageCycleSim3DPlane
+    sigma = ${sigma}
+    peak_val = ${peak_val}
+    len_of_fault_strike = ${len_of_fault_strike}
+    len_of_fault_dip = ${len_of_fault_dip}
+    nucl_center = ${fault_center}
+    output_properties = 'initial_damage'      
+    outputs = exodus
   []
   [./czm_mat]
-      type = SlipWeakeningFrictionczm3dCDBMOld
+      type = SlipWeakeningFrictionczm3dCDBM
       disp_slipweakening_x     = disp_slipweakening_x
       disp_slipweakening_y     = disp_slipweakening_y
       disp_slipweakening_z     = disp_slipweakening_z
@@ -494,52 +601,34 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       mu_d = ${mu_d}
       Dc = ${Dc}
       len = ${elem_size}
-      use_cohesion = ${use_cohesion}
-      cohesion_function = 'func_cohesion'
+      #---------------------------------------------#
+      use_forced_rupture = true
+      t0 = ${t0}
+      cohesion_aux = cohesion_aux
+      forced_rupture_aux = forced_rupture_aux
+      fluid_pressure_aux = fluid_pressure_aux
+      #---------------------------------------------#
       boundary = 'Block100_Block200'
   [../]
-  [./static_initial_strain_tensor] #this is used in ComputeDamageBreakageStress3DSlipWeakening
+  [./static_initial_strain_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_strain_tensor
       tensor_functions = 'func_initial_strain_xx   func_initial_strain_xy      func_initial_strain_xz 
                           func_initial_strain_xy   func_initial_strain_yy      func_initial_strain_yz
                           func_initial_strain_xz   func_initial_strain_yz      func_initial_strain_zz'
+      output_properties = 'static_initial_strain_tensor'
+      outputs = exodus
   [../]
-  [./static_initial_stress_tensor] #this is used in ComputeDamageBreakageStress3DSlipWeakening
+  [./static_initial_stress_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening, SlipWeakeningFrictionczm3dCDBM
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_stress_tensor
-        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
-                            func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
-                            func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
-  [../]
-  [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
-      type = GenericFunctionRankTwoTensor
-      tensor_name = static_initial_stress_tensor_slipweakening
-        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
-                            func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
-                            func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
+      tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
+                          func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
+                          func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
 []
 
 [Functions]
-  #cohesion 
-  [./func_cohesion]
-    type = ParsedFunction
-    expression = ${cohesion_expression}
-  []
-  ###
-  #the initial shear stress needs additional nucleation parameters
-  [./func_initial_stress_xy_variable]
-      type = InitialShearStressCDBM
-      peak_value = ${peak_shear_value}
-      nucl_center_x = ${nucl_center_x}
-      nucl_center_z = ${nucl_center_z}
-      nucl_size = ${nucl_size}
-      elem_size = ${elem_size}
-      solution = init_sol_components
-      from_variable = 'stress_01'
-  []
-  ###
   [./func_initial_strain_xx]
     type = SolutionFunction
     solution = init_sol_components
@@ -601,6 +690,27 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     solution = init_sol_components
     from_variable = 'stress_22'
   []
+  ###fluid pressure###
+  [./func_fluid_pressure]
+    type = ConstantFunction
+    value = 0.0 #fluid pressure is not used in this example
+  []
+  ###cohesion###
+  [./func_cohesion]
+    type = InitialCohesionCDBMv2
+    depth = ${cohesion_depth}
+    slope = ${cohesion_slope}
+    min_cohesion = ${cohesion_min}
+  []
+  ###forcedrupture###
+  [./func_forced_rupture]
+    type = ForcedRuptureTimeCDBMv2
+    loc_x = ${nucl_center_x}
+    loc_y = ${nucl_center_y}
+    loc_z = ${nucl_center_z}
+    r_crit = ${r_crit}
+    Vs = ${Vs}
+  []
 []
 
 [UserObjects]
@@ -612,13 +722,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   [./init_sol_components]
     type = SolutionUserObject
-    mesh = '../static_solve/static_solve_alpha0d1_out.e'
+    mesh = '../static_solve/static_solve_70e6_out.e'
     system_variables = 'elastic_strain_00 elastic_strain_01 elastic_strain_02
                         elastic_strain_11 elastic_strain_12 elastic_strain_22
                         stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
     timestep = LATEST
     force_preaux = true
-  [../]  
+    execute_on = 'INITIAL'
+  [../]
 []
 
 [Executioner]
@@ -633,9 +744,12 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 []
 
 [Outputs]
-  exodus = true
-  show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux sts_total_00 sts_total_11 sts_total_01 Cd_mat deviatoric_strain_rate'
-  time_step_interval = ${exodus_time_step_interval}
+  [exodus]
+    type = Exodus
+    execute_on = 'timestep_end'
+    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy'
+    time_step_interval = ${exodus_time_step_interval}
+  []
   [csv]
     type = CSV
     execute_on = 'timestep_end'
@@ -651,7 +765,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [VectorPostprocessors]
   [main_fault]
     type = SideValueSampler
-    variable = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z ' 
+    variable = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z jump_x_aux jump_y_aux jump_z_aux jump_x_rate_aux jump_y_rate_aux jump_z_rate_aux traction_x_aux traction_y_aux traction_z_aux alpha_damagedvar_aux B_aux xi_aux' 
     boundary = 'Block100_Block200'
     sort_by = x
   []
