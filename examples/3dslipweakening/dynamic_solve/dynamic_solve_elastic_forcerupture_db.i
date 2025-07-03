@@ -40,7 +40,11 @@ xi_0 = -0.8 #strain invariants ratio: onset of damage evolution
 xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 
 ###constant Cd
-Cd_constant = 1e5 #coefficient gives positive damage evolution
+Cd_constant = -1 #coefficient gives positive damage evolution
+use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
+m_exponent = 0.8 #strain rate dependent parameters
+strain_rate_hat = 1e-8 #strain rate dependent parameters
+cd_hat = 1e2 #strain rate dependent parameters
 ###
 
 CdCb_multiplier = 100 #multiplier between Cd and Cb
@@ -569,6 +573,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [stress_medium]
       type = ComputeDamageBreakageStress3DSlipWeakening
       output_properties = 'B alpha_damagedvar xi I1 I2'
+      use_strain_rate_dependent_Cd = ${use_strain_rate_dependent_Cd}
       outputs = exodus
   []
   [dummy_material]
