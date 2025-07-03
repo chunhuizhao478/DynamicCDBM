@@ -574,6 +574,9 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       type = ComputeDamageBreakageStress3DSlipWeakening
       output_properties = 'B alpha_damagedvar xi I1 I2'
       use_strain_rate_dependent_Cd = ${use_strain_rate_dependent_Cd}
+      m_exponent = ${m_exponent}
+      strain_rate_hat = ${strain_rate_hat}
+      cd_hat = ${cd_hat}
       outputs = exodus
   []
   [dummy_material]
