@@ -16,7 +16,7 @@ class DynamicCDBMTestApp : public MooseApp
 public:
   static InputParameters validParams();
 
-  DynamicCDBMTestApp(InputParameters parameters);
+  DynamicCDBMTestApp(const InputParameters & parameters);
   virtual ~DynamicCDBMTestApp();
 
   static void registerApps();

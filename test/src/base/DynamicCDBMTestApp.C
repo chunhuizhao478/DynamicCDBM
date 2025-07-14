@@ -21,7 +21,7 @@ DynamicCDBMTestApp::validParams()
   return params;
 }
 
-DynamicCDBMTestApp::DynamicCDBMTestApp(InputParameters parameters) : MooseApp(parameters)
+DynamicCDBMTestApp::DynamicCDBMTestApp(const InputParameters & parameters) : MooseApp(parameters)
 {
   DynamicCDBMTestApp::registerAll(
       _factory, _action_factory, _syntax, getParam<bool>("allow_test_objects"));

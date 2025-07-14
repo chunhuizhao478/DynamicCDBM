@@ -84,7 +84,7 @@ end_time = 12.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
 exodus_time_step_interval = 40 #time step interval for output
-csv_time_step_interval = 10 #time step interval for csv output
+csv_time_step_interval = 40 #time step interval for csv output
 checkpoint_time_step_interval = 80 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
@@ -261,7 +261,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     order = FIRST
     family = MONOMIAL
   []
-  [traction_x_aux]
+  [traction_strike_aux]
     order = FIRST
     family = MONOMIAL
   [] 
@@ -273,7 +273,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     order = FIRST
     family = MONOMIAL
   []
-  [traction_y_aux]
+  [traction_normal_aux]
     order = FIRST
     family = MONOMIAL
   []
@@ -285,10 +285,10 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     order = FIRST
     family = MONOMIAL
   []
-  [traction_z_aux]
+  [traction_dip_aux]
     order = FIRST
     family = MONOMIAL
-  []  
+  [] 
   ###
   #output CDB model properties
   [alpha_damagedvar_aux]
@@ -403,21 +403,18 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     vector_tag = 'restore_tag'
     v = 'disp_x'
     variable = 'resid_x'
-    execute_on = 'TIMESTEP_END'
   []
   [restore_y]
     type = TagVectorAux
     vector_tag = 'restore_tag'
     v = 'disp_y'
     variable = 'resid_y'
-    execute_on = 'TIMESTEP_END'
   []
   [restore_z]
     type = TagVectorAux
     vector_tag = 'restore_tag'
     v = 'disp_z'
     variable = 'resid_z'
-    execute_on = 'TIMESTEP_END'
   []
   ### slip weakening cohesion
   [get_cohesion_aux]
@@ -462,10 +459,10 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'TIMESTEP_END'
     boundary = 'Block100_Block200'
   []
-  [get_traction_x_aux]
+  [get_traction_strike_aux]
     type = MaterialRealAux
-    property = traction_x
-    variable = traction_x_aux
+    property = traction_strike
+    variable = traction_strike_aux
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
@@ -484,10 +481,10 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'TIMESTEP_END'
     boundary = 'Block100_Block200'
   []
-  [get_traction_y_aux]
+  [get_traction_normal_aux]
     type = MaterialRealAux
-    property = traction_y
-    variable = traction_y_aux
+    property = traction_normal
+    variable = traction_normal_aux
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
@@ -506,10 +503,10 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
-  [get_traction_z_aux]
+  [get_traction_dip_aux]
     type = MaterialRealAux
-    property = traction_z
-    variable = traction_z_aux
+    property = traction_dip
+    variable = traction_dip_aux
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
@@ -755,12 +752,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [exodus]
     type = Exodus
     execute_on = 'timestep_end'
-    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy deviatoric_strain_rate'
+    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux traction_strike_aux traction_normal_aux traction_dip_aux deviatoric_strain_rate'
     time_step_interval = ${exodus_time_step_interval}
   []
   [csv]
     type = CSV
     execute_on = 'timestep_end'
+    show = 'point_sample' #change this to 'main_fault' to output all quadrature points on the fault
     time_step_interval = ${csv_time_step_interval}
   []
   [out]
@@ -770,11 +768,36 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
 []    
 
+#method1
+#output all quadrature points on the fault
 [VectorPostprocessors]
   [main_fault]
     type = SideValueSampler
-    variable = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z jump_x_aux jump_y_aux jump_z_aux jump_x_rate_aux jump_y_rate_aux jump_z_rate_aux traction_x_aux traction_y_aux traction_z_aux alpha_damagedvar_aux B_aux xi_aux' 
+    variable = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z jump_x_aux jump_y_aux jump_z_aux jump_x_rate_aux jump_y_rate_aux jump_z_rate_aux traction_strike_aux traction_normal_aux traction_dip_aux alpha_damagedvar_aux B_aux xi_aux' 
     boundary = 'Block100_Block200'
     sort_by = x
+  []
+[]
+
+#method2
+#output specific points
+[Positions]
+  [pos]
+    type = InputPositions
+    positions = '-7000 10 -7500
+                 -2000 10 -7500
+                  3000 10 -7500
+                  8000 10 -7500
+                  13000 10 -7500' #need to shrift the y coordinate a bit
+  []
+[]
+
+[VectorPostprocessors]
+  [point_sample]
+    type = PositionsFunctorValueSampler
+    functors = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z jump_x_aux jump_y_aux jump_z_aux jump_x_rate_aux jump_y_rate_aux jump_z_rate_aux traction_strike_aux traction_normal_aux traction_dip_aux alpha_damagedvar_aux B_aux xi_aux'
+    positions = 'pos'
+    sort_by = x
+    execute_on = 'TIMESTEP_END'
   []
 []

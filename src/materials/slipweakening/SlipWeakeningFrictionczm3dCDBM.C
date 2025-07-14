@@ -76,6 +76,9 @@ SlipWeakeningFrictionczm3dCDBM::SlipWeakeningFrictionczm3dCDBM(const InputParame
     _disp_slipweakening_neighbor_y_old(coupledNeighborValueOld("disp_slipweakening_y")),
     _disp_slipweakening_z_old(coupledValueOld("disp_slipweakening_z")),
     _disp_slipweakening_neighbor_z_old(coupledNeighborValueOld("disp_slipweakening_z")),
+    _traction_strike(declareProperty<Real>("traction_strike")),
+    _traction_dip(declareProperty<Real>("traction_dip")),
+    _traction_normal(declareProperty<Real>("traction_normal")),
     _static_initial_stress_tensor(getMaterialPropertyByName<RankTwoTensor>(_base_name + "static_initial_stress_tensor")),
     _use_forced_rupture(getParam<bool>("use_forced_rupture")),
     _t0(getParam<Real>("t0")),
@@ -245,6 +248,11 @@ SlipWeakeningFrictionczm3dCDBM::computeInterfaceTractionAndDerivatives()
     T1 = tau_f * T1 / std::sqrt(T1 * T1 + T3 * T3);
     T3 = tau_f * T3 / std::sqrt(T1 * T1 + T3 * T3);
   }
+
+  // Save traction in local coordinate
+  _traction_strike[_qp] = T1; // strike direction
+  _traction_normal[_qp] = T2; // normal direction
+  _traction_dip[_qp] = T3;  // dip direction
 
   // Assign back traction in CZM
   RealVectorValue traction(T2 + T2_o, -T1 + T1_o, -T3 + T3_o);
