@@ -9,8 +9,8 @@ bottom_nodes_coord =' -60000 -60000 -60000;
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
-zmin_fault = -15000 #zmin of fault
-# zmax_fault = 0 #zmax of fault
+zmax_fault = -22500 #zmax of fault
+zmin_fault = -37500 #zmin of fault
 elem_size = 100 #!!! element size near the fault, need to be consistent with the mesh file
 ##-------------------------##
 
@@ -65,13 +65,13 @@ sigma = 5e2
 peak_val = 0.7
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -7500'
+fault_center = '0 0 -30000'
 ##-------------------------##
 
 #nucleation parameters
 nucl_center_x = -11000 #nucleation center x coordinate
 nucl_center_y = 0 #nucleation center y coordinate
-nucl_center_z = -7500 #nucleation center y coordinate
+nucl_center_z = -30000 #nucleation center z coordinate
 r_crit = 3000 #critical distance to hypocenter (m)
 Vs = 3464 #shear wave speed (m/s)
 t0 = 0.5 #nucleation time (s)
@@ -92,18 +92,18 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../mesh/tpv2053d_100m.msh'
+    file = '../mesh/v3_buried_100m.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
     input = msh
-    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y > 0'
+    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & z <= ${zmax_fault} & y > 0'
     block_id = 100
   []
   [./new_block_2]
     type = ParsedSubdomainMeshGenerator
     input = new_block_1
-    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & y < 0'
+    combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & z <= ${zmax_fault} & y < 0'
     block_id = 200
   []       
   [./split_1]

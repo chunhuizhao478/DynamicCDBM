@@ -24,7 +24,7 @@ sigma = 5e2
 peak_val = 0.7
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -7500'
+fault_center = '0 0 -30000'
 ##-------------------------##
 
 ##########################################################################################################################################
@@ -36,7 +36,7 @@ fault_center = '0 0 -7500'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/tpv2053d_100m.msh'
+        file = '../mesh/v3_buried_100m.msh'
     []
     [./sidesets]
         input = msh
