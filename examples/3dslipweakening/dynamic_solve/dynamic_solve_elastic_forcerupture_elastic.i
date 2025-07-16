@@ -11,7 +11,7 @@ xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
 zmax_fault = -22500 #zmax of fault
 zmin_fault = -37500 #zmin of fault
-elem_size = 400 #!!! element size near the fault, need to be consistent with the mesh file
+elem_size = 100 #!!! element size near the fault, need to be consistent with the mesh file
 ##-------------------------##
 
 ##material properties##
