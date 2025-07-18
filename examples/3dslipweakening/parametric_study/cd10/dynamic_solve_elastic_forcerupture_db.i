@@ -92,7 +92,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../mesh/v3_buried_100m.msh'
+    file = '../../mesh/v3_buried_100m.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
@@ -727,7 +727,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   [./init_sol_components]
     type = SolutionUserObject
-    mesh = '../static_solve/static_solve_out.e'
+    mesh = '../../static_solve/static_solve_out.e'
     system_variables = 'elastic_strain_00 elastic_strain_01 elastic_strain_02
                         elastic_strain_11 elastic_strain_12 elastic_strain_22
                         stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
