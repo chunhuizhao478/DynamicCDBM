@@ -784,11 +784,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Positions]
   [pos]
     type = InputPositions
-    positions = '-7000 10 -7500
-                 -2000 10 -7500
-                  3000 10 -7500
-                  8000 10 -7500
-                  13000 10 -7500' #need to shrift the y coordinate a bit
+    positions = '-7000 10 -30000
+                 -2000 10 -30000
+                  3000 10 -30000
+                  8000 10 -30000
+                  13000 10 -30000' #need to shrift the y coordinate a bit
   []
 []
 

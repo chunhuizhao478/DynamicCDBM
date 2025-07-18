@@ -40,11 +40,11 @@ xi_0 = -0.8 #strain invariants ratio: onset of damage evolution
 xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 
 ###constant Cd
-Cd_constant = 0 #coefficient gives positive damage evolution
-use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
+Cd_constant = -1 #coefficient gives positive damage evolution
+use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
 strain_rate_hat = 1e-3 #strain rate dependent parameters
-cd_hat = 1e2 #strain rate dependent parameters
+cd_hat = 10 #strain rate dependent parameters
 ###
 
 CdCb_multiplier = 100 #multiplier between Cd and Cb
@@ -288,7 +288,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [traction_dip_aux]
     order = FIRST
     family = MONOMIAL
-  [] 
+  []  
   ###
   #output CDB model properties
   [alpha_damagedvar_aux]
@@ -752,7 +752,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [exodus]
     type = Exodus
     execute_on = 'timestep_end'
-    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux traction_strike_aux traction_normal_aux traction_dip_aux deviatoric_strain_rate'
+    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy deviatoric_strain_rate'
     time_step_interval = ${exodus_time_step_interval}
   []
   [csv]
