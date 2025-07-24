@@ -262,7 +262,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   [traction_strike_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   [] 
   [jump_y_aux]
@@ -274,7 +274,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   [traction_normal_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [jump_z_aux]
@@ -286,7 +286,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   [traction_dip_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   [] 
   ###
@@ -758,7 +758,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [csv]
     type = CSV
     execute_on = 'timestep_end'
-    show = 'point_sample' #change this to 'main_fault' to output all quadrature points on the fault
+    show = 'main_fault' #change this to 'main_fault' to output all quadrature points on the fault
     time_step_interval = ${csv_time_step_interval}
   []
   [out]
@@ -784,11 +784,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Positions]
   [pos]
     type = InputPositions
-    positions = '-7000 10 -30000
-                 -2000 10 -30000
-                  3000 10 -30000
-                  8000 10 -30000
-                  13000 10 -30000' #need to shrift the y coordinate a bit
+    positions = '-7000 0 -30000
+                 -2000 0 -30000
+                  3000 0 -30000
+                  8000 0 -30000
+                  13000 0 -30000' #need to shrift the y coordinate a bit
   []
 []
 
@@ -799,5 +799,6 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     positions = 'pos'
     sort_by = x
     execute_on = 'TIMESTEP_END'
+    discontinuous = true
   []
 []
