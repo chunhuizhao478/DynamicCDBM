@@ -8,7 +8,7 @@ bottom_nodes_coord =' -60000 -60000 -60000;
 
 ##boundary loading parameters
 confining_pressure = 120e6 #Pa, confining pressure
-shear_traction = 90e6 #Pa, shear traction
+shear_traction = 70e6 #Pa, shear traction
 ##-------------------------##
 
 ##material properties
@@ -21,7 +21,7 @@ chi = 0.8 #ratio of solid energy and granular energy
 
 ##initial damage parameters
 sigma = 5e2
-peak_val = 0.7
+peak_val = 0
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
 fault_center = '0 0 -30000'
@@ -36,7 +36,7 @@ fault_center = '0 0 -30000'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/v3_buried_100m.msh'
+        file = '../mesh/v3_buried_400m.msh'
     []
     [./sidesets]
         input = msh

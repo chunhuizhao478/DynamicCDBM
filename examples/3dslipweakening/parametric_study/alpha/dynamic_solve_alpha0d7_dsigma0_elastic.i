@@ -40,11 +40,11 @@ xi_0 = -0.8 #strain invariants ratio: onset of damage evolution
 xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 
 ###constant Cd
-Cd_constant = -1 #coefficient gives positive damage evolution
-use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
+Cd_constant = 0 #coefficient gives positive damage evolution
+use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
 strain_rate_hat = 1e-4 #strain rate dependent parameters
-cd_hat = 100 #strain rate dependent parameters
+cd_hat = 10 #strain rate dependent parameters
 ###
 
 CdCb_multiplier = 100 #multiplier between Cd and Cb
@@ -253,23 +253,24 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   ###
   #output jump, jump rate, traction quantities
-  [jump_x_aux]
+  [displacement_jump_strike_aux]
     order = FIRST
     family = MONOMIAL
   []
-  [jump_x_rate_aux]
+  [displacement_jump_rate_strike_aux]
     order = FIRST
     family = MONOMIAL
   []
   [traction_strike_aux]
     order = CONSTANT
     family = MONOMIAL
-  [] 
-  [jump_y_aux]
+  []
+  # 
+  [displacement_jump_normal_aux]
     order = FIRST
     family = MONOMIAL
   []
-  [jump_y_rate_aux]
+  [displacement_jump_rate_normal_aux]
     order = FIRST
     family = MONOMIAL
   []
@@ -277,18 +278,19 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     order = CONSTANT
     family = MONOMIAL
   []
-  [jump_z_aux]
+  #
+  [displacement_jump_dip_aux]
     order = FIRST
     family = MONOMIAL
   []
-  [jump_z_rate_aux]
+  [displacement_jump_rate_dip_aux]
     order = FIRST
     family = MONOMIAL
   []
   [traction_dip_aux]
     order = CONSTANT
     family = MONOMIAL
-  [] 
+  []  
   ###
   #output CDB model properties
   [alpha_damagedvar_aux]
@@ -445,17 +447,17 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   #   execute_on = 'TIMESTEP_BEGIN'
   # []
   ### slip weakening strike direction
-  [get_jump_x_aux]
+  [get_displacement_jump_strike_aux]
     type = MaterialRealAux
-    property = jump_x
-    variable = jump_x_aux
+    property = displacement_jump_strike
+    variable = displacement_jump_strike_aux
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
-  [get_jump_x_rate_aux]
-    type = FDCompVarRate
-    variable = jump_x_rate_aux
-    coupled = jump_x
+  [get_displacement_jump_rate_strike_aux]
+    type = MaterialRealAux
+    property = displacement_jump_rate_strike
+    variable = displacement_jump_rate_strike_aux
     execute_on = 'TIMESTEP_END'
     boundary = 'Block100_Block200'
   []
@@ -467,17 +469,17 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'TIMESTEP_END'
   []
   ### slip weakening normal direction
-  [get_jump_y_aux]
+  [get_displacement_jump_normal_aux]
     type = MaterialRealAux
-    property = jump_y
-    variable = jump_y_aux
+    property = displacement_jump_normal
+    variable = displacement_jump_normal_aux
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
-  [get_jump_y_rate_aux]
-    type = FDCompVarRate
-    variable = jump_y_rate_aux
-    coupled = jump_y
+  [get_displacement_jump_rate_normal_aux]
+    type = MaterialRealAux
+    property = displacement_jump_rate_normal
+    variable = displacement_jump_rate_normal_aux
     execute_on = 'TIMESTEP_END'
     boundary = 'Block100_Block200'
   []
@@ -489,19 +491,19 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'TIMESTEP_END'
   []
   ### slip weakening dip direction
-  [get_jump_z_aux]
+  [get_displacement_jump_dip_aux]
     type = MaterialRealAux
-    property = jump_z
-    variable = jump_z_aux
+    property = displacement_jump_dip
+    variable = displacement_jump_dip_aux
     boundary = 'Block100_Block200'
     execute_on = 'TIMESTEP_END'
   []
-  [get_jump_z_rate_aux]
-    type = FDCompVarRate
-    variable = jump_z_rate_aux
-    coupled = jump_z
-    boundary = 'Block100_Block200'
+  [get_displacement_jump_rate_dip_aux]
+    type = MaterialRealAux
+    property = displacement_jump_rate_dip
+    variable = displacement_jump_rate_dip_aux
     execute_on = 'TIMESTEP_END'
+    boundary = 'Block100_Block200'
   []
   [get_traction_dip_aux]
     type = MaterialRealAux
@@ -727,7 +729,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   [./init_sol_components]
     type = SolutionUserObject
-    mesh = '../../static_solve/static_solve_out.e'
+    mesh = '../../static_solve/static_solve_alpha0d7_dsigma0_out.e'
     system_variables = 'elastic_strain_00 elastic_strain_01 elastic_strain_02
                         elastic_strain_11 elastic_strain_12 elastic_strain_22
                         stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
@@ -773,32 +775,10 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [VectorPostprocessors]
   [main_fault]
     type = SideValueSampler
-    variable = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z jump_x_aux jump_y_aux jump_z_aux jump_x_rate_aux jump_y_rate_aux jump_z_rate_aux traction_strike_aux traction_normal_aux traction_dip_aux alpha_damagedvar_aux B_aux xi_aux' 
+    variable = 'displacement_jump_strike_aux displacement_jump_rate_strike_aux traction_strike_aux 
+                alpha_damagedvar_aux B_aux xi_aux vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z
+                disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z' 
     boundary = 'Block100_Block200'
     sort_by = x
-  []
-[]
-
-#method2
-#output specific points
-[Positions]
-  [pos]
-    type = InputPositions
-    positions = '-7000 0 -30000
-                 -2000 0 -30000
-                  3000 0 -30000
-                  8000 0 -30000
-                  13000 0 -30000' #need to shrift the y coordinate a bit
-  []
-[]
-
-[VectorPostprocessors]
-  [point_sample]
-    type = PositionsFunctorValueSampler
-    functors = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z jump_x_aux jump_y_aux jump_z_aux jump_x_rate_aux jump_y_rate_aux jump_z_rate_aux traction_strike_aux traction_normal_aux traction_dip_aux alpha_damagedvar_aux B_aux xi_aux'
-    positions = 'pos'
-    sort_by = x
-    execute_on = 'TIMESTEP_END'
-    discontinuous = true
   []
 []
