@@ -2,10 +2,10 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -60000 -60000 -60000;
-                      60000 -60000 -60000;
-                      60000 60000  -60000;
-                     -60000 60000  -60000'
+bottom_nodes_coord =' -120000 -120000 -240000;
+                      120000 -120000 -240000;
+                      120000 120000  -240000;
+                     -120000 120000  -240000'
 ##boundary loading parameters
 confining_pressure = 120e6 #Pa, confining pressure
 shear_traction = 70e6 #Pa, shear traction
@@ -164,7 +164,7 @@ fault_center = '0 0 -30000'
   [../]
   [strain]
     type = ComputeSmallStrain
-    eigenstrain_names = ini_stress
+    # eigenstrain_names = ini_stress
     outputs = exodus
   []
   [stress_medium]
@@ -211,12 +211,6 @@ fault_center = '0 0 -30000'
 []
 
 [BCs]
-#   [fix_bottom_z]
-#       type = DirichletBC
-#       variable = disp_z
-#       boundary = bottom
-#       value = 0
-#   []
   [static_pressure_left]
       type = FunctionNeumannBC
       variable = disp_x
@@ -393,4 +387,4 @@ fault_center = '0 0 -30000'
 
 [Outputs]
   exodus = true
-[]   
+[]     

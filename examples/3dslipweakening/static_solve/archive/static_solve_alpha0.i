@@ -1,7 +1,10 @@
 #continuum damage-breakage model dynamics
 
 ##mesh parameters
-bottom_nodes_coord =' -80000 0 -80000'
+bottom_nodes_coord =' -60000 -60000 -60000;
+                      60000 -60000 -60000;
+                      60000 60000  -60000;
+                     -60000 60000  -60000'
 
 ##boundary loading parameters
 confining_pressure = 120e6 #Pa, confining pressure
@@ -21,7 +24,7 @@ sigma = 5e2
 peak_val = 0
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -40000'
+fault_center = '0 0 -30000'
 ##-------------------------##
 
 ##########################################################################################################################################
@@ -33,7 +36,7 @@ fault_center = '0 0 -40000'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/v3_buried_400m_embedline.msh'
+        file = '../../mesh/v3_buried_400m.msh'
     []
     [./sidesets]
         input = msh
@@ -300,7 +303,13 @@ fault_center = '0 0 -40000'
 #Shear stress: static_pressure_front_shear, static_pressure_back_shear
 #Constraints on corner_ptr: fix_cptr1_x, fix_cptr1_y, fix_cptr1_z
 #############################################################################################################################################################
-[BCs]    
+[BCs]
+    [fix_bottom_z]
+      type = ADDirichletBC
+      variable = disp_z
+      boundary = bottom
+      value = 0
+    []    
     [static_pressure_left]
         type = ADNeumannBC
         variable = disp_x
@@ -359,34 +368,22 @@ fault_center = '0 0 -40000'
     #     displacements = 'disp_x disp_y disp_z'
     # []
     # fix line
-    # [fix_cptr1_x]
-    #     type = ADDirichletBC
-    #     variable = disp_x
-    #     boundary = 300
-    #     value = 0.0
-    #     displacements = 'disp_x disp_y disp_z'
-    # []    
-    [fix_cptr1_y]
-        type = ADDirichletBC
-        variable = disp_y
-        boundary = 300
-        value = 0.0
-        displacements = 'disp_x disp_y disp_z'
-    []
-    # fix bottom surface 
-    [fix_cptr1_z]
-        type = ADDirichletBC
-        variable = disp_z
-        boundary = bottom
-        value = 0.0
-        displacements = 'disp_x disp_y disp_z'
-    []
-    # fix corner points
-    [fix_cptr1_x]
-        type = ADDirichletBC
+    [fix_node_x]
+        type = DirichletBC
         variable = disp_x
-        boundary = corner_ptr
-        value = 0.0
-        displacements = 'disp_x disp_y disp_z'  
-    []
+        boundary = 'corner_ptr'
+        value = 0
+    [../]
+    [fix_node_y]
+        type = DirichletBC
+        variable = disp_y
+        boundary = 'corner_ptr'
+        value = 0
+    [../]
+    [fix_node_z]
+        type = DirichletBC
+        variable = disp_z
+        boundary = 'corner_ptr'
+        value = 0
+    [../]
 []

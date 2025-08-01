@@ -49,7 +49,8 @@ protected:
   Real alphacr_root2(Real xi, Real gamma_damaged_r);
 
   /// @brief Compute elasticity tensor for small strain
-  virtual void computeQpTangentModulus(RankFourTensor & tangent, Real I1, Real I2, Real xi, RankTwoTensor Ee);
+  virtual void computeQpTangentModulus(RankFourTensor & tangent, Real I1, Real I2, Real xi, RankTwoTensor Ee, 
+                                       Real a0, Real a1, Real a2, Real a3, Real gamma_damaged_r);
 
   /// @brief Setup initial values for the first step
   void setupInitial();
@@ -99,10 +100,12 @@ protected:
   const MaterialProperty<RankTwoTensor> & _eps_p_old;
   const MaterialProperty<RankTwoTensor> & _eps_e_old;
   const MaterialProperty<RankTwoTensor> & _sigma_d_old;
+  const MaterialProperty<RankTwoTensor> & _sts_total_old;
 
   /// Get initial values
   const MaterialProperty<RankTwoTensor> & _static_initial_stress_tensor;
   const MaterialProperty<RankTwoTensor> & _static_initial_strain_tensor;
+  const MaterialProperty<RankTwoTensor> & _sts_initial_tensor_old;
   // const MaterialProperty<Real> & _I1_initial;
   // const MaterialProperty<Real> & _I2_initial;
   // const MaterialProperty<Real> & _xi_initial;

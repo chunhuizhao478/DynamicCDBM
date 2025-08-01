@@ -35,7 +35,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
 */
 
-lc = 5e3;
+lc = 1e4;
 lc_fault = 400; //change this!!!
 
 Fault_length = 30e3;
@@ -48,11 +48,11 @@ Width_nucl = 0.5*Fault_width;
 R_nucl = 1.5e3;
 lc_nucl = 400; //change this!!!
 
-Xmax = 60e3;
+Xmax = 120e3;
 Xmin = -Xmax;
 Ymin = -Xmax +  0.5 * Fault_width  *Cos(Fault_dip);
 Ymax =  Xmax + 0.5 * Fault_width  *Cos(Fault_dip);
-Zmin = -Xmax;
+Zmin = -240e3;
 
 // Move the fault to the center in depth
 move_distance = -1.0 * (Fault_length - 7500);

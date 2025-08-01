@@ -2,10 +2,10 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -60000 -60000 -60000;
-                      60000 -60000 -60000;
-                      60000 60000  -60000;
-                     -60000 60000  -60000'
+bottom_nodes_coord =' -120000 -120000 -240000;
+                      120000 -120000 -240000;
+                      120000 120000  -240000;
+                     -120000 120000  -240000'
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
@@ -72,7 +72,7 @@ fault_center = '0 0 -30000'
 nucl_center_x = -11000 #nucleation center x coordinate
 nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -30000 #nucleation center z coordinate
-r_crit = 3000 #critical distance to hypocenter (m)
+r_crit = 4000 #critical distance to hypocenter (m)
 Vs = 3464 #shear wave speed (m/s)
 t0 = 0.5 #nucleation time (s)
 ##------------------------------------------------------------------##

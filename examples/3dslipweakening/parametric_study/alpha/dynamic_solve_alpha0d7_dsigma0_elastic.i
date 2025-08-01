@@ -2,10 +2,10 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -60000 -60000 -60000;
-                      60000 -60000 -60000;
-                      60000 60000  -60000;
-                     -60000 60000  -60000'
+bottom_nodes_coord =' -120000 -120000 -240000;
+                      120000 -120000 -240000;
+                      120000 120000  -240000;
+                     -120000 120000  -240000'
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
@@ -25,8 +25,8 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##Slip weakening parameters##
 Dc = 0.8 #characteristic length (m)
 q = 0.4 #damping ratio
-mu_s = 0.677 #static friction coefficient
-mu_d = 0.55 #dynamic friction coefficient
+mu_s = 0.52 #static friction coefficient
+mu_d = 0.40 #dynamic friction coefficient
 ##-------------------------##
 
 ##Cohesion parameters##
@@ -72,8 +72,8 @@ fault_center = '0 0 -30000'
 nucl_center_x = -11000 #nucleation center x coordinate
 nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -30000 #nucleation center z coordinate
-r_crit = 3000 #critical distance to hypocenter (m)
-Vs = 2000 #3464 #shear wave speed (m/s)
+r_crit = 4000 #critical distance to hypocenter (m)
+Vs = 3464 #3464 #shear wave speed (m/s)
 t0 = 0.5 #nucleation time (s)
 ##------------------------------------------------------------------##
 
