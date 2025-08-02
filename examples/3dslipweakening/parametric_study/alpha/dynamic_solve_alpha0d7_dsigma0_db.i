@@ -25,8 +25,8 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##Slip weakening parameters##
 Dc = 0.8 #characteristic length (m)
 q = 0.4 #damping ratio
-mu_s = 0.52 #static friction coefficient
-mu_d = 0.40 #dynamic friction coefficient
+mu_s = 0.60 #static friction coefficient
+mu_d = 0.50 #dynamic friction coefficient
 ##-------------------------##
 
 ##Cohesion parameters##
