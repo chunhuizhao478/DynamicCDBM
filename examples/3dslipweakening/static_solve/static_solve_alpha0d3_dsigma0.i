@@ -2,10 +2,10 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -60000 -60000 -60000;
-                      60000 -60000 -60000;
-                      60000 60000  -60000;
-                     -60000 60000  -60000'
+bottom_nodes_coord =' -120000 -120000 -240000;
+                      120000 -120000 -240000;
+                      120000 120000  -240000;
+                     -120000 120000  -240000'
 ##boundary loading parameters
 confining_pressure = 120e6 #Pa, confining pressure
 shear_traction = 70e6 #Pa, shear traction
@@ -43,13 +43,13 @@ sigma = 5e2
 peak_val = 0.3
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -30000'
+fault_center = '0 0 -9500'
 ##-------------------------##
 
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/v3_buried_100m.msh'
+        file = '../mesh/v3_100m_freesurface.msh'
     []
     [./sidesets]
         input = msh

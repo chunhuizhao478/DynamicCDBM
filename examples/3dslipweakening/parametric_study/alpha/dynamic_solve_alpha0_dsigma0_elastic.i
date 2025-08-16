@@ -9,8 +9,8 @@ bottom_nodes_coord =' -120000 -120000 -240000;
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
-zmax_fault = -22500 #zmax of fault
-zmin_fault = -37500 #zmin of fault
+zmax_fault = -2000 #zmax of fault
+zmin_fault = -17000 #zmin of fault
 elem_size = 100 #!!! element size near the fault, need to be consistent with the mesh file
 ##-------------------------##
 
@@ -23,10 +23,10 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##-------------------------##
 
 ##Slip weakening parameters##
-Dc = 0.4 #characteristic length (m)
+Dc = 0.8 #characteristic length (m)
 q = 0.4 #damping ratio
-mu_s = 0.677 #static friction coefficient
-mu_d = 0.525 #dynamic friction coefficient
+mu_s = 0.65 #static friction coefficient
+mu_d = 0.50 #dynamic friction coefficient
 ##-------------------------##
 
 ##Cohesion parameters##
@@ -65,13 +65,13 @@ sigma = 5e2
 peak_val = 0
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -30000'
+fault_center = '0 0 -9500'
 ##-------------------------##
 
 #nucleation parameters
 nucl_center_x = -11000 #nucleation center x coordinate
 nucl_center_y = 0 #nucleation center y coordinate
-nucl_center_z = -30000 #nucleation center z coordinate
+nucl_center_z = -9500 #nucleation center z coordinate
 r_crit = 4000 #critical distance to hypocenter (m)
 Vs = 3464 #shear wave speed (m/s)
 t0 = 0.5 #nucleation time (s)
@@ -93,7 +93,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../../mesh/v3_buried_100m.msh'
+    file = '../../mesh/v3_100m_freesurface.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
@@ -761,7 +761,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [csv]
     type = CSV
     execute_on = 'timestep_end'
-    show = 'main_fault' #change this to 'main_fault' to output all quadrature points on the fault
+    # show = 'main_fault' #change this to 'main_fault' to output all quadrature points on the fault
     time_step_interval = ${csv_time_step_interval}
   []
   [out]
@@ -787,5 +787,33 @@ checkpoint_num_files = 2 #number of files for checkpoint output
                 disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z' 
     boundary = 'Block100_Block200'
     sort_by = x
+  []
+  [off_fault]
+    type = PositionsFunctorValueSampler
+    functors = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z'
+    positions = 'pos'
+    sort_by = x
+    execute_on = TIMESTEP_END
+  []
+[]
+
+[Positions]
+  [pos]
+    type = InputPositions
+    positions = '-21000 0 0
+                 -18000 0 0
+                 -15000 0 0
+                 -12000 0 0
+                 -9000 0 0
+                 -6000 0 0
+                 -3000 0 0
+                 0 0 0
+                 3000 0 0
+                 6000 0 0
+                 9000 0 0
+                 12000 0 0
+                 15000 0 0
+                 18000 0 0
+                 21000 0 0'
   []
 []

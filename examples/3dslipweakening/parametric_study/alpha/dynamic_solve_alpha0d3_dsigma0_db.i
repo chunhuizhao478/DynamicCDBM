@@ -2,15 +2,15 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -60000 -60000 -60000;
-                      60000 -60000 -60000;
-                      60000 60000  -60000;
-                     -60000 60000  -60000'
+bottom_nodes_coord =' -120000 -120000 -240000;
+                      120000 -120000 -240000;
+                      120000 120000  -240000;
+                     -120000 120000  -240000'
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
-zmax_fault = -22500 #zmax of fault
-zmin_fault = -37500 #zmin of fault
+zmax_fault = -2000 #zmax of fault
+zmin_fault = -17000 #zmin of fault
 elem_size = 100 #!!! element size near the fault, need to be consistent with the mesh file
 ##-------------------------##
 
@@ -25,8 +25,8 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##Slip weakening parameters##
 Dc = 0.8 #characteristic length (m)
 q = 0.4 #damping ratio
-mu_s = 0.677 #static friction coefficient
-mu_d = 0.55 #dynamic friction coefficient
+mu_s = 0.65 #static friction coefficient
+mu_d = 0.50 #dynamic friction coefficient
 ##-------------------------##
 
 ##Cohesion parameters##
@@ -43,7 +43,7 @@ xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 Cd_constant = 0 #coefficient gives positive damage evolution
 use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
-strain_rate_hat = 1e-4 #strain rate dependent parameters
+strain_rate_hat = 1e-8 #strain rate dependent parameters
 cd_hat = 10 #strain rate dependent parameters
 ###
 
@@ -65,14 +65,14 @@ sigma = 5e2
 peak_val = 0.3
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -30000'
+fault_center = '0 0 -9500'
 ##-------------------------##
 
 #nucleation parameters
 nucl_center_x = -11000 #nucleation center x coordinate
 nucl_center_y = 0 #nucleation center y coordinate
-nucl_center_z = -30000 #nucleation center z coordinate
-r_crit = 3000 #critical distance to hypocenter (m)
+nucl_center_z = -9500 #nucleation center z coordinate
+r_crit = 4000 #critical distance to hypocenter (m)
 Vs = 3464 #shear wave speed (m/s)
 t0 = 0.5 #nucleation time (s)
 ##------------------------------------------------------------------##

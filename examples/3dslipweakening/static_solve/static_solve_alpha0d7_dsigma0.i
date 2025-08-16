@@ -43,13 +43,13 @@ sigma = 5e2
 peak_val = 0.7
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -30000'
+fault_center = '0 0 -9500'
 ##-------------------------##
 
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/v3_buried_100m.msh'
+        file = '../mesh/v3_100m_freesurface.msh'
     []
     [./sidesets]
         input = msh

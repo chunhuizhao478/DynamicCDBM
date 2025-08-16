@@ -9,8 +9,8 @@ bottom_nodes_coord =' -120000 -120000 -240000;
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
-zmax_fault = -22500 #zmax of fault
-zmin_fault = -37500 #zmin of fault
+zmax_fault = -2000 #zmax of fault
+zmin_fault = -17000 #zmin of fault
 elem_size = 100 #!!! element size near the fault, need to be consistent with the mesh file
 ##-------------------------##
 
@@ -25,7 +25,7 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##Slip weakening parameters##
 Dc = 0.8 #characteristic length (m)
 q = 0.4 #damping ratio
-mu_s = 0.60 #static friction coefficient
+mu_s = 0.65 #static friction coefficient
 mu_d = 0.50 #dynamic friction coefficient
 ##-------------------------##
 
@@ -65,13 +65,13 @@ sigma = 5e2
 peak_val = 0.7
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
-fault_center = '0 0 -30000'
+fault_center = '0 0 -9500'
 ##-------------------------##
 
 #nucleation parameters
 nucl_center_x = -11000 #nucleation center x coordinate
 nucl_center_y = 0 #nucleation center y coordinate
-nucl_center_z = -30000 #nucleation center z coordinate
+nucl_center_z = -9500 #nucleation center z coordinate
 r_crit = 4000 #critical distance to hypocenter (m)
 Vs = 3464 #3464 #shear wave speed (m/s)
 t0 = 0.5 #nucleation time (s)
@@ -93,7 +93,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../../mesh/v3_buried_100m.msh'
+    file = '../../mesh/v3_100m_freesurface.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
