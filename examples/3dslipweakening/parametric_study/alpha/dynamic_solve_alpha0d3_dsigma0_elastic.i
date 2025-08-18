@@ -69,12 +69,14 @@ fault_center = '0 0 -9500'
 ##-------------------------##
 
 #nucleation parameters
+peak_shear_value = 81e6 #initial shear stress perturbation peak value
+nucl_size = 2000 #nucleation size
 nucl_center_x = -11000 #nucleation center x coordinate
-nucl_center_y = 0 #nucleation center y coordinate
+# nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -9500 #nucleation center z coordinate
-r_crit = 4000 #critical distance to hypocenter (m)
-Vs = 3464 #shear wave speed (m/s)
-t0 = 0.5 #nucleation time (s)
+# r_crit = 4000 #critical distance to hypocenter (m)
+# Vs = 3464 #shear wave speed (m/s)
+# t0 = 0.5 #nucleation time (s)
 ##------------------------------------------------------------------##
 
 ##model parameters##
@@ -426,12 +428,12 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   []
   ### slip weakening forced rupture
-  [get_forced_rupture_aux]
-    type = FunctionAux
-    variable = forced_rupture_aux
-    function = func_forced_rupture
-    execute_on = 'INITIAL TIMESTEP_BEGIN'
-  []
+  # [get_forced_rupture_aux]
+  #   type = FunctionAux
+  #   variable = forced_rupture_aux
+  #   function = func_forced_rupture
+  #   execute_on = 'INITIAL TIMESTEP_BEGIN'
+  # []
   ### fluid pressure
   [get_fluid_pressure_aux]
     type = FunctionAux
@@ -594,7 +596,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     outputs = exodus
   []
   [./czm_mat]
-      type = SlipWeakeningFrictionczm3dCDBM
+      type = SlipWeakeningFrictionczm3dCDBMOverstress
       disp_slipweakening_x     = disp_slipweakening_x
       disp_slipweakening_y     = disp_slipweakening_y
       disp_slipweakening_z     = disp_slipweakening_z
@@ -608,13 +610,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       mu_d = ${mu_d}
       Dc = ${Dc}
       len = ${elem_size}
-      #---------------------------------------------#
-      use_forced_rupture = true
-      t0 = ${t0}
-      cohesion_aux = cohesion_aux
-      forced_rupture_aux = forced_rupture_aux
-      fluid_pressure_aux = fluid_pressure_aux
-      #---------------------------------------------#
+      # #---------------------------------------------#
+      # use_forced_rupture = true
+      # t0 = ${t0}
+      # cohesion_aux = cohesion_aux
+      # forced_rupture_aux = forced_rupture_aux
+      # fluid_pressure_aux = fluid_pressure_aux
+      # #---------------------------------------------#
       boundary = 'Block100_Block200'
   [../]
   [./static_initial_strain_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening
@@ -633,6 +635,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
                           func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
                           func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
+  [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
+      type = GenericFunctionRankTwoTensor
+      tensor_name = static_initial_stress_tensor_slipweakening
+        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
+                            func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
+                            func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
+  [../]
 []
 
 [Functions]
@@ -640,6 +649,18 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     type = SolutionFunction
     solution = init_sol_components
     from_variable = 'elastic_strain_00'
+  []
+  ###
+  #the initial shear stress needs additional nucleation parameters
+  [./func_initial_stress_xy_variable]
+      type = InitialShearStressCDBM
+      peak_value = ${peak_shear_value}
+      nucl_center_x = ${nucl_center_x}
+      nucl_center_z = ${nucl_center_z}
+      nucl_size = ${nucl_size}
+      elem_size = ${elem_size}
+      solution = init_sol_components
+      from_variable = 'stress_01'
   []
   [./func_initial_strain_xy]
     type = SolutionFunction
@@ -710,14 +731,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     min_cohesion = ${cohesion_min}
   []
   ###forcedrupture###
-  [./func_forced_rupture]
-    type = ForcedRuptureTimeCDBMv2
-    loc_x = ${nucl_center_x}
-    loc_y = ${nucl_center_y}
-    loc_z = ${nucl_center_z}
-    r_crit = ${r_crit}
-    Vs = ${Vs}
-  []
+  # [./func_forced_rupture]
+  #   type = ForcedRuptureTimeCDBMv2
+  #   loc_x = ${nucl_center_x}
+  #   loc_y = ${nucl_center_y}
+  #   loc_z = ${nucl_center_z}
+  #   r_crit = ${r_crit}
+  #   Vs = ${Vs}
+  # []
 []
 
 [UserObjects]
