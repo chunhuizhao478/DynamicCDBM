@@ -70,7 +70,7 @@ fault_center = '0 0 -9500'
 
 #nucleation parameters
 peak_shear_value = 81e6 #initial shear stress perturbation peak value
-nucl_size = 2000 #nucleation size
+nucl_size = 4000 #nucleation size
 nucl_center_x = -11000 #nucleation center x coordinate
 # nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -9500 #nucleation center z coordinate
