@@ -70,7 +70,7 @@ fault_center = '0 0 -9500'
 
 #nucleation parameters
 peak_shear_value = 81e6 #initial shear stress perturbation peak value
-nucl_size = 4000 #nucleation size
+nucl_size = 5000 #nucleation size
 nucl_center_x = -11000 #nucleation center x coordinate
 # nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -9500 #nucleation center z coordinate
@@ -264,7 +264,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   [traction_strike_aux]
-    order = CONSTANT
+    order = FIRST
     family = MONOMIAL
   []
   # 
@@ -277,7 +277,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   [traction_normal_aux]
-    order = CONSTANT
+    order = FIRST
     family = MONOMIAL
   []
   #
@@ -290,7 +290,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   [traction_dip_aux]
-    order = CONSTANT
+    order = FIRST
     family = MONOMIAL
   []  
   ###
