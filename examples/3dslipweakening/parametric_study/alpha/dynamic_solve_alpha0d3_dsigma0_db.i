@@ -43,7 +43,7 @@ xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 Cd_constant = 0 #coefficient gives positive damage evolution
 use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
-strain_rate_hat = 1e-6 #strain rate dependent parameters
+strain_rate_hat = 1e-7 #strain rate dependent parameters
 cd_hat = 10 #strain rate dependent parameters
 ###
 
@@ -86,7 +86,7 @@ end_time = 12.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
 exodus_time_step_interval = 40 #time step interval for output
-csv_time_step_interval = 40 #time step interval for csv output
+csv_time_step_interval = 4 #time step interval for csv output
 checkpoint_time_step_interval = 80 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
