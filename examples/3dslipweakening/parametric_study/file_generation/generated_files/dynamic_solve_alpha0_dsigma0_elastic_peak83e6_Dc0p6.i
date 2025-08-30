@@ -23,7 +23,7 @@ shear_modulus_o = 3.204e10 #second lame constant
 ##-------------------------##
 
 ##Slip weakening parameters##
-Dc = 0.8 #characteristic length (m)
+Dc = 0.6 #characteristic length (m)
 q = 0.4 #damping ratio
 mu_s = 0.65 #static friction coefficient
 mu_d = 0.50 #dynamic friction coefficient
@@ -69,7 +69,7 @@ fault_center = '0 0 -9500'
 ##-------------------------##
 
 #nucleation parameters
-peak_shear_value = 81e6 #initial shear stress perturbation peak value
+peak_shear_value = 83e6 #initial shear stress perturbation peak value
 nucl_size = 5000 #nucleation size
 nucl_center_x = -11000 #nucleation center x coordinate
 # nucl_center_y = 0 #nucleation center y coordinate
@@ -80,13 +80,13 @@ nucl_center_z = -9500 #nucleation center z coordinate
 ##------------------------------------------------------------------##
 
 ##model parameters##
-dt = 0.005 #time step size
+dt = 0.0025 #time step size
 
 end_time = 12.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
 exodus_time_step_interval = 40 #time step interval for output
-csv_time_step_interval = 2 #time step interval for csv output
+csv_time_step_interval = 40 #time step interval for csv output
 checkpoint_time_step_interval = 80 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
@@ -808,7 +808,6 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     positions = 'pos'
     sort_by = x
     execute_on = TIMESTEP_END
-    discontinuous = false
   []
 []
 

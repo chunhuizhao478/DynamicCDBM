@@ -80,13 +80,13 @@ nucl_center_z = -9500 #nucleation center z coordinate
 ##------------------------------------------------------------------##
 
 ##model parameters##
-dt = 0.0025 #time step size
+dt = 0.005 #time step size
 
 end_time = 12.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
 exodus_time_step_interval = 40 #time step interval for output
-csv_time_step_interval = 4 #time step interval for csv output
+csv_time_step_interval = 2 #time step interval for csv output
 checkpoint_time_step_interval = 80 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
