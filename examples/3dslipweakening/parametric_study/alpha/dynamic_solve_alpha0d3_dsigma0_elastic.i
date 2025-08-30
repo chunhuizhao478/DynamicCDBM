@@ -254,13 +254,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   ###
+  #!!!for fault quantities, use CONSTANT order, otherwise leading incorrect interpolation results
   #output jump, jump rate, traction quantities
   [displacement_jump_strike_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [displacement_jump_rate_strike_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [traction_strike_aux]
@@ -269,11 +270,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   # 
   [displacement_jump_normal_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [displacement_jump_rate_normal_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [traction_normal_aux]
@@ -282,11 +283,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   #
   [displacement_jump_dip_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [displacement_jump_rate_dip_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [traction_dip_aux]
@@ -775,7 +776,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [exodus]
     type = Exodus
     execute_on = 'timestep_end'
-    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux traction_strike_aux traction_normal_aux traction_dip_aux deviatoric_strain_rate'
+    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z alpha_damagedvar_aux B_aux xi_aux traction_strike_aux displacement_jump_strike_aux displacement_jump_rate_strike_aux deviatoric_strain_rate'
     time_step_interval = ${exodus_time_step_interval}
   []
   [csv]
