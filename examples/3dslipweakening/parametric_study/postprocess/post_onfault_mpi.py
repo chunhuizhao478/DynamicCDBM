@@ -358,10 +358,10 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
     comm.Barrier()
     if rank == 0:
         # Cleanup tmp dirs (with progress)
-    for r in tqdm(range(size), desc=f"{name}: cleanup tmp", disable=False, file=sys.stdout):
-            pdir = os.path.join(output_dir, f"tmp_rank_{r}")
-            if os.path.isdir(pdir):
-                shutil.rmtree(pdir, ignore_errors=True)
+        for r in tqdm(range(size), desc=f"{name}: cleanup tmp", disable=False, file=sys.stdout):
+                pdir = os.path.join(output_dir, f"tmp_rank_{r}")
+                if os.path.isdir(pdir):
+                    shutil.rmtree(pdir, ignore_errors=True)
     print(f"[INFO] Case '{name}' complete. Output: {output_dir}")
 
 
