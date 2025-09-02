@@ -362,7 +362,7 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
                 pdir = os.path.join(output_dir, f"tmp_rank_{r}")
                 if os.path.isdir(pdir):
                     shutil.rmtree(pdir, ignore_errors=True)
-    print(f"[INFO] Case '{name}' complete. Output: {output_dir}")
+        print(f"[INFO] Case '{name}' complete. Output: {output_dir}")
 
 
 def main():
