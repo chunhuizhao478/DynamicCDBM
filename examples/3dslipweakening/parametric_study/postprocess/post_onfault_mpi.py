@@ -22,6 +22,7 @@ import os
 import shutil
 import math
 from typing import Dict, Tuple, List
+import sys
 
 import pandas as pd
 import numpy as np
@@ -63,7 +64,7 @@ CASES = [
         "file_prefix": "dynamic_solve_alpha0_dsigma0_elastic_csv_main_fault_", # file_prefix: The literal prefix of the input CSV files to read.
         "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
         "dt": 0.005,
-        "output_dir": "./alpha0_dsigma0_elastic_on_fault/",
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma0_elastic_on_fault/",
     },
     {
         "name": "dynamic_solve_alpha0d3_dsigma0_elastic_csv_main_fault",
@@ -71,7 +72,7 @@ CASES = [
         "file_prefix": "dynamic_solve_alpha0d3_dsigma0_elastic_csv_main_fault_",
         "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
         "dt": 0.005,
-        "output_dir": "./alpha0d3_dsigma0_elastic_on_fault/",
+        "output_dir": COMMON_PATH + "../postprocess/alpha0d3_dsigma0_elastic_on_fault/",
     },
     {
         "name": "dynamic_solve_alpha0_dsigma0_db_csv_main_fault",
@@ -79,7 +80,7 @@ CASES = [
         "file_prefix": "dynamic_solve_alpha0_dsigma0_db_csv_main_fault_",
         "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
         "dt": 0.005,
-        "output_dir": "./alpha0_dsigma0_db_on_fault/",
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma0_db_on_fault/",
     },
     {
         "name": "dynamic_solve_alpha0d3_dsigma0_db_csv_main_fault",
@@ -87,7 +88,7 @@ CASES = [
         "file_prefix": "dynamic_solve_alpha0d3_dsigma0_db_csv_main_fault_",
         "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
         "dt": 0.005,
-        "output_dir": "./alpha0d3_dsigma0_db_on_fault/",
+        "output_dir": COMMON_PATH +"../postprocess/alpha0d3_dsigma0_db_on_fault/",
     },
 ]
 
@@ -179,7 +180,7 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
                     return
             else:
                 if clean_output:
-                    for entry in tqdm(os.listdir(output_dir), desc=f"{name}: clean output", disable=(rank != 0)):
+                    for entry in tqdm(os.listdir(output_dir), desc=f"{name}: clean output", disable=(rank != 0), file=sys.stdout):
                         path = os.path.join(output_dir, entry)
                         try:
                             if os.path.isfile(path) or os.path.islink(path):
@@ -250,6 +251,7 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
         position=rank,
         leave=True,
         disable=False,
+        file=sys.stdout,
     ):
         p = np.array(tp, dtype=float)
         diffs = coords - p  # (N,3)
@@ -290,6 +292,7 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
         position=rank,
         leave=True,
         disable=False,
+        file=sys.stdout,
     )
     for t_step in step_iter:
         file_name = f"{file_prefix}{t_step:0{pad}d}.csv"
@@ -314,6 +317,7 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
         position=rank,
         leave=True,
         disable=False,
+        file=sys.stdout,
     ):
         x, y, z = point
         df_part = pd.DataFrame(rows, columns=["time"] + columns)
@@ -331,6 +335,7 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
         position=rank,
         leave=True,
         disable=False,
+        file=sys.stdout,
     ):
         x, y, z = point
         final_name = f"{name}_point_{x:.2f}_{y:.2f}_{z:.2f}.csv"
@@ -353,11 +358,11 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
     comm.Barrier()
     if rank == 0:
         # Cleanup tmp dirs (with progress)
-        for r in tqdm(range(size), desc=f"{name}: cleanup tmp", disable=False):
+    for r in tqdm(range(size), desc=f"{name}: cleanup tmp", disable=False, file=sys.stdout):
             pdir = os.path.join(output_dir, f"tmp_rank_{r}")
             if os.path.isdir(pdir):
                 shutil.rmtree(pdir, ignore_errors=True)
-        print(f"[INFO] Case '{name}' complete. Output: {output_dir}")
+    print(f"[INFO] Case '{name}' complete. Output: {output_dir}")
 
 
 def main():
