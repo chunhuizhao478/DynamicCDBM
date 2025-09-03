@@ -40,7 +40,7 @@ xi_0 = -0.8 #strain invariants ratio: onset of damage evolution
 xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 
 ###constant Cd
-Cd_constant = 1e7 #coefficient gives positive damage evolution
+Cd_constant = 1e4 #coefficient gives positive damage evolution
 use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
 strain_rate_hat = 1e-7 #strain rate dependent parameters
