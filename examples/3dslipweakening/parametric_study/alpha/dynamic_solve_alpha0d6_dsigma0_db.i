@@ -41,9 +41,9 @@ xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 
 ###constant Cd
 Cd_constant = 0 #coefficient gives positive damage evolution
-use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
+use_strain_rate_dependent_Cd = true #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
-strain_rate_hat = 1e-4 #strain rate dependent parameters
+strain_rate_hat = 5e-7 #strain rate dependent parameters
 cd_hat = 10 #strain rate dependent parameters
 ###
 
@@ -62,30 +62,32 @@ chi = 0.8 #energy ratio
 
 ##initial damage parameters
 sigma = 5e2
-peak_val = 0.7
+peak_val = 0.6
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
 fault_center = '0 0 -9500'
 ##-------------------------##
 
 #nucleation parameters
+peak_shear_value = 81e6 #initial shear stress perturbation peak value
+nucl_size = 5000 #nucleation size
 nucl_center_x = -11000 #nucleation center x coordinate
-nucl_center_y = 0 #nucleation center y coordinate
+# nucl_center_y = 0 #nucleation center y coordinate
 nucl_center_z = -9500 #nucleation center z coordinate
-r_crit = 4000 #critical distance to hypocenter (m)
-Vs = 3464 #3464 #shear wave speed (m/s)
-t0 = 0.5 #nucleation time (s)
+# r_crit = 4000 #critical distance to hypocenter (m)
+# Vs = 3464 #shear wave speed (m/s)
+# t0 = 0.5 #nucleation time (s)
 ##------------------------------------------------------------------##
 
 ##model parameters##
-dt = 0.005 #time step size
+dt = 0.01 #time step size
 
-end_time = 12.0 #end time for simulation
+end_time = 10.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
-exodus_time_step_interval = 40 #time step interval for output
-csv_time_step_interval = 2 #time step interval for csv output
-checkpoint_time_step_interval = 80 #time step interval for checkpoint output
+exodus_time_step_interval = 100 #time step interval for output
+csv_time_step_interval = 1 #time step interval for csv output
+checkpoint_time_step_interval = 200 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
 
@@ -252,13 +254,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     family = MONOMIAL
   []
   ###
+  #!!!for fault quantities, use CONSTANT order, otherwise leading incorrect interpolation results
   #output jump, jump rate, traction quantities
   [displacement_jump_strike_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [displacement_jump_rate_strike_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [traction_strike_aux]
@@ -267,11 +270,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   # 
   [displacement_jump_normal_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [displacement_jump_rate_normal_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [traction_normal_aux]
@@ -280,11 +283,11 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   #
   [displacement_jump_dip_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [displacement_jump_rate_dip_aux]
-    order = FIRST
+    order = CONSTANT
     family = MONOMIAL
   []
   [traction_dip_aux]
@@ -426,12 +429,12 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     execute_on = 'INITIAL TIMESTEP_BEGIN'
   []
   ### slip weakening forced rupture
-  [get_forced_rupture_aux]
-    type = FunctionAux
-    variable = forced_rupture_aux
-    function = func_forced_rupture
-    execute_on = 'INITIAL TIMESTEP_BEGIN'
-  []
+  # [get_forced_rupture_aux]
+  #   type = FunctionAux
+  #   variable = forced_rupture_aux
+  #   function = func_forced_rupture
+  #   execute_on = 'INITIAL TIMESTEP_BEGIN'
+  # []
   ### fluid pressure
   [get_fluid_pressure_aux]
     type = FunctionAux
@@ -594,7 +597,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     outputs = exodus
   []
   [./czm_mat]
-      type = SlipWeakeningFrictionczm3dCDBM
+      type = SlipWeakeningFrictionczm3dCDBMOverstress
       disp_slipweakening_x     = disp_slipweakening_x
       disp_slipweakening_y     = disp_slipweakening_y
       disp_slipweakening_z     = disp_slipweakening_z
@@ -608,13 +611,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       mu_d = ${mu_d}
       Dc = ${Dc}
       len = ${elem_size}
-      #---------------------------------------------#
-      use_forced_rupture = true
-      t0 = ${t0}
-      cohesion_aux = cohesion_aux
-      forced_rupture_aux = forced_rupture_aux
-      fluid_pressure_aux = fluid_pressure_aux
-      #---------------------------------------------#
+      # #---------------------------------------------#
+      # use_forced_rupture = true
+      # t0 = ${t0}
+      # cohesion_aux = cohesion_aux
+      # forced_rupture_aux = forced_rupture_aux
+      # fluid_pressure_aux = fluid_pressure_aux
+      # #---------------------------------------------#
       boundary = 'Block100_Block200'
   [../]
   [./static_initial_strain_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening
@@ -633,6 +636,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
                           func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
                           func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
+  [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
+      type = GenericFunctionRankTwoTensor
+      tensor_name = static_initial_stress_tensor_slipweakening
+        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
+                            func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
+                            func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
+  [../]
 []
 
 [Functions]
@@ -640,6 +650,18 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     type = SolutionFunction
     solution = init_sol_components
     from_variable = 'elastic_strain_00'
+  []
+  ###
+  #the initial shear stress needs additional nucleation parameters
+  [./func_initial_stress_xy_variable]
+      type = InitialShearStressCDBM
+      peak_value = ${peak_shear_value}
+      nucl_center_x = ${nucl_center_x}
+      nucl_center_z = ${nucl_center_z}
+      nucl_size = ${nucl_size}
+      elem_size = ${elem_size}
+      solution = init_sol_components
+      from_variable = 'stress_01'
   []
   [./func_initial_strain_xy]
     type = SolutionFunction
@@ -710,14 +732,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     min_cohesion = ${cohesion_min}
   []
   ###forcedrupture###
-  [./func_forced_rupture]
-    type = ForcedRuptureTimeCDBMv2
-    loc_x = ${nucl_center_x}
-    loc_y = ${nucl_center_y}
-    loc_z = ${nucl_center_z}
-    r_crit = ${r_crit}
-    Vs = ${Vs}
-  []
+  # [./func_forced_rupture]
+  #   type = ForcedRuptureTimeCDBMv2
+  #   loc_x = ${nucl_center_x}
+  #   loc_y = ${nucl_center_y}
+  #   loc_z = ${nucl_center_z}
+  #   r_crit = ${r_crit}
+  #   Vs = ${Vs}
+  # []
 []
 
 [UserObjects]
@@ -729,7 +751,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   [./init_sol_components]
     type = SolutionUserObject
-    mesh = '../../static_solve/static_solve_alpha0d7_dsigma0_out.e'
+    mesh = '../../static_solve/static_solve_alpha0d6_dsigma0_out.e'
     system_variables = 'elastic_strain_00 elastic_strain_01 elastic_strain_02
                         elastic_strain_11 elastic_strain_12 elastic_strain_22
                         stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
@@ -754,25 +776,19 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [exodus]
     type = Exodus
     execute_on = 'timestep_end'
-    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux traction_strike_aux traction_normal_aux traction_dip_aux deviatoric_strain_rate'
+    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z alpha_damagedvar_aux B_aux xi_aux traction_strike_aux displacement_jump_strike_aux displacement_jump_rate_strike_aux deviatoric_strain_rate'
     time_step_interval = ${exodus_time_step_interval}
   []
   [csv]
     type = CSV
     execute_on = 'timestep_end'
-    show = 'main_fault' #change this to 'main_fault' to output all quadrature points on the fault
+    # show = 'main_fault' #change this to 'main_fault' to output all quadrature points on the fault
     time_step_interval = ${csv_time_step_interval}
   []
   [out]
     type = Checkpoint
     time_step_interval = ${checkpoint_time_step_interval}
     num_files = ${checkpoint_num_files}
-  []
-  [sample_snapshots]
-    type = Exodus
-    execute_on = 'timestep_end'
-    show = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z alpha_damagedvar_aux B_aux xi_aux stress_xx stress_yy stress_xy'
-    time_step_interval = ${sample_snapshots_time_step_interval}
   []
 []    
 
@@ -786,5 +802,34 @@ checkpoint_num_files = 2 #number of files for checkpoint output
                 disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z' 
     boundary = 'Block100_Block200'
     sort_by = x
+  []
+  [off_fault]
+    type = PositionsFunctorValueSampler
+    functors = 'vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z'
+    positions = 'pos'
+    sort_by = x
+    execute_on = TIMESTEP_END
+    discontinuous = false
+  []
+[]
+
+[Positions]
+  [pos]
+    type = InputPositions
+    positions = '-21000 5000 0
+                 -18000 5000 0
+                 -15000 5000 0
+                 -12000 5000 0
+                 -9000 5000 0
+                 -6000 5000 0
+                 -3000 5000 0
+                 0 5000 0
+                 3000 5000 0
+                 6000 5000 0
+                 9000 5000 0
+                 12000 5000 0
+                 15000 5000 0
+                 18000 5000 0
+                 21000 5000 0'
   []
 []

@@ -43,7 +43,7 @@ xi_d = -0.9 #strain invariants ratio: onset of breakage healing
 Cd_constant = 0 #coefficient gives positive damage evolution
 use_strain_rate_dependent_Cd = false #use strain rate dependent Cd
 m_exponent = 0.8 #strain rate dependent parameters
-strain_rate_hat = 1e-4 #strain rate dependent parameters
+strain_rate_hat = 5e-7 #strain rate dependent parameters
 cd_hat = 10 #strain rate dependent parameters
 ###
 
@@ -80,14 +80,14 @@ nucl_center_z = -9500 #nucleation center z coordinate
 ##------------------------------------------------------------------##
 
 ##model parameters##
-dt = 0.005 #time step size
+dt = 0.01 #time step size
 
-end_time = 12.0 #end time for simulation
+end_time = 10.0 #end time for simulation
 
 # num_steps = 40 #end_time or num_steps only one of them is needed
-exodus_time_step_interval = 40 #time step interval for output
-csv_time_step_interval = 2 #time step interval for csv output
-checkpoint_time_step_interval = 80 #time step interval for checkpoint output
+exodus_time_step_interval = 100 #time step interval for output
+csv_time_step_interval = 1 #time step interval for csv output
+checkpoint_time_step_interval = 200 #time step interval for checkpoint output
 checkpoint_num_files = 2 #number of files for checkpoint output
 ##-------------------------##
 
@@ -816,20 +816,20 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Positions]
   [pos]
     type = InputPositions
-    positions = '-21000 0 0
-                 -18000 0 0
-                 -15000 0 0
-                 -12000 0 0
-                 -9000 0 0
-                 -6000 0 0
-                 -3000 0 0
-                 0 0 0
-                 3000 0 0
-                 6000 0 0
-                 9000 0 0
-                 12000 0 0
-                 15000 0 0
-                 18000 0 0
-                 21000 0 0'
+    positions = '-21000 5000 0
+                 -18000 5000 0
+                 -15000 5000 0
+                 -12000 5000 0
+                 -9000 5000 0
+                 -6000 5000 0
+                 -3000 5000 0
+                 0 5000 0
+                 3000 5000 0
+                 6000 5000 0
+                 9000 5000 0
+                 12000 5000 0
+                 15000 5000 0
+                 18000 5000 0
+                 21000 5000 0'
   []
 []
