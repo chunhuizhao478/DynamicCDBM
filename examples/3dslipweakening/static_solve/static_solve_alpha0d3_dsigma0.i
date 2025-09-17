@@ -164,7 +164,7 @@ fault_center = '0 0 -9500'
   [../]
   [strain]
     type = ComputeSmallStrain
-    eigenstrain_names = ini_stress
+    # eigenstrain_names = ini_stress
     outputs = exodus
   []
   [stress_medium]
@@ -211,12 +211,6 @@ fault_center = '0 0 -9500'
 []
 
 [BCs]
-#   [fix_bottom_z]
-#       type = DirichletBC
-#       variable = disp_z
-#       boundary = bottom
-#       value = 0
-#   []
   [static_pressure_left]
       type = FunctionNeumannBC
       variable = disp_x
