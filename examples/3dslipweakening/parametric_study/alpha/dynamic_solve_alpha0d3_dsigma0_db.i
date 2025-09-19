@@ -80,7 +80,7 @@ nucl_center_z = -9500 #nucleation center z coordinate
 ##------------------------------------------------------------------##
 
 ##model parameters##
-dt = 0.05 #time step size
+dt = 0.005 #time step size
 
 end_time = 10.0 #end time for simulation
 
