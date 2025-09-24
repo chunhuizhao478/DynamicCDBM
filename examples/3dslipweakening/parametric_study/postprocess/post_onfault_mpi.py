@@ -180,6 +180,22 @@ CASES = [
         "dt": 0.005,
         "output_dir": COMMON_PATH +"../postprocess/alpha0d6_dsigma0_db_on_fault/",
     },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma0_elastic_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma0_elastic_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH +"../postprocess/alpha0d3_dsigma0_elastic_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d6_dsigma0_elastic_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d6_dsigma0_elastic_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH +"../postprocess/alpha0d6_dsigma0_elastic_on_fault/",
+    },
 ]
 
 # Optional global output root. If set (non-None), outputs will be written to
