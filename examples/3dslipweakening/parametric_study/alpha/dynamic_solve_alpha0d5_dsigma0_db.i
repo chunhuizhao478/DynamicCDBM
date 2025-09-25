@@ -94,7 +94,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 [Mesh]
   [./msh]
     type = FileMeshGenerator
-    file = '../../mesh/v3_100m_freesurface.msh'
+    file = '../../mesh/v3_100m_freesurface_coarsened.msh'
   []
   [./new_block_1]
     type = ParsedSubdomainMeshGenerator
