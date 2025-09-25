@@ -49,7 +49,7 @@ fault_center = '0 0 -9500'
 [Mesh]
     [./msh]
         type = FileMeshGenerator
-        file = '../mesh/v3_100m_freesurface.msh'
+        file = '../mesh/v3_100m_freesurface_coarsened.msh'
     []
     [./sidesets]
         input = msh
