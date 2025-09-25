@@ -387,4 +387,5 @@ fault_center = '0 0 -9500'
 
 [Outputs]
   exodus = true
+  show = 'elastic_strain_00 elastic_strain_01 elastic_strain_02 elastic_strain_11 elastic_strain_12 elastic_strain_22 stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
 []     
