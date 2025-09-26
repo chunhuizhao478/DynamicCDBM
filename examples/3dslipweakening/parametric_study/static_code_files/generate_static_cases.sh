@@ -60,10 +60,11 @@ main() {
       # Create the file by substituting the parameters in the correct locations
       # - peak_val line
       # - shear_traction line (keep the comment format)
-      # Note: use POSIX classes instead of \s (not portable in sed)
+      # Only modify the global parameters prior to the first [Mesh] block.
+      # BSD sed compatibility: apply subs on lines NOT in the range [Mesh]..EOF.
       sed -E \
-        -e "s/^([[:space:]]*peak_val[[:space:]]*=[[:space:]]*).*/\\1${peak}/" \
-        -e "s/^([[:space:]]*shear_traction[[:space:]]*=[[:space:]]*).*/\\1${tau} #Pa, shear traction/" \
+        -e "/^\\[Mesh\\]/,99999! s/^([[:space:]]*peak_val[[:space:]]*=[[:space:]]*).*/\\1${peak}/" \
+        -e "/^\\[Mesh\\]/,99999! s/^([[:space:]]*shear_traction[[:space:]]*=[[:space:]]*).*/\\1${tau} #Pa, shear traction/" \
         "$TEMPLATE_FILE" > "$out_file"
 
       echo "  Wrote: $out_file (peak_val=$peak, shear_traction=$tau)"

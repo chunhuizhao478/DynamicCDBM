@@ -164,12 +164,10 @@ fault_center = '0 0 -9500'
   [../]
   [strain]
     type = ComputeSmallStrain
-    # eigenstrain_names = ini_stress
-    outputs = exodus
   []
   [stress_medium]
     type = ComputeDamageBreakageStress3DStatic
-    output_properties = 'B alpha_damagedvar xi I1 I2 stress elastic_strain'
+    output_properties = 'stress elastic_strain'
     outputs = exodus
   []
   [dummy_material]
@@ -184,8 +182,6 @@ fault_center = '0 0 -9500'
     len_of_fault_strike = ${len_of_fault_strike}
     len_of_fault_dip = ${len_of_fault_dip}
     nucl_center = ${fault_center}
-    output_properties = 'initial_damage'      
-    outputs = exodus
   []
   [./static_initial_strain_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening
     type = ComputeEigenstrainFromInitialStress
@@ -200,13 +196,9 @@ fault_center = '0 0 -9500'
       tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
                           func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
                           func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
-      output_properties = 'static_initial_stress_tensor'
-      outputs = exodus
   [../]    
   [./comp_xi]
     type = ComputeXi
-    output_properties = 'strain_invariant_ratio'
-    outputs = exodus
   []
 []
 
@@ -387,4 +379,5 @@ fault_center = '0 0 -9500'
 
 [Outputs]
   exodus = true
+  show = 'elastic_strain_00 elastic_strain_01 elastic_strain_02 elastic_strain_11 elastic_strain_12 elastic_strain_22 stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
 []   
