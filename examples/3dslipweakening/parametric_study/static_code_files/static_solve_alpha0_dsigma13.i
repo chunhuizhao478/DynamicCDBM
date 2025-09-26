@@ -2,10 +2,10 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -120000 -120000 -240000;
-                      120000 -120000 -240000;
-                      120000 120000  -240000;
-                     -120000 120000  -240000'
+bottom_nodes_coord =' -40000 -40000 -200000;
+                      40000 -40000 -200000;
+                      40000 40000  -200000;
+                     -40000 40000  -200000'
 ##boundary loading parameters
 confining_pressure = 120e6 #Pa, confining pressure
 shear_traction = 73e6 #Pa, shear traction
