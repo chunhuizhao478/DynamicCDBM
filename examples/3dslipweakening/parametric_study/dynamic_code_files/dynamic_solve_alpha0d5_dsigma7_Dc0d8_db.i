@@ -656,7 +656,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [initial_damage_surround]
     type = InitialDamageCycleSim3DPlane
     sigma = ${sigma}
-    peak_val = 0.5
+    peak_val = ${peak_val}
     len_of_fault_strike = ${len_of_fault_strike}
     len_of_fault_dip = ${len_of_fault_dip}
     nucl_center = ${fault_center}
@@ -676,7 +676,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
       reaction_slipweakening_z = resid_slipweakening_z
       mu_s = ${mu_s}
       mu_d = ${mu_d}
-      Dc = 0.8 #characteristic length (m)
+      Dc = ${Dc}
       len = ${elem_size}
       # #---------------------------------------------#
       # use_forced_rupture = true

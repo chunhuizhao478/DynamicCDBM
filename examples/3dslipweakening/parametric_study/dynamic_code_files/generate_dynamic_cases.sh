@@ -60,9 +60,12 @@ main() {
         # - peak_val = <peak>
         # - Dc = <dc>
         # - mesh = '../static_code_files/static_solve_alpha{alpha}_dsigma{dsigma}_out.e'
+        # Only change global definitions before the first [Mesh] block so we
+        # do not touch 'peak_val = ${peak_val}' inside [initial_damage_surround]
+        # or 'Dc = ${Dc}' inside [./czm_mat].
         sed -E \
-          -e "s/^([[:space:]]*peak_val[[:space:]]*=[[:space:]]*).*/\\1${peak}/" \
-          -e "s/^([[:space:]]*Dc[[:space:]]*=[[:space:]]*).*/\\1${dc} #characteristic length (m)/" \
+          -e "/^\\[Mesh\\]/,99999! s/^([[:space:]]*peak_val[[:space:]]*=[[:space:]]*).*/\\1${peak}/" \
+          -e "/^\\[Mesh\\]/,99999! s/^([[:space:]]*Dc[[:space:]]*=[[:space:]]*).*/\\1${dc} #characteristic length (m)/" \
           -e "s|^([[:space:]]*mesh[[:space:]]*=[[:space:]]*).*$|\\1'${static_mesh_rel}'|" \
           "$BASE_FILE" > "$out_file"
 
@@ -75,4 +78,3 @@ main() {
 }
 
 main "$@"
-
