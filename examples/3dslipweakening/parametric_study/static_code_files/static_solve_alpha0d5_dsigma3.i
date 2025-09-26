@@ -180,7 +180,7 @@ fault_center = '0 0 -9500'
   [initial_damage_surround]
     type = InitialDamageCycleSim3DPlane
     sigma = ${sigma}
-    peak_val = 0.5
+    peak_val = ${peak_val}
     len_of_fault_strike = ${len_of_fault_strike}
     len_of_fault_dip = ${len_of_fault_dip}
     nucl_center = ${fault_center}
