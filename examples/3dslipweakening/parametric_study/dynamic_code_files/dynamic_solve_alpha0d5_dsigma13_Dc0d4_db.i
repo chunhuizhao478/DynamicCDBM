@@ -2,10 +2,10 @@
 
 ##mesh parameters
 ###need to check gmsh file for changing the parameters here
-bottom_nodes_coord =' -120000 -120000 -240000;
-                      120000 -120000 -240000;
-                      120000 120000  -240000;
-                     -120000 120000  -240000'
+bottom_nodes_coord =' -40000 -40000 -200000;
+                      40000 -40000 -200000;
+                      40000 40000  -200000;
+                     -40000 40000  -200000'
 
 xmin_fault = -15000 #xmin of fault
 xmax_fault = 15000 #xmax of fault
