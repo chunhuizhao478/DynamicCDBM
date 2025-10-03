@@ -132,7 +132,7 @@ main() {
     formatted_dcs+=("$(format_component "$dc")")
   done
 
-  local submitted=0 missing=0
+  local submitted=0 missing=0 failed=0
   for alpha in "${formatted_alphas[@]}"; do
     for dsigma in "${formatted_dsigmas[@]}"; do
       for dc in "${formatted_dcs[@]}"; do
@@ -144,11 +144,16 @@ main() {
         fi
         if [[ "$dry_run" == true ]]; then
           echo "sbatch \"$job_file\""
+          ((submitted++))
         else
           echo "Submitting $job_file"
-          sbatch "$job_file"
+          if sbatch "$job_file"; then
+            ((submitted++))
+          else
+            echo "sbatch failed for $job_file" >&2
+            ((failed++))
+          fi
         fi
-        ((submitted++))
       done
     done
   done
@@ -156,7 +161,7 @@ main() {
   if [[ "$dry_run" == true ]]; then
     echo "Dry run complete. Commands listed: $submitted. Missing files: $missing." >&2
   else
-    echo "Done. Submitted $submitted jobs. Missing files: $missing." >&2
+    echo "Done. Submitted $submitted jobs. Missing files: $missing. sbatch failures: $failed." >&2
   fi
 }
 
