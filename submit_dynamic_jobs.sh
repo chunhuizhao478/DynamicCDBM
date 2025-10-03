@@ -139,19 +139,19 @@ main() {
         local job_file="${job_dir}/job_frontera_dynamic_solve_alpha${alpha}_dsigma${dsigma}_Dc${dc}_db.sbatch"
         if [[ ! -f "$job_file" ]]; then
           echo "Missing sbatch file: $job_file" >&2
-          ((missing++))
+          ((missing+=1))
           continue
         fi
         if [[ "$dry_run" == true ]]; then
           echo "sbatch \"$job_file\""
-          ((submitted++))
+          ((submitted+=1))
         else
           echo "Submitting $job_file"
           if sbatch "$job_file"; then
-            ((submitted++))
+            ((submitted+=1))
           else
             echo "sbatch failed for $job_file" >&2
-            ((failed++))
+            ((failed+=1))
           fi
         fi
       done
