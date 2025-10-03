@@ -8,7 +8,7 @@ set -euo pipefail
 #  -e executable   : Path to dynamic_cdbm executable used in the job script (default: ./dynamic_cdbm-opt)
 
 DEFAULT_SCRATCH_BASE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025"
-DEFAULT_EXECUTABLE="../../dynamic_cdbm-opt"
+DEFAULT_EXECUTABLE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/dynamic_cdbm-opt"
 DEFAULT_OUTPUT_SUBDIR="jobs/static_solve"
 
 script_dir() {

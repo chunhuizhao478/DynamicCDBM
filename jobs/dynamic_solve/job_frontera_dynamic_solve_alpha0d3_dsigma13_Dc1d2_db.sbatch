@@ -33,4 +33,4 @@ export MV2_SHOW_ENV_INFO=1
 
 export MOOSE_JOBS=6 METHODS=opt
 
-ibrun ../../dynamic_cdbm-opt -i /scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/examples/3dslipweakening/parametric_study/dynamic_code_files/dynamic_solve_alpha0d3_dsigma13_Dc1d2_db.i --allow-unused
+ibrun /scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/dynamic_cdbm-opt -i /scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/examples/3dslipweakening/parametric_study/dynamic_code_files/dynamic_solve_alpha0d3_dsigma13_Dc1d2_db.i --allow-unused
