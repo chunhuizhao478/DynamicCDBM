@@ -9,7 +9,7 @@ set -euo pipefail
 #  -o output_dir   : Directory to place generated sbatch files (default: jobs/dynamic_solve)
 #  -e executable   : Path to dynamic_cdbm executable used in the job script (default: ./dynamic_cdbm-opt)
 
-DEFAULT_SCRATCH_BASE="/scratch1/10024/zhaochun/projects/DynamicCDBM_09202025"
+DEFAULT_SCRATCH_BASE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025"
 DEFAULT_EXECUTABLE="./dynamic_cdbm-opt"
 DEFAULT_OUTPUT_SUBDIR="jobs/dynamic_solve"
 
