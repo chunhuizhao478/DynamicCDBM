@@ -31,7 +31,9 @@ from tqdm import tqdm
 try:
     from mpi4py import MPI
 except Exception as e:  # pragma: no cover
-    raise SystemExit("mpi4py is required. Install with 'pip install mpi4py' and run with mpiexec.")
+    raise SystemExit(
+        "mpi4py is required. Install with 'pip install mpi4py' and run with mpiexec."
+    )
 
 ###############################
 # User inputs (copy/adapt from post_onfault.py)
@@ -46,52 +48,155 @@ TARGET_POINTS: List[Tuple[float, float, float]] = [
     (-5000, 0, -9500),
     (-3000, 0, -9500),
     (-1000, 0, -9500),
-    ( 1000, 0, -9500),
-    ( 3000, 0, -9500),
-    ( 5000, 0, -9500), 
-    ( 7000, 0, -9500),
-    ( 9000, 0, -9500),
+    (1000, 0, -9500),
+    (3000, 0, -9500),
+    (5000, 0, -9500),
+    (7000, 0, -9500),
+    (9000, 0, -9500),
     (11000, 0, -9500),
-    (13000, 0, -9500), #
+    (13000, 0, -9500),  #
     (-11000, 0, -5750),
     (-9000, 0, -5750),
     (-7000, 0, -5750),
     (-5000, 0, -5750),
     (-3000, 0, -5750),
     (-1000, 0, -5750),
-    ( 1000, 0, -5750),
-    ( 3000, 0, -5750),
-    ( 5000, 0, -5750),
-    ( 7000, 0, -5750),
-    ( 9000, 0, -5750),
+    (1000, 0, -5750),
+    (3000, 0, -5750),
+    (5000, 0, -5750),
+    (7000, 0, -5750),
+    (9000, 0, -5750),
     (11000, 0, -5750),
-    (13000, 0, -5750), #
+    (13000, 0, -5750),  #
     (-11000, 0, -13250),
     (-9000, 0, -13250),
     (-7000, 0, -13250),
     (-5000, 0, -13250),
     (-3000, 0, -13250),
     (-1000, 0, -13250),
-    ( 1000, 0, -13250),
-    ( 3000, 0, -13250),
-    ( 5000, 0, -13250),
-    ( 7000, 0, -13250),
-    ( 9000, 0, -13250),
+    (1000, 0, -13250),
+    (3000, 0, -13250),
+    (5000, 0, -13250),
+    (7000, 0, -13250),
+    (9000, 0, -13250),
     (11000, 0, -13250),
     (13000, 0, -13250),
 ]
 
 # Case list (copy/adapt from your post_onfault.py)
-#COMMON_PATH = "/scratch1/10024/zhaochun/projects/DynamicCDBM_09202025/examples/3dslipweakening/parametric_study/alpha/" #Frontera
-COMMON_PATH = "/expanse/lustre/scratch/czhao1/temp_project/DynamicCDBM_09252025/examples/3dslipweakening/parametric_study/dynamic_code_files/" #Expanse
+COMMON_PATH = "/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/examples/3dslipweakening/parametric_study/dynamic_code_files/"  # Frontera
 CASES = [
+    {
+        "name": "dynamic_solve_alpha0_dsigma3_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma3_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma3_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma3_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma3_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma3_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma3_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma3_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma3_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma7_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma7_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma7_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma7_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma7_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma7_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma7_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma7_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma7_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma10_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma10_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma10_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma10_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma10_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma10_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma10_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma10_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma10_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma13_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma13_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma13_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma13_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma13_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma13_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma13_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma13_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma13_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0_dsigma16_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0_dsigma16_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma16_Dc0d4_db_on_fault/",
+    },
     {
         "name": "dynamic_solve_alpha0_dsigma16_Dc0d8_db_csv_main_fault",
         "data_dir": COMMON_PATH,
         "file_prefix": "dynamic_solve_alpha0_dsigma16_Dc0d8_db_csv_main_fault_",
         "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
         "dt": 0.005,
-        "output_dir": COMMON_PATH +"../postprocess/alpha0_dsigma16_Dc0d8_on_fault/",
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma16_Dc0d8_db_on_fault/",
     },
     {
         "name": "dynamic_solve_alpha0_dsigma16_Dc1d2_db_csv_main_fault",
@@ -99,7 +204,277 @@ CASES = [
         "file_prefix": "dynamic_solve_alpha0_dsigma16_Dc1d2_db_csv_main_fault_",
         "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
         "dt": 0.005,
-        "output_dir": COMMON_PATH +"../postprocess/alpha0_dsigma16_Dc1d2_on_fault/",
+        "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma16_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma3_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma3_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma3_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma3_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma3_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma3_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma3_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma3_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma3_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma7_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma7_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma7_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma7_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma7_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma7_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma7_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma7_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma7_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma10_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma10_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma10_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma10_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma10_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma10_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma10_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma10_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma10_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma13_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma13_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma13_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma13_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma13_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma13_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma13_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma13_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma13_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma16_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma16_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma16_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma16_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma16_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma16_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d3_dsigma16_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d3_dsigma16_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d3_dsigma16_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma3_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma3_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma3_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma3_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma3_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma3_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma3_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma3_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma3_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma7_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma7_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma7_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma7_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma7_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma7_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma7_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma7_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma7_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma10_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma10_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma10_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma10_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma10_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma10_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma10_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma10_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma10_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma13_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma13_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma13_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma13_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma13_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma13_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma13_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma13_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma13_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma16_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma16_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma16_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma16_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma16_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma16_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d5_dsigma16_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d5_dsigma16_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d5_dsigma16_Dc1d2_db_on_fault/",
     },
 ]
 
@@ -191,7 +566,12 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
                     return
             else:
                 if clean_output:
-                    for entry in tqdm(os.listdir(output_dir), desc=f"{name}: clean output", disable=(rank != 0), file=sys.stdout):
+                    for entry in tqdm(
+                        os.listdir(output_dir),
+                        desc=f"{name}: clean output",
+                        disable=(rank != 0),
+                        file=sys.stdout,
+                    ):
                         path = os.path.join(output_dir, entry)
                         try:
                             if os.path.isfile(path) or os.path.islink(path):
@@ -209,7 +589,9 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
     time_steps = list(range(start, end + 1, step))
     if not time_steps:
         if rank == 0:
-            print(f"[WARN] No time steps for case '{name}' (start={start}, end={end}, step={step}). Skipping.")
+            print(
+                f"[WARN] No time steps for case '{name}' (start={start}, end={end}, step={step}). Skipping."
+            )
         return
 
     # Parallel nearest-point search (vectorized) and column determination
@@ -223,11 +605,15 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
     found_first = comm.bcast(found_first, root=0)
     if not found_first:
         if rank == 0:
-            print(f"[ERROR] First file not found for case '{name}': {os.path.join(data_dir, f'{file_prefix}{start:0{pad}d}.csv')}\n        Skipping case.")
+            print(
+                f"[ERROR] First file not found for case '{name}': {os.path.join(data_dir, f'{file_prefix}{start:0{pad}d}.csv')}\n        Skipping case."
+            )
         return
 
     if rank == 0:
-        df_first = pd.read_csv(os.path.join(data_dir, f"{file_prefix}{start:0{pad}d}.csv"))
+        df_first = pd.read_csv(
+            os.path.join(data_dir, f"{file_prefix}{start:0{pad}d}.csv")
+        )
         if df_first.empty:
             print(f"[WARN] No rows in first file for case '{name}'. Skipping case.")
             columns = None
@@ -239,7 +625,9 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
                 coords = df_first[["x", "y", "z"]].to_numpy(dtype=float)
             except Exception:
                 # If coordinate columns missing, abort
-                print(f"[ERROR] Columns x,y,z not found in '{name}' first file. Skipping case.")
+                print(
+                    f"[ERROR] Columns x,y,z not found in '{name}' first file. Skipping case."
+                )
                 columns = None
                 coords = None
     else:
@@ -294,7 +682,9 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
     os.makedirs(tmp_dir, exist_ok=True)
 
     # In-memory collectors per point
-    point_data: Dict[Tuple[float, float, float], List[List[float]]] = {p: [] for p in target_points}
+    point_data: Dict[Tuple[float, float, float], List[List[float]]] = {
+        p: [] for p in target_points
+    }
 
     # Process assigned steps with a progress bar (only show on rank 0 to avoid clutter)
     step_iter = tqdm(
@@ -369,10 +759,12 @@ def process_case_mpi(case_cfg: dict, target_points: List[Tuple[float, float, flo
     comm.Barrier()
     if rank == 0:
         # Cleanup tmp dirs (with progress)
-        for r in tqdm(range(size), desc=f"{name}: cleanup tmp", disable=False, file=sys.stdout):
-                pdir = os.path.join(output_dir, f"tmp_rank_{r}")
-                if os.path.isdir(pdir):
-                    shutil.rmtree(pdir, ignore_errors=True)
+        for r in tqdm(
+            range(size), desc=f"{name}: cleanup tmp", disable=False, file=sys.stdout
+        ):
+            pdir = os.path.join(output_dir, f"tmp_rank_{r}")
+            if os.path.isdir(pdir):
+                shutil.rmtree(pdir, ignore_errors=True)
         print(f"[INFO] Case '{name}' complete. Output: {output_dir}")
 
 
