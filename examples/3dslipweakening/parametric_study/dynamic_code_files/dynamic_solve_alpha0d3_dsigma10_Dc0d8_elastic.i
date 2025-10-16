@@ -62,7 +62,7 @@ chi = 0.8 #energy ratio
 
 ##initial damage parameters
 sigma = 5e2
-peak_val = 0.5
+peak_val = 0.3
 len_of_fault_strike = 30000
 len_of_fault_dip = 15000
 fault_center = '0 0 -9500'
@@ -107,13 +107,13 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     input = new_block_1
     combinatorial_geometry = 'x >= ${xmin_fault} & x <= ${xmax_fault} & z >= ${zmin_fault} & z <= ${zmax_fault} & y < 0'
     block_id = 200
-  []       
+  []
   [./split_1]
     type = BreakMeshByBlockGenerator
     input = new_block_2
     split_interface = true
     block_pairs = '100 200'
-  []      
+  []
   [./sidesets]
     input = split_1
     type = SideSetsFromNormalsGenerator
@@ -124,7 +124,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
                 0 0 -1
                 0 0 1'
     new_boundary = 'left right bottom top back front'
-  [] 
+  []
   [./extranodeset1]
       type = ExtraNodesetGenerator
       coord = ${bottom_nodes_coord}
@@ -137,14 +137,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
 
   ##------------slip weakening------------##
   displacements = 'disp_x disp_y disp_z'
-  
+
   #damping ratio
   q = ${q}
 
   ##----continuum damage breakage model----##
   #initial lambda value (first lame constant) [Pa]
   lambda_o = ${lambda_o}
-  
+
   #initial shear modulus value (second lame constant) [Pa]
   shear_modulus_o = ${shear_modulus_o}
 
@@ -268,7 +268,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     order = CONSTANT
     family = MONOMIAL
   []
-  # 
+  #
   [displacement_jump_normal_aux]
     order = CONSTANT
     family = MONOMIAL
@@ -293,7 +293,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [traction_dip_aux]
     order = CONSTANT
     family = MONOMIAL
-  []  
+  []
   ###
   #output CDB model properties
   [alpha_damagedvar_aux]
@@ -307,7 +307,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [xi_aux]
       order = FIRST
       family = MONOMIAL
-  [] 
+  []
   #
   [cohesion_aux]
     order = FIRST
@@ -660,7 +660,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     len_of_fault_strike = ${len_of_fault_strike}
     len_of_fault_dip = ${len_of_fault_dip}
     nucl_center = ${fault_center}
-    output_properties = 'initial_damage'      
+    output_properties = 'initial_damage'
     outputs = exodus
   []
   [./czm_mat]
@@ -690,7 +690,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [./static_initial_strain_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_strain_tensor
-      tensor_functions = 'func_initial_strain_xx   func_initial_strain_xy      func_initial_strain_xz 
+      tensor_functions = 'func_initial_strain_xx   func_initial_strain_xy      func_initial_strain_xz
                           func_initial_strain_xy   func_initial_strain_yy      func_initial_strain_yz
                           func_initial_strain_xz   func_initial_strain_yz      func_initial_strain_zz'
       output_properties = 'static_initial_strain_tensor'
@@ -699,14 +699,14 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   [./static_initial_stress_tensor] #this is used in the ComputeDamageBreakageStress3DSlipWeakening, SlipWeakeningFrictionczm3dCDBM
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_stress_tensor
-      tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz 
+      tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy      func_initial_stress_xz
                           func_initial_stress_xy   func_initial_stress_yy      func_initial_stress_yz
                           func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
   [./static_initial_stress_tensor_slipweakening] #this is used in SlipWeakeningFrictionczm3dCDBM
       type = GenericFunctionRankTwoTensor
       tensor_name = static_initial_stress_tensor_slipweakening
-        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz 
+        tensor_functions = 'func_initial_stress_xx   func_initial_stress_xy_variable      func_initial_stress_xz
                             func_initial_stress_xy_variable   func_initial_stress_yy      func_initial_stress_yz
                             func_initial_stress_xz   func_initial_stress_yz      func_initial_stress_zz'
   [../]
@@ -818,7 +818,7 @@ checkpoint_num_files = 2 #number of files for checkpoint output
   []
   [./init_sol_components]
     type = SolutionUserObject
-    mesh = '../static_code_files/static_solve_alpha0d5_dsigma0_out.e'
+    mesh = '../static_code_files/static_solve_alpha0d3_dsigma10_out.e'
     system_variables = 'elastic_strain_00 elastic_strain_01 elastic_strain_02
                         elastic_strain_11 elastic_strain_12 elastic_strain_22
                         stress_00 stress_01 stress_02 stress_11 stress_12 stress_22'
@@ -857,16 +857,16 @@ checkpoint_num_files = 2 #number of files for checkpoint output
     time_step_interval = ${checkpoint_time_step_interval}
     num_files = ${checkpoint_num_files}
   []
-[]    
+[]
 
 #method1
 #output all quadrature points on the fault
 [VectorPostprocessors]
   [main_fault]
     type = SideValueSampler
-    variable = 'displacement_jump_strike_aux displacement_jump_rate_strike_aux traction_strike_aux 
+    variable = 'displacement_jump_strike_aux displacement_jump_rate_strike_aux traction_strike_aux
                 alpha_damagedvar_aux B_aux xi_aux vel_slipweakening_x vel_slipweakening_y vel_slipweakening_z
-                disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z eps_e_aux_00 eps_e_aux_11 eps_e_aux_22 eps_e_aux_01 eps_e_aux_02 eps_e_aux_12' 
+                disp_slipweakening_x disp_slipweakening_y disp_slipweakening_z eps_e_aux_00 eps_e_aux_11 eps_e_aux_22 eps_e_aux_01 eps_e_aux_02 eps_e_aux_12'
     boundary = 'Block100_Block200'
     sort_by = x
   []
