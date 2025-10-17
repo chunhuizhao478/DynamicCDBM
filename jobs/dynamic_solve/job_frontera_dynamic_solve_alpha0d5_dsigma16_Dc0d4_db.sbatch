@@ -3,7 +3,7 @@
 #SBATCH -o dynamic_solve_alpha0d5_dsigma16_Dc0d4_db.o%j    # Name of stdout output file
 #SBATCH -e dynamic_solve_alpha0d5_dsigma16_Dc0d4_db.e%j    # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
-#SBATCH -N 30              # Total # of nodes 
+#SBATCH -N 30              # Total # of nodes
 #SBATCH -n 400             # Total # of mpi tasks
 #SBATCH -t 30:00:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job
@@ -33,4 +33,4 @@ export MV2_SHOW_ENV_INFO=1
 
 export MOOSE_JOBS=6 METHODS=opt
 
-ibrun /scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/dynamic_cdbm-opt -i /scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/examples/3dslipweakening/parametric_study/dynamic_code_files/dynamic_solve_alpha0d5_dsigma16_Dc0d4_db.i --allow-unused
+ibrun /scratch1/10024/zhaochun/projects/DynamicCDBM_10162025/dynamic_cdbm-opt -i /scratch1/10024/zhaochun/projects/DynamicCDBM_10162025/examples/3dslipweakening/parametric_study/dynamic_code_files/dynamic_solve_alpha0d5_dsigma16_Dc0d4_db.i --allow-unused
