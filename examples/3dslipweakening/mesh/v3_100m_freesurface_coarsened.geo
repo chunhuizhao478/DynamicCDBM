@@ -7,7 +7,7 @@
  */
 
 // Base far-field size (coarser than original 1e4)
-lc = 2.5e4;
+lc = 2e4;
 // Minimum size near fault and nucleation
 lc_fault = 100;
 
@@ -21,11 +21,11 @@ Width_nucl = 0.5*Fault_width;
 R_nucl = 1.5e3;
 lc_nucl = 100;
 
-Xmax = 120e3;
+Xmax = 40e3;
 Xmin = -Xmax;
 Ymin = -Xmax +  0.5 * Fault_width  *Cos(Fault_dip);
 Ymax =  Xmax + 0.5 * Fault_width  *Cos(Fault_dip);
-Zmin = -240e3;
+Zmin = -200e3;
 
 // Move the fault to the center in depth
 move_distance = -2e3;

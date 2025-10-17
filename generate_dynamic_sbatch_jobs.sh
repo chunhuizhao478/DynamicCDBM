@@ -9,8 +9,8 @@ set -euo pipefail
 #  -o output_dir   : Directory to place generated sbatch files (default: jobs/dynamic_solve)
 #  -e executable   : Path to dynamic_cdbm executable used in the job script (default: ./dynamic_cdbm-opt)
 
-DEFAULT_SCRATCH_BASE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025"
-DEFAULT_EXECUTABLE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/dynamic_cdbm-opt"
+DEFAULT_SCRATCH_BASE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10162025"
+DEFAULT_EXECUTABLE="/scratch1/10024/zhaochun/projects/DynamicCDBM_10162025/dynamic_cdbm-opt"
 DEFAULT_OUTPUT_SUBDIR="jobs/dynamic_solve"
 
 script_dir() {
@@ -93,7 +93,7 @@ main() {
 #SBATCH -o ${stem}.o%j    # Name of stdout output file
 #SBATCH -e ${stem}.e%j    # Name of stderr error file
 #SBATCH -p normal          # Queue (partition) name
-#SBATCH -N 30              # Total # of nodes 
+#SBATCH -N 30              # Total # of nodes
 #SBATCH -n 400             # Total # of mpi tasks
 #SBATCH -t 30:00:00        # Run time (hh:mm:ss)
 #SBATCH --mail-type=all    # Send email at begin and end of job

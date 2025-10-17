@@ -11,7 +11,8 @@ BASE_FILE="dynamic_solve_alpha0d5_dsigma10_Dc0d8_db_base.i"
 RESIDUAL_SIGMA="60e6"
 
 # Parameter grids
-PEAK_VALS=("0" "0.3" "0.5")
+# PEAK_VALS=("0" "0.3" "0.5")
+PEAK_VALS=("0.15")
 SHEAR_TRACTIONS=("63e6" "67e6" "70e6" "73e6" "76e6")
 DCS=("0.4" "0.8" "1.2")
 
