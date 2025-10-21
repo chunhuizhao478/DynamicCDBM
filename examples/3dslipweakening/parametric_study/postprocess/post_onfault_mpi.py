@@ -84,7 +84,7 @@ TARGET_POINTS: List[Tuple[float, float, float]] = [
 ]
 
 # Case list (copy/adapt from your post_onfault.py)
-COMMON_PATH = "/scratch1/10024/zhaochun/projects/DynamicCDBM_10022025/examples/3dslipweakening/parametric_study/dynamic_code_files/"  # Frontera
+COMMON_PATH = "/scratch1/10024/zhaochun/projects/DynamicCDBM_10162025/examples/3dslipweakening/parametric_study/dynamic_code_files/"  # Frontera
 CASES = [
     {
         "name": "dynamic_solve_alpha0_dsigma3_Dc0d4_db_csv_main_fault",
