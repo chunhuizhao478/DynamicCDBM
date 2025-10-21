@@ -207,6 +207,141 @@ CASES = [
         "output_dir": COMMON_PATH + "../postprocess/alpha0_dsigma16_Dc1d2_db_on_fault/",
     },
     {
+        "name": "dynamic_solve_alpha0d15_dsigma3_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma3_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma3_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma3_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma3_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma3_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma3_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma3_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma3_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma7_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma7_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma7_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma7_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma7_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma7_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma7_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma7_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma7_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma10_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma10_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma10_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma10_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma10_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma10_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma10_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma10_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma10_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma13_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma13_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma13_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma13_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma13_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma13_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma13_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma13_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma13_Dc1d2_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma16_Dc0d4_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma16_Dc0d4_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma16_Dc0d4_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma16_Dc0d8_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma16_Dc0d8_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma16_Dc0d8_db_on_fault/",
+    },
+    {
+        "name": "dynamic_solve_alpha0d15_dsigma16_Dc1d2_db_csv_main_fault",
+        "data_dir": COMMON_PATH,
+        "file_prefix": "dynamic_solve_alpha0d15_dsigma16_Dc1d2_db_csv_main_fault_",
+        "index": {"start": 2, "end": 1800, "step": 2, "pad": 4},
+        "dt": 0.005,
+        "output_dir": COMMON_PATH
+        + "../postprocess/alpha0d15_dsigma16_Dc1d2_db_on_fault/",
+    },
+    {
         "name": "dynamic_solve_alpha0d3_dsigma3_Dc0d4_db_csv_main_fault",
         "data_dir": COMMON_PATH,
         "file_prefix": "dynamic_solve_alpha0d3_dsigma3_Dc0d4_db_csv_main_fault_",
