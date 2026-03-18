@@ -14,6 +14,10 @@ BASEDIR=/scratch2/10024/zhaochun/projects/DynamicCDBM_03162026/examples/3dslipwe
 
 cd $BASEDIR
 
-tar cf - dynamic_solve_alpha0d3_dsigma13_Dc0d4_db_csv_main_fault_* | gzip -1 > alpha0d3_dsigma13_Dc0d4_db_on_fault.tar.gz
+echo "Starting zip at $(date)"
+echo "Number of files: $(ls dynamic_solve_alpha0d3_dsigma13_Dc0d4_db_csv_main_fault_* | wc -l)"
+tar cvf - dynamic_solve_alpha0d3_dsigma13_Dc0d4_db_csv_main_fault_* | gzip -1 > alpha0d3_dsigma13_Dc0d4_db_on_fault.tar.gz
+echo "Finished at $(date)"
+echo "Output size: $(du -h alpha0d3_dsigma13_Dc0d4_db_on_fault.tar.gz)"
 
 echo "Zipping complete."
