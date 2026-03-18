@@ -11,6 +11,7 @@
 #SBATCH --mail-user=chunhui3@illinois.edu
 
 module load python3
+pip install --user tqdm
 
 SCRIPT=/scratch2/10024/zhaochun/projects/DynamicCDBM_03162026/examples/3dslipweakening/parametric_study/postprocess/post_onfault_mpi.py
 
